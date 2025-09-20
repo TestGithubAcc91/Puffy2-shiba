@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=4 uid="uid://xpuocal0bde6"]
+[gd_scene load_steps=44 format=4 uid="uid://xpuocal0bde6"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_0g1xm"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="2_aqorp"]
@@ -26,6 +26,7 @@
 [ext_resource type="Texture2D" uid="uid://de2orudnm0dbm" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHP1.png" id="24_yemw2"]
 [ext_resource type="Texture2D" uid="uid://bhhpohq32ugvh" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHPFade.png" id="25_v1iak"]
 [ext_resource type="Texture2D" uid="uid://5mifn5x6hqap" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHP4.png" id="26_d8hh7"]
+[ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="27_aqorp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_i6g32"]
 texture = ExtResource("7_jpewp")
@@ -1319,3 +1320,19 @@ expand_mode = 2
 layout_mode = 2
 texture = ExtResource("26_d8hh7")
 expand_mode = 2
+
+[node name="StartCountdown" type="Label" parent="UI"]
+offset_left = 449.0
+offset_top = 287.0
+offset_right = 785.0
+offset_bottom = 343.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.7294118)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 5
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/shadow_outline_size = 20
+theme_override_fonts/font = ExtResource("27_aqorp")
+theme_override_font_sizes/font_size = 56
+text = "READY?"
+horizontal_alignment = 1
+vertical_alignment = 1

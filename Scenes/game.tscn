@@ -6,13 +6,16 @@
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_wrm1d")
+ready_color = Color(0.8899516, 0.28670615, 0.2959572, 1)
+set_color = Color(0.9999998, 0.89555085, 0.29832926, 1)
+go_color = Color(0.4318654, 1, 0.4006564, 1)
 
 [node name="LevelSelectMenu" parent="." instance=ExtResource("1_81klo")]
 position = Vector2(-12, -88)
 
 [node name="BlackCurtain" type="Node2D" parent="."]
 z_index = 5
-position = Vector2(180, -87)
+position = Vector2(238, -87)
 
 [node name="CurtainLeft" type="Sprite2D" parent="BlackCurtain"]
 position = Vector2(-101, -69)

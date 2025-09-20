@@ -89,6 +89,7 @@ var is_on_zipline: bool = false
 var current_zipline: Zipline = null
 var zipline_grab_position: float = 0.0
 
+var movement_blocked_by_game: bool = false
 
 func _ready():
 	health_script.died.connect(_on_player_died)
@@ -138,6 +139,10 @@ func _physics_process(delta: float) -> void:
 	update_zipline_friction_vfx()
 
 func handle_input():
+	# Don't process any input if movement is blocked by the game (countdown)
+	if movement_blocked_by_game:
+		return
+	
 	# Check if player is swinging on a vine OR on a zipline
 	var is_on_vine = vine_component && vine_component.is_swinging
 	var is_on_zipline_check = is_on_zipline
@@ -234,7 +239,12 @@ func handle_normal_movement(delta: float):
 	
 	move_and_slide()
 
+
 func get_effective_horizontal_input() -> float:
+	# Block movement during countdown
+	if movement_blocked_by_game:
+		return 0.0
+	
 	if (vine_component and vine_component.is_swinging and vine_component.inputs_blocked) or is_on_zipline:
 		return 0.0
 	return Input.get_axis("Move_Left", "Move_Right")
@@ -654,3 +664,11 @@ func release_zipline():
 		is_on_zipline = false
 		current_zipline = null
 		# VFX will be updated in _physics_process via update_zipline_friction_vfx()
+
+func _on_movement_disabled():
+	movement_blocked_by_game = true
+	print("Player movement disabled by game")
+
+func _on_movement_enabled():
+	movement_blocked_by_game = false
+	print("Player movement enabled by game")
