@@ -6,6 +6,11 @@ extends Node
 var current_level_scene = null
 var input_blocked = false
 
+# Timer variables
+var timer_running = false
+var elapsed_time = 0.0
+var timer_label = null
+
 # Signal to communicate with player
 signal movement_enabled
 signal movement_disabled
@@ -21,6 +26,12 @@ func _ready():
 	# Make sure the black curtain starts off-screen to the right
 	if black_curtain:
 		black_curtain.position.x = get_viewport().size.x
+
+func _process(delta):
+	# Update timer if running
+	if timer_running and timer_label:
+		elapsed_time += delta
+		_update_timer_display()
 
 func _input(event):
 	# Block all input when input_blocked is true
@@ -85,10 +96,41 @@ func _change_to_level(level_number):
 			else:
 				print("WARNING: Player not found - movement blocking may not work!")
 			
+			# Setup timer reference
+			_setup_timer()
+			
 			# Start countdown after player connection is established
 			_start_countdown()
 		
 		# Add more levels as needed
+
+func _setup_timer():
+	# Reset timer variables
+	timer_running = false
+	elapsed_time = 0.0
+	timer_label = null
+	
+	# Find the timer label in the UI
+	if current_level_scene and current_level_scene.has_node("UI/TimerBackground/TimerNumber"):
+		timer_label = current_level_scene.get_node("UI/TimerBackground/TimerNumber")
+		timer_label.text = "0.00"
+		print("Timer label found and initialized")
+	else:
+		print("TimerNumber label not found at UI/TimerBackground/TimerNumber!")
+
+func _update_timer_display():
+	if timer_label:
+		# Format time as seconds with 2 decimal places
+		timer_label.text = "%.2f" % elapsed_time
+
+func _start_timer():
+	timer_running = true
+	elapsed_time = 0.0
+	print("Timer started!")
+
+func _stop_timer():
+	timer_running = false
+	print("Timer stopped at: %.2f seconds" % elapsed_time)
 
 func _start_countdown():
 	# Block input during countdown
@@ -125,9 +167,10 @@ func _start_countdown():
 	# Hide the countdown label
 	countdown_label.visible = false
 	
-	# Unblock input
+	# Unblock input and start timer
 	input_blocked = false
 	movement_enabled.emit()  # Tell player movement is now allowed
+	_start_timer()  # Start the timer when movement is enabled
 	print("Movement enabled signal emitted")
 	
 	print("Countdown complete - input enabled!")
@@ -157,7 +200,8 @@ func _load_level_directly(level_number):
 	_change_to_level(level_number)
 
 func return_to_menu():
-	# Reset input blocking when returning to menu
+	# Stop timer and reset input blocking when returning to menu
+	timer_running = false
 	input_blocked = false
 	movement_enabled.emit()  # Make sure movement is enabled when returning to menu
 	

@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=4 uid="uid://xpuocal0bde6"]
+[gd_scene load_steps=45 format=4 uid="uid://xpuocal0bde6"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_0g1xm"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="2_aqorp"]
@@ -27,6 +27,7 @@
 [ext_resource type="Texture2D" uid="uid://bhhpohq32ugvh" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHPFade.png" id="25_v1iak"]
 [ext_resource type="Texture2D" uid="uid://5mifn5x6hqap" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHP4.png" id="26_d8hh7"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="27_aqorp"]
+[ext_resource type="Texture2D" uid="uid://obpo7fiq44kn" path="res://Assets/sprites/PlayerGUI/GeneralGUI/timer.png" id="28_1fln0"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_i6g32"]
 texture = ExtResource("7_jpewp")
@@ -1322,17 +1323,41 @@ texture = ExtResource("26_d8hh7")
 expand_mode = 2
 
 [node name="StartCountdown" type="Label" parent="UI"]
-offset_left = 449.0
-offset_top = 287.0
-offset_right = 785.0
-offset_bottom = 343.0
-theme_override_colors/font_color = Color(1, 1, 1, 0.7294118)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_offset_x = 5
-theme_override_constants/shadow_offset_y = 5
-theme_override_constants/shadow_outline_size = 20
+offset_left = -1079.0001
+offset_top = 38.0
+offset_right = -743.0001
+offset_bottom = 94.0
+scale = Vector2(10, 10)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
 theme_override_fonts/font = ExtResource("27_aqorp")
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 8
 text = "READY?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimerBackground" type="Sprite2D" parent="UI"]
+self_modulate = Color(1, 1, 1, 0.6313726)
+position = Vector2(561.00006, 60.000004)
+scale = Vector2(5, 5)
+texture = ExtResource("28_1fln0")
+
+[node name="TimerNumber" type="Label" parent="UI/TimerBackground"]
+offset_left = -100.8
+offset_top = -17.8
+offset_right = 235.2
+offset_bottom = 38.2
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("27_aqorp")
+theme_override_font_sizes/font_size = 8
+text = "1:00:16"
 horizontal_alignment = 1
 vertical_alignment = 1
