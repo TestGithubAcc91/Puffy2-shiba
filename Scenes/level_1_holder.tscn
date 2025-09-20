@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=4 uid="uid://xpuocal0bde6"]
+[gd_scene load_steps=51 format=4 uid="uid://xpuocal0bde6"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_0g1xm"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="2_aqorp"]
@@ -28,6 +28,7 @@
 [ext_resource type="Texture2D" uid="uid://5mifn5x6hqap" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHP4.png" id="26_d8hh7"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="27_aqorp"]
 [ext_resource type="Texture2D" uid="uid://obpo7fiq44kn" path="res://Assets/sprites/PlayerGUI/GeneralGUI/timer.png" id="28_1fln0"]
+[ext_resource type="Texture2D" uid="uid://8awblypewxsh" path="res://Assets/sprites/InteractableSprites/glit.png" id="29_py7y2"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_i6g32"]
 texture = ExtResource("7_jpewp")
@@ -531,11 +532,48 @@ sources/0 = SubResource("TileSetAtlasSource_wowpa")
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_vm72l"]
 distance = -57.0
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_uch74"]
+atlas = ExtResource("29_py7y2")
+region = Rect2(0, 0, 15, 15)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qkcyj"]
+atlas = ExtResource("29_py7y2")
+region = Rect2(15, 0, 15, 15)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jpewp"]
+atlas = ExtResource("29_py7y2")
+region = Rect2(30, 0, 15, 15)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_76v66"]
+atlas = ExtResource("29_py7y2")
+region = Rect2(45, 0, 15, 15)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_4v6ch"]
+animations = [{
+"frames": [{
+"duration": 30.0,
+"texture": SubResource("AtlasTexture_uch74")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qkcyj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jpewp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_76v66")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
 [node name="Level1Holder" type="Node2D"]
 
-[node name="GameManager" type="Node" parent="."]
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("coin_counter_label")]
 unique_name_in_owner = true
 script = ExtResource("1_0g1xm")
+coin_counter_label = NodePath("../UI/GlitCounter/GlitNumber")
 
 [node name="Player" parent="." instance=ExtResource("2_aqorp")]
 z_index = 1
@@ -1359,5 +1397,30 @@ theme_override_constants/shadow_outline_size = 1
 theme_override_fonts/font = ExtResource("27_aqorp")
 theme_override_font_sizes/font_size = 8
 text = "1:00:16"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GlitCounter" type="AnimatedSprite2D" parent="UI"]
+self_modulate = Color(1, 1, 1, 0.57254905)
+position = Vector2(1044, 66)
+scale = Vector2(5, 5)
+sprite_frames = SubResource("SpriteFrames_4v6ch")
+autoplay = "default"
+frame_progress = 0.7314232
+
+[node name="GlitNumber" type="Label" parent="UI/GlitCounter"]
+offset_left = -91.0
+offset_top = -11.2
+offset_right = 245.0
+offset_bottom = 44.8
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("27_aqorp")
+theme_override_font_sizes/font_size = 8
+text = "x0"
 horizontal_alignment = 1
 vertical_alignment = 1
