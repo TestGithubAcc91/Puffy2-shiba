@@ -143,6 +143,12 @@ func _setup_connections():
 		if not retry_button.pressed.is_connected(_on_retry_button_pressed):
 			retry_button.pressed.connect(_on_retry_button_pressed)
 	
+	# Connect home button
+	if current_level_scene and current_level_scene.has_node("UI/FinishResults/HomeButton"):
+		var home_button = current_level_scene.get_node("UI/FinishResults/HomeButton")
+		if not home_button.pressed.is_connected(_on_home_button_pressed):
+			home_button.pressed.connect(_on_home_button_pressed)
+	
 	# Connect glits tracking
 	_connect_glits_tracking()
 	
@@ -244,6 +250,10 @@ func _show_finish_results():
 	await get_tree().create_timer(1.0).timeout
 	if finish_results.has_node("RetryButton"):
 		finish_results.get_node("RetryButton").visible = true
+
+	# Show home button alongside retry button
+	if finish_results.has_node("HomeButton"):
+		finish_results.get_node("HomeButton").visible = true
 	
 	get_tree().paused = true
 
@@ -289,6 +299,62 @@ func find_player_in_scene() -> Node:
 
 func _on_retry_button_pressed():
 	_start_retry_curtain_transition()
+
+func _on_home_button_pressed():
+	_start_home_curtain_transition()
+
+func _start_home_curtain_transition():
+	get_tree().paused = false
+	var player = find_player_in_scene()
+	if not player:
+		return_to_menu()
+		return
+	
+	var player_camera = _find_player_camera(player)
+	var player_curtain = player_camera.get_node("BlackCurtain") if player_camera and player_camera.has_node("BlackCurtain") else null
+	
+	if not player_curtain:
+		return_to_menu()
+		return
+	
+	input_blocked = true
+	movement_disabled.emit()
+	
+	# Get camera's current position before reparenting
+	var camera_global_pos = player_camera.global_position
+	
+	# Temporarily reparent the BlackCurtain to the Game node to survive scene transition
+	player_curtain.reparent(self)  # Move to Game node
+	
+	# Position curtain off-screen to the right relative to camera position in world space
+	var viewport_size = get_viewport().size
+	player_curtain.global_position = Vector2(
+		camera_global_pos.x + viewport_size.x * 0.5 + viewport_size.x,  # Off-screen right
+		camera_global_pos.y  # Same Y as camera
+	)
+	
+	# Create a tween to move the curtain (same parameters as retry)
+	var tween = create_tween()
+	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	
+	# Move curtain from right to cover the screen and beyond in world space
+	var target_global_x = camera_global_pos.x - viewport_size.x * 0.5 - viewport_size.x
+	tween.tween_property(player_curtain, "global_position:x", target_global_x, 2.5)
+	
+	# Wait for curtain to cover screen (same timing as retry)
+	await get_tree().create_timer(1.0).timeout
+	
+	# Store reference to curtain before returning to menu
+	var temp_curtain_ref = player_curtain
+	
+	# Return to menu
+	return_to_menu()
+	
+	# Clean up the curtain after menu transition
+	await get_tree().create_timer(0.1).timeout
+	if is_instance_valid(temp_curtain_ref):
+		temp_curtain_ref.queue_free()
 
 func _start_retry_curtain_transition():
 	get_tree().paused = false

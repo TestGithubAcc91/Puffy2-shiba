@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bgcdj47ftswjh"
-path="res://.godot/imported/retryButton.png-37cc30d2af51aa8d217ce1aaa5570026.ctex"
+uid="uid://4ehlqd7ck6mu"
+path="res://.godot/imported/homeButton.png-e6f7034b79915b3d39ce753fdb0550c2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/sprites/PlayerGUI/puffyHP/retryButton.png"
-dest_files=["res://.godot/imported/retryButton.png-37cc30d2af51aa8d217ce1aaa5570026.ctex"]
+source_file="res://Assets/sprites/PlayerGUI/ResultsGUI/HomeButton/homeButton.png"
+dest_files=["res://.godot/imported/homeButton.png-e6f7034b79915b3d39ce753fdb0550c2.ctex"]
 
 [params]
 

@@ -1,10 +1,13 @@
-[gd_scene load_steps=6 format=3 uid="uid://de0fokkn8al2x"]
+[gd_scene load_steps=9 format=3 uid="uid://de0fokkn8al2x"]
 
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="1_vac8p"]
 [ext_resource type="Texture2D" uid="uid://46vy7cb23jph" path="res://Assets/sprites/PlayerGUI/ResultsGUI/Medals/goldMedal.png" id="2_ygh8p"]
 [ext_resource type="Texture2D" uid="uid://bs7lwd080a8ha" path="res://Assets/sprites/PlayerGUI/ResultsGUI/RetryButton/retryButton.png" id="3_uqiu7"]
-[ext_resource type="Texture2D" uid="uid://br7g1qyirwdi4" path="res://Assets/sprites/PlayerGUI/puffyHP/retrySelect.png" id="4_uqiu7"]
+[ext_resource type="Texture2D" uid="uid://ntjgysygh7qn" path="res://Assets/sprites/PlayerGUI/ResultsGUI/RetryButton/retrySelect.png" id="4_ocmd8"]
 [ext_resource type="Texture2D" uid="uid://vg1uq2ejhuwa" path="res://Assets/sprites/PlayerGUI/ResultsGUI/RetryButton/retryHover.png" id="5_qn3qp"]
+[ext_resource type="Texture2D" uid="uid://4ehlqd7ck6mu" path="res://Assets/sprites/PlayerGUI/ResultsGUI/HomeButton/homeButton.png" id="6_ol1qu"]
+[ext_resource type="Texture2D" uid="uid://bo15bqlwkbwkf" path="res://Assets/sprites/PlayerGUI/ResultsGUI/HomeButton/homeSelect.png" id="7_obub0"]
+[ext_resource type="Texture2D" uid="uid://567fpi6ou5i" path="res://Assets/sprites/PlayerGUI/ResultsGUI/HomeButton/homeHover.png" id="8_yiwhs"]
 
 [node name="FinishResults" type="Node2D"]
 
@@ -190,6 +193,18 @@ offset_right = 946.0
 offset_bottom = 77.0
 scale = Vector2(2.7403593, 2.7403593)
 texture_normal = ExtResource("3_uqiu7")
-texture_pressed = ExtResource("4_uqiu7")
+texture_pressed = ExtResource("4_ocmd8")
 texture_hover = ExtResource("5_qn3qp")
+stretch_mode = 0
+
+[node name="HomeButton" type="TextureButton" parent="."]
+visible = false
+offset_left = 207.00002
+offset_top = 37.0
+offset_right = 247.00002
+offset_bottom = 77.0
+scale = Vector2(2.7403593, 2.7403593)
+texture_normal = ExtResource("6_ol1qu")
+texture_pressed = ExtResource("7_obub0")
+texture_hover = ExtResource("8_yiwhs")
 stretch_mode = 0
