@@ -600,7 +600,7 @@ position_smoothing_enabled = true
 position_smoothing_speed = 10.0
 
 [node name="BlackCurtain" parent="Player/Camera2D" instance=ExtResource("4_qkcyj")]
-position = Vector2(306, -45)
+position = Vector2(329, -48)
 
 [node name="LevelHolder" type="Node" parent="."]
 
