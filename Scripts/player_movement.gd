@@ -8,11 +8,16 @@ const HIGH_JUMP_VELOCITY = -350.0
 @onready var glint_sprite: AnimatedSprite2D = $GlintSprite
 @onready var zipline_friction: AnimatedSprite2D = $ZiplineFriction
 @onready var parry_spark: Sprite2D = $ParrySpark
+@onready var parry_ready_sprite: Sprite2D = $ParryReady
 @onready var health_script = $HealthScript
 @onready var vine_component = $VineComponent
 
 @export var air_puff_scene: PackedScene
 @export var air_puffV_scene: PackedScene
+
+# NEW: Export textures for ParryReady sprite states
+@export var parry_ready_texture: Texture2D
+@export var parry_not_ready_texture: Texture2D
 
 var last_attack_was_unparryable: bool = false
 
@@ -101,6 +106,7 @@ func _ready():
 	setup_ui()
 	setup_durations()
 	setup_timers()
+	update_parry_ready_sprite()  # Initialize ParryReady sprite
 
 func setup_ui():
 	if glint_sprite:
@@ -134,6 +140,20 @@ func setup_timers():
 		timer.timeout.connect(Callable(self, config.callback))
 		add_child(timer)
 		set(config.timer, timer)
+
+# NEW: Function to update ParryReady sprite based on parry availability
+func update_parry_ready_sprite():
+	if not parry_ready_sprite:
+		return
+	
+	if can_parry:
+		if parry_ready_texture:
+			parry_ready_sprite.texture = parry_ready_texture
+		parry_ready_sprite.visible = true
+	else:
+		if parry_not_ready_texture:
+			parry_ready_sprite.texture = parry_not_ready_texture
+		parry_ready_sprite.visible = true
 
 func _physics_process(delta: float) -> void:
 	handle_input()
@@ -350,6 +370,9 @@ func activate_parry():
 	parry_was_successful = false
 	health_script.is_invulnerable = true
 	
+	# Update ParryReady sprite when parry state changes
+	update_parry_ready_sprite()
+	
 	if glint_sprite:
 		glint_sprite.visible = true
 		glint_sprite.play("default")
@@ -367,6 +390,10 @@ func on_parry_success():
 	is_parrying = false
 	can_parry = true
 	is_in_pre_freeze_parry = true
+	
+	# Update ParryReady sprite when parry state changes
+	update_parry_ready_sprite()
+	
 	parry_pre_freeze_timer.start()
 	call_deferred("_play_parry_animation")
 	
@@ -538,6 +565,9 @@ func _on_parry_timeout():
 		if not was_invulnerable_before_parry:
 			health_script.is_invulnerable = false
 		can_parry = true
+		
+		# Update ParryReady sprite when parry state changes
+		update_parry_ready_sprite()
 	
 	# Reset flags for next parry
 	last_attack_was_unparryable = false
@@ -545,6 +575,8 @@ func _on_parry_timeout():
 
 func _on_parry_cooldown_timeout():
 	can_parry = true
+	# Update ParryReady sprite when parry becomes available again
+	update_parry_ready_sprite()
 
 func _on_parry_pre_freeze_timeout():
 	is_in_pre_freeze_parry = false

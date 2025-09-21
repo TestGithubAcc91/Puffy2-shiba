@@ -1,9 +1,11 @@
-[gd_scene load_steps=38 format=3 uid="uid://bkfnr4qat1ah0"]
+[gd_scene load_steps=41 format=3 uid="uid://bkfnr4qat1ah0"]
 
 [ext_resource type="Script" uid="uid://dbdi6y3t2arwa" path="res://Scripts/player_movement.gd" id="1_cvnsp"]
 [ext_resource type="PackedScene" uid="uid://cw3hs2qsg2k4t" path="res://Scenes/air_puff_H.tscn" id="2_pu2lt"]
 [ext_resource type="Script" uid="uid://op6sw0x6ufu0" path="res://Scripts/player_health.gd" id="3_6t5aa"]
+[ext_resource type="PackedScene" uid="uid://bbgbw33ksf1q3" path="res://Scenes/air_puff_V.tscn" id="3_igrcy"]
 [ext_resource type="Texture2D" uid="uid://dqq5r8k5fmji" path="res://Assets/sprites/PlayerGUI/parryCharges/parryChargeR.png" id="4_8erm5"]
+[ext_resource type="Texture2D" uid="uid://ck31h50qugup3" path="res://Assets/sprites/PlayerGUI/parryCharges/parryReady.png" id="4_fs7ks"]
 [ext_resource type="Texture2D" uid="uid://p0l22jx1g27v" path="res://Assets/sprites/PlayerGUI/parryCharges/parryChargeB.png" id="4_vgqql"]
 [ext_resource type="Texture2D" uid="uid://43vkm7xwgije" path="res://Assets/sprites/PlayerGUI/parryCharges/parryChargeG.png" id="5_x3wgy"]
 [ext_resource type="Texture2D" uid="uid://bbkx61gvv1jye" path="res://Assets/sprites/PlayerGUI/parryCharges/parryChargeY.png" id="6_3smsa"]
@@ -15,6 +17,7 @@
 [ext_resource type="Script" uid="uid://ciukewv7haujl" path="res://Scripts/vine_component.gd" id="13_ukyrk"]
 [ext_resource type="Texture2D" uid="uid://dfvr42g7lumlw" path="res://Assets/sprites/VFXSprites/parrySpark.png" id="14_7dp3o"]
 [ext_resource type="Texture2D" uid="uid://nxsnbivw3ij4" path="res://Assets/sprites/PlayerSprites/ziplineFriction.png" id="15_h4iuc"]
+[ext_resource type="Texture2D" uid="uid://ckd3ojrt5t8sj" path="res://Assets/sprites/PlayerGUI/parryCharges/parryNotReady.png" id="16_fd4e3"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_igrcy"]
 atlas = ExtResource("7_gymyn")
@@ -193,6 +196,9 @@ animations = [{
 [node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("empty_charge_sprite_1", "empty_charge_sprite_2", "empty_charge_sprite_3")]
 script = ExtResource("1_cvnsp")
 air_puff_scene = ExtResource("2_pu2lt")
+air_puffV_scene = ExtResource("3_igrcy")
+parry_ready_texture = ExtResource("4_fs7ks")
+parry_not_ready_texture = ExtResource("16_fd4e3")
 charge_texture_1 = ExtResource("4_vgqql")
 charge_texture_2 = ExtResource("5_x3wgy")
 charge_texture_3 = ExtResource("4_8erm5")
@@ -218,14 +224,17 @@ script = ExtResource("3_6t5aa")
 iframe_duration = 1.5
 
 [node name="ParryCharge1" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.78431374)
 position = Vector2(-13, -17)
 texture = ExtResource("8_f1ek2")
 
 [node name="ParryCharge2" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.78431374)
 position = Vector2(0, -23)
 texture = ExtResource("8_f1ek2")
 
 [node name="ParryCharge3" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.78431374)
 position = Vector2(13, -17)
 texture = ExtResource("8_f1ek2")
 
@@ -278,3 +287,8 @@ position = Vector2(-3, -5)
 sprite_frames = SubResource("SpriteFrames_vfarp")
 autoplay = "default"
 frame_progress = 0.692867
+
+[node name="ParryReady" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.78431374)
+position = Vector2(9, -6)
+texture = ExtResource("16_fd4e3")
