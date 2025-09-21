@@ -1,4 +1,4 @@
-[gd_scene load_steps=66 format=4 uid="uid://xpuocal0bde6"]
+[gd_scene load_steps=40 format=4 uid="uid://xpuocal0bde6"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_0g1xm"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="2_aqorp"]
@@ -25,28 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://do8wyc3dyl3gv" path="res://Scenes/zipline.tscn" id="18_tku8x"]
 [ext_resource type="PackedScene" uid="uid://do0b3q7js88n6" path="res://Scenes/vine.tscn" id="19_dyhju"]
 [ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="20_36lbc"]
-[ext_resource type="Script" uid="uid://d0c6la3t6odq5" path="res://Scripts/HealthBoxContainer.gd" id="21_067qp"]
-[ext_resource type="Texture2D" uid="uid://clumim7dcnmxe" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHP3.png" id="22_irska"]
-[ext_resource type="Texture2D" uid="uid://bbthv78mei3lb" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHP2.png" id="23_oiw85"]
-[ext_resource type="Texture2D" uid="uid://de2orudnm0dbm" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHP1.png" id="24_yemw2"]
-[ext_resource type="Texture2D" uid="uid://bhhpohq32ugvh" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHPFade.png" id="25_v1iak"]
-[ext_resource type="Texture2D" uid="uid://5mifn5x6hqap" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHP4.png" id="26_d8hh7"]
-[ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="27_aqorp"]
-[ext_resource type="Texture2D" uid="uid://obpo7fiq44kn" path="res://Assets/sprites/PlayerGUI/GeneralGUI/timer.png" id="28_1fln0"]
-[ext_resource type="Texture2D" uid="uid://8awblypewxsh" path="res://Assets/sprites/InteractableSprites/glit.png" id="29_py7y2"]
-[ext_resource type="PackedScene" uid="uid://de0fokkn8al2x" path="res://Scenes/finish_results.tscn" id="30_uch74"]
-[ext_resource type="Texture2D" uid="uid://b4iw3w7x6slm5" path="res://Assets/sprites/PlayerGUI/GeneralGUI/PauseButton/pauseButton.png" id="36_fa8x0"]
-[ext_resource type="Texture2D" uid="uid://bfy6nnwbqw0mx" path="res://Assets/sprites/PlayerGUI/GeneralGUI/PauseButton/pauseSelect.png" id="37_r3tar"]
-[ext_resource type="Texture2D" uid="uid://c55k31ir3rd41" path="res://Assets/sprites/PlayerGUI/GeneralGUI/PauseButton/pauseHover.png" id="38_lx6hu"]
-[ext_resource type="Texture2D" uid="uid://bs7lwd080a8ha" path="res://Assets/sprites/PlayerGUI/ResultsGUI/RetryButton/retryButton.png" id="39_irska"]
-[ext_resource type="Texture2D" uid="uid://ntjgysygh7qn" path="res://Assets/sprites/PlayerGUI/ResultsGUI/RetryButton/retrySelect.png" id="40_oiw85"]
-[ext_resource type="Texture2D" uid="uid://vg1uq2ejhuwa" path="res://Assets/sprites/PlayerGUI/ResultsGUI/RetryButton/retryHover.png" id="41_yemw2"]
-[ext_resource type="Texture2D" uid="uid://4ehlqd7ck6mu" path="res://Assets/sprites/PlayerGUI/ResultsGUI/HomeButton/homeButton.png" id="42_v1iak"]
-[ext_resource type="Texture2D" uid="uid://bo15bqlwkbwkf" path="res://Assets/sprites/PlayerGUI/ResultsGUI/HomeButton/homeSelect.png" id="43_d8hh7"]
-[ext_resource type="Texture2D" uid="uid://567fpi6ou5i" path="res://Assets/sprites/PlayerGUI/ResultsGUI/HomeButton/homeHover.png" id="44_nuh7s"]
-[ext_resource type="Texture2D" uid="uid://lraq1ekjf1au" path="res://Assets/sprites/PlayerGUI/GeneralGUI/ContinueButton/continueButton.png" id="45_eiur2"]
-[ext_resource type="Texture2D" uid="uid://bt4wfeneiimjb" path="res://Assets/sprites/PlayerGUI/GeneralGUI/ContinueButton/continueSelect.png" id="46_wk10a"]
-[ext_resource type="Texture2D" uid="uid://co0ianbjrclpk" path="res://Assets/sprites/PlayerGUI/GeneralGUI/ContinueButton/continueHover.png" id="47_013cv"]
+[ext_resource type="PackedScene" uid="uid://cb7bykcqm152b" path="res://Scenes/ui.tscn" id="26_0g1xm"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_exi56"]
 texture = ExtResource("8_76v66")
@@ -252,42 +231,6 @@ sources/0 = SubResource("TileSetAtlasSource_wowpa")
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_vm72l"]
 distance = -57.0
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_uch74"]
-atlas = ExtResource("29_py7y2")
-region = Rect2(0, 0, 15, 15)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_qkcyj"]
-atlas = ExtResource("29_py7y2")
-region = Rect2(15, 0, 15, 15)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_jpewp"]
-atlas = ExtResource("29_py7y2")
-region = Rect2(30, 0, 15, 15)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_76v66"]
-atlas = ExtResource("29_py7y2")
-region = Rect2(45, 0, 15, 15)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_4v6ch"]
-animations = [{
-"frames": [{
-"duration": 30.0,
-"texture": SubResource("AtlasTexture_uch74")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_qkcyj")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jpewp")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_76v66")
-}],
-"loop": true,
-"name": &"default",
-"speed": 10.0
-}]
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_py7y2"]
 size = Vector2(20, 132)
 
@@ -296,7 +239,7 @@ size = Vector2(20, 132)
 [node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("coin_counter_label")]
 unique_name_in_owner = true
 script = ExtResource("1_0g1xm")
-coin_counter_label = NodePath("../UI/GlitCounter/GlitNumber")
+coin_counter_label = NodePath("")
 
 [node name="ParallaxBackgroundHolder" type="Node2D" parent="." node_paths=PackedStringArray("camera")]
 z_index = -5
@@ -1108,216 +1051,7 @@ shape = SubResource("WorldBoundaryShape2D_i6g32")
 rotation = 1.5708
 shape = SubResource("WorldBoundaryShape2D_vm72l")
 
-[node name="UI" type="CanvasLayer" parent="."]
-
-[node name="HealthBoxContainer" type="HBoxContainer" parent="UI" node_paths=PackedStringArray("hp_nodes")]
-offset_left = 31.0
-offset_top = 35.0
-offset_right = 203.0
-offset_bottom = 75.0
-scale = Vector2(2, 2)
-script = ExtResource("21_067qp")
-hp_nodes = [NodePath("HP1"), NodePath("HP2"), NodePath("HP3"), NodePath("HP4")]
-three_hearts_texture = ExtResource("22_irska")
-two_hearts_texture = ExtResource("23_oiw85")
-one_heart_texture = ExtResource("24_yemw2")
-fading_heart_texture = ExtResource("25_v1iak")
-
-[node name="HP1" type="TextureRect" parent="UI/HealthBoxContainer"]
-layout_mode = 2
-texture = ExtResource("26_d8hh7")
-expand_mode = 2
-
-[node name="HP2" type="TextureRect" parent="UI/HealthBoxContainer"]
-layout_mode = 2
-texture = ExtResource("26_d8hh7")
-expand_mode = 2
-
-[node name="HP3" type="TextureRect" parent="UI/HealthBoxContainer"]
-layout_mode = 2
-texture = ExtResource("26_d8hh7")
-expand_mode = 2
-
-[node name="HP4" type="TextureRect" parent="UI/HealthBoxContainer"]
-layout_mode = 2
-texture = ExtResource("26_d8hh7")
-expand_mode = 2
-
-[node name="StartCountdown" type="Label" parent="UI"]
-visible = false
-offset_left = -1079.0001
-offset_top = 38.0
-offset_right = -743.0001
-offset_bottom = 94.0
-scale = Vector2(10, 10)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_constants/shadow_outline_size = 1
-theme_override_fonts/font = ExtResource("27_aqorp")
-theme_override_font_sizes/font_size = 8
-text = "READY?"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="TimerBackground" type="Sprite2D" parent="UI"]
-self_modulate = Color(1, 1, 1, 0.6313726)
-position = Vector2(561.00006, 60.000004)
-scale = Vector2(5, 5)
-texture = ExtResource("28_1fln0")
-
-[node name="TimerNumber" type="Label" parent="UI/TimerBackground"]
-offset_left = -100.8
-offset_top = -17.8
-offset_right = 235.2
-offset_bottom = 38.2
-scale = Vector2(0.6, 0.6)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_constants/shadow_outline_size = 1
-theme_override_fonts/font = ExtResource("27_aqorp")
-theme_override_font_sizes/font_size = 8
-text = "1:00:16"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="GlitCounter" type="AnimatedSprite2D" parent="UI"]
-self_modulate = Color(1, 1, 1, 0.57254905)
-position = Vector2(786.0001, 66)
-scale = Vector2(5, 5)
-sprite_frames = SubResource("SpriteFrames_4v6ch")
-autoplay = "default"
-frame_progress = 0.6079139
-
-[node name="GlitNumber" type="Label" parent="UI/GlitCounter"]
-offset_left = -91.0
-offset_top = -11.2
-offset_right = 245.0
-offset_bottom = 44.8
-scale = Vector2(0.6, 0.6)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_constants/shadow_outline_size = 1
-theme_override_fonts/font = ExtResource("27_aqorp")
-theme_override_font_sizes/font_size = 8
-text = "x0"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="FinishResults" parent="UI" instance=ExtResource("30_uch74")]
-visible = false
-
-[node name="PauseButton" type="TextureButton" parent="UI"]
-offset_left = 1085.0
-offset_top = 3.0
-offset_right = 1125.0
-offset_bottom = 43.0
-scale = Vector2(1.627086, 1.627086)
-texture_normal = ExtResource("36_fa8x0")
-texture_pressed = ExtResource("37_r3tar")
-texture_hover = ExtResource("38_lx6hu")
-stretch_mode = 0
-
-[node name="PauseScreen" type="Node2D" parent="UI/PauseButton"]
-position = Vector2(-81.126625, 65.14714)
-scale = Vector2(0.7404885, 0.7404885)
-
-[node name="PauseBackground" type="ColorRect" parent="UI/PauseButton/PauseScreen"]
-self_modulate = Color(0, 0, 0, 0.64705884)
-offset_left = -907.75775
-offset_top = -156.10727
-offset_right = -867.75775
-offset_bottom = -116.10727
-scale = Vector2(29.861029, 17.400326)
-
-[node name="PauseBackground2" type="ColorRect" parent="UI/PauseButton/PauseScreen/PauseBackground"]
-self_modulate = Color(0, 0, 0, 0.64705884)
-layout_mode = 0
-offset_top = 28.432907
-offset_right = 40.0
-offset_bottom = 68.43291
-scale = Vector2(29.861029, 17.400326)
-
-[node name="PauseBackground3" type="ColorRect" parent="UI/PauseButton/PauseScreen/PauseBackground"]
-self_modulate = Color(0, 0, 0, 0.64705884)
-layout_mode = 0
-offset_top = 31.581074
-offset_right = 40.0
-offset_bottom = 71.58107
-scale = Vector2(29.861029, 17.400326)
-
-[node name="PAUSED" type="Label" parent="UI/PauseButton/PauseScreen"]
-offset_left = -1651.4185
-offset_top = -226.5864
-offset_right = -1315.4185
-offset_bottom = -170.5864
-scale = Vector2(8, 8)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_constants/shadow_outline_size = 1
-theme_override_fonts/font = ExtResource("27_aqorp")
-theme_override_font_sizes/font_size = 8
-text = "PAUSED"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="PAUSEDUnderline" type="Label" parent="UI/PauseButton/PauseScreen/PAUSED"]
-layout_mode = 0
-offset_left = 0.20000988
-offset_top = 8.900001
-offset_right = 336.2
-offset_bottom = 64.9
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_constants/shadow_outline_size = 1
-theme_override_fonts/font = ExtResource("27_aqorp")
-theme_override_font_sizes/font_size = 8
-text = "_____________
-"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="RetryButton" type="TextureButton" parent="UI/PauseButton/PauseScreen"]
-offset_left = -14.788635
-offset_top = 214.96657
-offset_right = 25.211365
-offset_bottom = 254.96657
-scale = Vector2(2.7403593, 2.7403593)
-texture_normal = ExtResource("39_irska")
-texture_pressed = ExtResource("40_oiw85")
-texture_hover = ExtResource("41_yemw2")
-stretch_mode = 0
-
-[node name="HomeButton" type="TextureButton" parent="UI/PauseButton/PauseScreen"]
-offset_left = -713.78864
-offset_top = 214.96657
-offset_right = -673.78864
-offset_bottom = 254.96657
-scale = Vector2(2.7403593, 2.7403593)
-texture_normal = ExtResource("42_v1iak")
-texture_pressed = ExtResource("43_d8hh7")
-texture_hover = ExtResource("44_nuh7s")
-stretch_mode = 0
-
-[node name="ContinueButton" type="TextureButton" parent="UI/PauseButton/PauseScreen"]
-offset_left = -576.0108
-offset_top = 23.239609
-offset_right = -528.0108
-offset_bottom = 71.23961
-scale = Vector2(11.22257, 11.22257)
-texture_normal = ExtResource("45_eiur2")
-texture_pressed = ExtResource("46_wk10a")
-texture_hover = ExtResource("47_013cv")
-stretch_mode = 0
+[node name="UI" parent="." instance=ExtResource("26_0g1xm")]
 
 [node name="LevelFinish" type="Area2D" parent="."]
 position = Vector2(4982, -71)

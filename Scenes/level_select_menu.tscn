@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bck8lw4sj2ly6"]
+[gd_scene load_steps=14 format=3 uid="uid://bck8lw4sj2ly6"]
 
 [ext_resource type="Script" uid="uid://cojgak2pyu7c6" path="res://Scripts/level_select_menu.gd" id="1_52mtt"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="1_271b8"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://fxag7o0s0xak" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/greenButtonSelect.png" id="9_ube50"]
 [ext_resource type="Texture2D" uid="uid://c7xrjmuinukls" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/greenButtonHover.png" id="10_yts2j"]
 [ext_resource type="BitMap" uid="uid://bb7g1utteh3sf" path="res://Assets/sprites/PlayerGUI/GeneralGUI/buttonMask.png" id="11_ube50"]
+[ext_resource type="Texture2D" uid="uid://c0hhe4dvv6nxg" path="res://Assets/sprites/PlayerGUI/GeneralGUI/blackTriangle.png" id="13_era5x"]
 
 [node name="LevelSelectMenu" type="Node2D"]
 script = ExtResource("1_52mtt")
@@ -83,7 +84,7 @@ texture = ExtResource("4_ube50")
 flip_h = true
 
 [node name="PuffyLogo" type="Sprite2D" parent="."]
-modulate = Color(1, 1, 1, 0.560784)
+modulate = Color(1, 1, 1, 0.8509804)
 position = Vector2(-65, 23)
 rotation = -0.152009
 scale = Vector2(2.5, 2.5)
@@ -128,3 +129,191 @@ texture_normal = ExtResource("3_aljgx")
 texture_pressed = ExtResource("5_hstaq")
 texture_hover = ExtResource("6_16w6l")
 texture_click_mask = ExtResource("11_ube50")
+
+[node name="Background" type="Node2D" parent="."]
+position = Vector2(4.000001, 0)
+rotation = 0.15988722
+
+[node name="Curtains" type="Node2D" parent="Background"]
+
+[node name="CurtainLeft" type="Sprite2D" parent="Background/Curtains"]
+z_index = -1
+z_as_relative = false
+position = Vector2(96.5, -90.00001)
+scale = Vector2(3, 3)
+texture = ExtResource("13_era5x")
+
+[node name="Curtain2" type="Sprite2D" parent="Background/Curtains/CurtainLeft"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 16)
+texture = ExtResource("13_era5x")
+
+[node name="Curtain3" type="Sprite2D" parent="Background/Curtains/CurtainLeft"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 30)
+texture = ExtResource("13_era5x")
+
+[node name="Curtain4" type="Sprite2D" parent="Background/Curtains/CurtainLeft"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 46)
+texture = ExtResource("13_era5x")
+
+[node name="Curtain5" type="Sprite2D" parent="Background/Curtains/CurtainLeft"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 62)
+texture = ExtResource("13_era5x")
+
+[node name="Curtain6" type="Sprite2D" parent="Background/Curtains/CurtainLeft"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 78.16667)
+texture = ExtResource("13_era5x")
+
+[node name="CurtainRight" type="Sprite2D" parent="Background/Curtains"]
+z_index = -1
+z_as_relative = false
+position = Vector2(1026.5001, -90.00002)
+scale = Vector2(3, 3)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="Curtain2" type="Sprite2D" parent="Background/Curtains/CurtainRight"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 16)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="Curtain3" type="Sprite2D" parent="Background/Curtains/CurtainRight"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 30)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="Curtain4" type="Sprite2D" parent="Background/Curtains/CurtainRight"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 46)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="Curtain5" type="Sprite2D" parent="Background/Curtains/CurtainRight"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 62)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="Curtain6" type="Sprite2D" parent="Background/Curtains/CurtainRight"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 78.16667)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="ColorRect" type="ColorRect" parent="Background/Curtains"]
+z_index = -1
+z_as_relative = false
+offset_left = 109.49998
+offset_top = -149.00002
+offset_right = 149.49997
+offset_bottom = -109.000015
+scale = Vector2(22.661762, 8.960002)
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="CurtainLeft2" type="Sprite2D" parent="Background/Curtains"]
+z_index = -1
+z_as_relative = false
+position = Vector2(-1022.5, -90)
+scale = Vector2(3, 3)
+texture = ExtResource("13_era5x")
+
+[node name="Curtain2" type="Sprite2D" parent="Background/Curtains/CurtainLeft2"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 16)
+texture = ExtResource("13_era5x")
+
+[node name="Curtain3" type="Sprite2D" parent="Background/Curtains/CurtainLeft2"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 30)
+texture = ExtResource("13_era5x")
+
+[node name="Curtain4" type="Sprite2D" parent="Background/Curtains/CurtainLeft2"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 46)
+texture = ExtResource("13_era5x")
+
+[node name="Curtain5" type="Sprite2D" parent="Background/Curtains/CurtainLeft2"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 62)
+texture = ExtResource("13_era5x")
+
+[node name="Curtain6" type="Sprite2D" parent="Background/Curtains/CurtainLeft2"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 78.16667)
+texture = ExtResource("13_era5x")
+
+[node name="CurtainRight2" type="Sprite2D" parent="Background/Curtains"]
+z_index = -1
+z_as_relative = false
+position = Vector2(-92.5, -90)
+scale = Vector2(3, 3)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="Curtain2" type="Sprite2D" parent="Background/Curtains/CurtainRight2"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 16)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="Curtain3" type="Sprite2D" parent="Background/Curtains/CurtainRight2"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 30)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="Curtain4" type="Sprite2D" parent="Background/Curtains/CurtainRight2"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 46)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="Curtain5" type="Sprite2D" parent="Background/Curtains/CurtainRight2"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 62)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="Curtain6" type="Sprite2D" parent="Background/Curtains/CurtainRight2"]
+z_index = -1
+z_as_relative = false
+position = Vector2(0, 78.16667)
+texture = ExtResource("13_era5x")
+flip_h = true
+
+[node name="ColorRect2" type="ColorRect" parent="Background/Curtains"]
+z_index = -1
+z_as_relative = false
+offset_left = -1009.49994
+offset_top = -149.0
+offset_right = -969.49994
+offset_bottom = -109.0
+scale = Vector2(22.661762, 8.960002)
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
