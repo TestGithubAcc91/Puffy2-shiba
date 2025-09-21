@@ -16,6 +16,9 @@ const HIGH_JUMP_VELOCITY = -350.0
 
 var last_attack_was_unparryable: bool = false
 
+# NEW: Signal to track successful parries
+signal parry_success
+
 # Parry variables
 var parry_timer: Timer
 var is_parrying: bool = false
@@ -366,6 +369,9 @@ func on_parry_success():
 	is_in_pre_freeze_parry = true
 	parry_pre_freeze_timer.start()
 	call_deferred("_play_parry_animation")
+	
+	# NEW: Emit the parry success signal for tracking
+	parry_success.emit()
 
 func _play_parry_animation():
 	if is_in_pre_freeze_parry:

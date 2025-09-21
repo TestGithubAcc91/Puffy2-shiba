@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=4 uid="uid://xpuocal0bde6"]
+[gd_scene load_steps=52 format=4 uid="uid://xpuocal0bde6"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_0g1xm"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="2_aqorp"]
@@ -568,6 +568,9 @@ animations = [{
 "speed": 10.0
 }]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_py7y2"]
+size = Vector2(20, 132)
+
 [node name="Level1Holder" type="Node2D"]
 
 [node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("coin_counter_label")]
@@ -577,7 +580,7 @@ coin_counter_label = NodePath("../UI/GlitCounter/GlitNumber")
 
 [node name="Player" parent="." instance=ExtResource("2_aqorp")]
 z_index = 1
-position = Vector2(-11, 3)
+position = Vector2(-24, 3)
 collision_layer = 2
 air_puffV_scene = ExtResource("3_1fln0")
 dash_distance = 90.0
@@ -1361,6 +1364,7 @@ texture = ExtResource("26_d8hh7")
 expand_mode = 2
 
 [node name="StartCountdown" type="Label" parent="UI"]
+visible = false
 offset_left = -1079.0001
 offset_top = 38.0
 offset_right = -743.0001
@@ -1406,7 +1410,7 @@ position = Vector2(1044, 66)
 scale = Vector2(5, 5)
 sprite_frames = SubResource("SpriteFrames_4v6ch")
 autoplay = "default"
-frame_progress = 0.7314232
+frame_progress = 0.6079139
 
 [node name="GlitNumber" type="Label" parent="UI/GlitCounter"]
 offset_left = -91.0
@@ -1424,3 +1428,187 @@ theme_override_font_sizes/font_size = 8
 text = "x0"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="FinishResults" type="Node2D" parent="UI"]
+visible = false
+
+[node name="FinishBackground" type="ColorRect" parent="UI/FinishResults"]
+self_modulate = Color(0, 0, 0, 0.64705884)
+offset_left = -18.0
+offset_top = -10.0
+offset_right = 22.0
+offset_bottom = 30.0
+scale = Vector2(29.861029, 17.400326)
+
+[node name="FinishBackground2" type="ColorRect" parent="UI/FinishResults/FinishBackground"]
+self_modulate = Color(0, 0, 0, 0.64705884)
+layout_mode = 0
+offset_left = -13.093989
+offset_top = 27.81557
+offset_right = 26.90601
+offset_bottom = 67.81557
+scale = Vector2(1.715, 1)
+color = Color(1, 1, 1, 0.47058824)
+
+[node name="FinishBackground3" type="ColorRect" parent="UI/FinishResults/FinishBackground"]
+self_modulate = Color(0, 0, 0, 0.64705884)
+layout_mode = 0
+offset_left = -13.093989
+offset_top = 30.68908
+offset_right = 26.90601
+offset_bottom = 70.68909
+scale = Vector2(1.715, 1)
+color = Color(1, 1, 1, 0.47058824)
+
+[node name="FinishBackground4" type="ColorRect" parent="UI/FinishResults/FinishBackground"]
+self_modulate = Color(0, 0, 0, 0.64705884)
+layout_mode = 0
+offset_left = -13.093989
+offset_top = 33.96488
+offset_right = 26.90601
+offset_bottom = 73.96489
+scale = Vector2(1.715, 1)
+color = Color(1, 1, 1, 0.47058824)
+
+[node name="Results" type="Label" parent="UI/FinishResults"]
+offset_left = -734.0
+offset_top = -134.0
+offset_right = -398.0
+offset_bottom = -78.0
+scale = Vector2(8, 8)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("27_aqorp")
+theme_override_font_sizes/font_size = 8
+text = "RESULTS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultsUnderline" type="Label" parent="UI/FinishResults/Results"]
+layout_mode = 0
+offset_left = 0.20000988
+offset_top = 8.900001
+offset_right = 336.2
+offset_bottom = 64.9
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("27_aqorp")
+theme_override_font_sizes/font_size = 8
+text = "_____________
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Time" type="Label" parent="UI/FinishResults/Results"]
+visible = false
+layout_mode = 0
+offset_left = 49.499996
+offset_top = 34.0
+offset_right = 385.5
+offset_bottom = 90.0
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("27_aqorp")
+theme_override_font_sizes/font_size = 8
+text = "TIME................
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Damage" type="Label" parent="UI/FinishResults/Results"]
+visible = false
+layout_mode = 0
+offset_left = 49.499996
+offset_top = 41.75
+offset_right = 385.5
+offset_bottom = 97.75
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("27_aqorp")
+theme_override_font_sizes/font_size = 8
+text = "DAMAGE.............
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Parries" type="Label" parent="UI/FinishResults/Results"]
+visible = false
+layout_mode = 0
+offset_left = 49.499996
+offset_top = 50.125
+offset_right = 385.5
+offset_bottom = 106.125
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("27_aqorp")
+theme_override_font_sizes/font_size = 8
+text = "PARRIES............
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Glits" type="Label" parent="UI/FinishResults/Results"]
+visible = false
+layout_mode = 0
+offset_left = 48.875
+offset_top = 57.625004
+offset_right = 384.875
+offset_bottom = 113.625
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("27_aqorp")
+theme_override_font_sizes/font_size = 8
+text = "GLITS...............
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FinalResult" type="Label" parent="UI/FinishResults/Results"]
+visible = false
+layout_mode = 0
+offset_left = 48.875
+offset_top = 74.375
+offset_right = 384.875
+offset_bottom = 130.375
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("27_aqorp")
+theme_override_font_sizes/font_size = 8
+text = "FINAL RESULT:
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LevelFinish" type="Area2D" parent="."]
+position = Vector2(4982, -71)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LevelFinish"]
+position = Vector2(0, -36)
+shape = SubResource("RectangleShape2D_py7y2")

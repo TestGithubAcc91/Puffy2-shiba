@@ -6,9 +6,6 @@
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_wrm1d")
-ready_color = Color(1, 1, 1, 1)
-set_color = Color(1, 1, 1, 1)
-go_color = Color(1, 1, 1, 1)
 
 [node name="LevelSelectMenu" parent="." instance=ExtResource("1_81klo")]
 position = Vector2(-12, -88)
