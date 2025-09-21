@@ -26,6 +26,14 @@ signal movement_disabled
 @export var set_color: Color = Color.YELLOW
 @export var go_color: Color = Color.GREEN
 
+# Medal system settings (editable in inspector)
+@export_group("Medal System")
+@export var gold_time_threshold: float = 45.0
+@export var silver_time_threshold: float = 50.0
+@export var gold_medal_texture: Texture2D
+@export var silver_medal_texture: Texture2D
+@export var bronze_medal_texture: Texture2D
+
 func _ready():
 	level_select_menu.level_selected.connect(_on_level_selected)
 	# Make sure the black curtain starts off-screen to the right
@@ -325,6 +333,17 @@ func _get_current_coin_score() -> int:
 	print("Could not find coin system score")
 	return glits_count  # Fallback to tracked count
 
+func _get_medal_texture_by_time(time: float) -> Texture2D:
+	# Determine which medal texture to use based on completion time
+	if time <= gold_time_threshold:
+		print("Gold medal earned! Time: %.2f <= %.2f" % [time, gold_time_threshold])
+		return gold_medal_texture
+	elif time <= silver_time_threshold:
+		print("Silver medal earned! Time: %.2f <= %.2f" % [time, silver_time_threshold])
+		return silver_medal_texture
+	else:
+		print("Bronze medal earned! Time: %.2f > %.2f" % [time, silver_time_threshold])
+		return bronze_medal_texture
 
 func _show_finish_results():
 	# Find and show the finish results UI
@@ -399,7 +418,30 @@ func _show_finish_results():
 		else:
 			print("WARNING: FinalResult label not found at Results/FinalResult!")
 		
-		# Set timescale to 0 AFTER all labels are shown
+		# Add delay before showing the Medal (1 second after FinalResult)
+		await get_tree().create_timer(1.0).timeout
+		
+		# Show the Medal with appropriate texture based on completion time
+		if current_level_scene and current_level_scene.has_node("UI/FinishResults/Results/Medal"):
+			var medal_node = current_level_scene.get_node("UI/FinishResults/Results/Medal")
+			print("Found Medal node, setting texture and making visible...")
+			
+			# Set the appropriate medal texture based on completion time
+			var medal_texture = _get_medal_texture_by_time(elapsed_time)
+			if medal_texture and medal_node is Sprite2D:
+				medal_node.texture = medal_texture
+				print("Medal texture set successfully")
+			elif not medal_texture:
+				print("WARNING: No medal texture assigned for this time!")
+			elif not medal_node is Sprite2D:
+				print("WARNING: Medal node is not a Sprite2D!")
+			
+			medal_node.visible = true
+			print("Medal displayed")
+		else:
+			print("WARNING: Medal not found at UI/FinishResults/Results/Medal!")
+		
+		# Set timescale to 0 AFTER all elements (including medal) are shown
 		Engine.time_scale = 0
 	else:
 		print("WARNING: FinishResults UI not found at UI/FinishResults!")

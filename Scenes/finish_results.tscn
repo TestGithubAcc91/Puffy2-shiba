@@ -1,0 +1,180 @@
+[gd_scene load_steps=3 format=3 uid="uid://de0fokkn8al2x"]
+
+[ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="1_vac8p"]
+[ext_resource type="Texture2D" uid="uid://46vy7cb23jph" path="res://Assets/sprites/PlayerGUI/Medals/goldMedal.png" id="2_ygh8p"]
+
+[node name="FinishResults" type="Node2D"]
+
+[node name="FinishBackground" type="ColorRect" parent="."]
+self_modulate = Color(0, 0, 0, 0.64705884)
+offset_left = -18.0
+offset_top = -10.0
+offset_right = 22.0
+offset_bottom = 30.0
+scale = Vector2(29.861029, 17.400326)
+
+[node name="FinishBackground2" type="ColorRect" parent="FinishBackground"]
+self_modulate = Color(0, 0, 0, 0.64705884)
+layout_mode = 0
+offset_left = -13.093989
+offset_top = 27.81557
+offset_right = 26.90601
+offset_bottom = 67.81557
+scale = Vector2(1.715, 1)
+color = Color(1, 1, 1, 0.47058824)
+
+[node name="FinishBackground3" type="ColorRect" parent="FinishBackground"]
+self_modulate = Color(0, 0, 0, 0.64705884)
+layout_mode = 0
+offset_left = -13.093989
+offset_top = 30.68908
+offset_right = 26.90601
+offset_bottom = 70.68909
+scale = Vector2(1.715, 1)
+color = Color(1, 1, 1, 0.47058824)
+
+[node name="FinishBackground4" type="ColorRect" parent="FinishBackground"]
+self_modulate = Color(0, 0, 0, 0.64705884)
+layout_mode = 0
+offset_left = -13.093989
+offset_top = 33.96488
+offset_right = 26.90601
+offset_bottom = 73.96489
+scale = Vector2(1.715, 1)
+color = Color(1, 1, 1, 0.47058824)
+
+[node name="Results" type="Label" parent="."]
+offset_left = -734.0
+offset_top = -134.0
+offset_right = -398.0
+offset_bottom = -78.0
+scale = Vector2(8, 8)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("1_vac8p")
+theme_override_font_sizes/font_size = 8
+text = "RESULTS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultsUnderline" type="Label" parent="Results"]
+layout_mode = 0
+offset_left = 0.20000988
+offset_top = 8.900001
+offset_right = 336.2
+offset_bottom = 64.9
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("1_vac8p")
+theme_override_font_sizes/font_size = 8
+text = "_____________
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Time" type="Label" parent="Results"]
+visible = false
+layout_mode = 0
+offset_left = 121.25
+offset_top = 34.0
+offset_right = 457.25
+offset_bottom = 90.0
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("1_vac8p")
+theme_override_font_sizes/font_size = 8
+text = "TIME................
+"
+vertical_alignment = 1
+
+[node name="Damage" type="Label" parent="Results"]
+visible = false
+layout_mode = 0
+offset_left = 121.25
+offset_top = 41.75
+offset_right = 457.25
+offset_bottom = 97.75
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("1_vac8p")
+theme_override_font_sizes/font_size = 8
+text = "DAMAGE.............
+"
+vertical_alignment = 1
+
+[node name="Parries" type="Label" parent="Results"]
+visible = false
+layout_mode = 0
+offset_left = 121.25
+offset_top = 50.125
+offset_right = 457.25
+offset_bottom = 106.125
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("1_vac8p")
+theme_override_font_sizes/font_size = 8
+text = "PARRIES............
+"
+vertical_alignment = 1
+
+[node name="Glits" type="Label" parent="Results"]
+visible = false
+layout_mode = 0
+offset_left = 120.625
+offset_top = 57.625004
+offset_right = 456.625
+offset_bottom = 113.625
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("1_vac8p")
+theme_override_font_sizes/font_size = 8
+text = "GLITS...............
+"
+vertical_alignment = 1
+
+[node name="FinalResult" type="Label" parent="Results"]
+visible = false
+layout_mode = 0
+offset_left = 48.875
+offset_top = 74.375
+offset_right = 384.875
+offset_bottom = 130.375
+scale = Vector2(0.6, 0.6)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("1_vac8p")
+theme_override_font_sizes/font_size = 8
+text = "FINAL RESULT:
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Medal" type="Sprite2D" parent="Results"]
+visible = false
+position = Vector2(195.875, 86.125)
+texture = ExtResource("2_ygh8p")
