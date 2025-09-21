@@ -96,3 +96,94 @@ offset_bottom = -88.0
 scale = Vector2(22.661762, 8.960002)
 color = Color(0, 0, 0, 1)
 metadata/_edit_use_anchors_ = true
+
+[node name="CurtainLeft2" type="Sprite2D" parent="."]
+z_index = 4096
+z_as_relative = false
+position = Vector2(-101, -348)
+scale = Vector2(3, 3)
+texture = ExtResource("1_4iccq")
+
+[node name="Curtain2" type="Sprite2D" parent="CurtainLeft2"]
+z_index = 4096
+z_as_relative = false
+position = Vector2(0, 16)
+texture = ExtResource("1_4iccq")
+
+[node name="Curtain3" type="Sprite2D" parent="CurtainLeft2"]
+z_index = 4096
+z_as_relative = false
+position = Vector2(0, 30)
+texture = ExtResource("1_4iccq")
+
+[node name="Curtain4" type="Sprite2D" parent="CurtainLeft2"]
+z_index = 4096
+z_as_relative = false
+position = Vector2(0, 46)
+texture = ExtResource("1_4iccq")
+
+[node name="Curtain5" type="Sprite2D" parent="CurtainLeft2"]
+z_index = 4096
+z_as_relative = false
+position = Vector2(0, 62)
+texture = ExtResource("1_4iccq")
+
+[node name="Curtain6" type="Sprite2D" parent="CurtainLeft2"]
+z_index = 4096
+z_as_relative = false
+position = Vector2(0, 78.16667)
+texture = ExtResource("1_4iccq")
+
+[node name="CurtainRight2" type="Sprite2D" parent="."]
+z_index = 4096
+z_as_relative = false
+position = Vector2(829, -348)
+scale = Vector2(3, 3)
+texture = ExtResource("1_4iccq")
+flip_h = true
+
+[node name="Curtain2" type="Sprite2D" parent="CurtainRight2"]
+z_index = 4096
+z_as_relative = false
+position = Vector2(0, 16)
+texture = ExtResource("1_4iccq")
+flip_h = true
+
+[node name="Curtain3" type="Sprite2D" parent="CurtainRight2"]
+z_index = 4096
+z_as_relative = false
+position = Vector2(0, 30)
+texture = ExtResource("1_4iccq")
+flip_h = true
+
+[node name="Curtain4" type="Sprite2D" parent="CurtainRight2"]
+z_index = 4096
+z_as_relative = false
+position = Vector2(0, 46)
+texture = ExtResource("1_4iccq")
+flip_h = true
+
+[node name="Curtain5" type="Sprite2D" parent="CurtainRight2"]
+z_index = 4096
+z_as_relative = false
+position = Vector2(0, 62)
+texture = ExtResource("1_4iccq")
+flip_h = true
+
+[node name="Curtain6" type="Sprite2D" parent="CurtainRight2"]
+z_index = 4096
+z_as_relative = false
+position = Vector2(0, 78.16667)
+texture = ExtResource("1_4iccq")
+flip_h = true
+
+[node name="ColorRect2" type="ColorRect" parent="."]
+z_index = 4096
+z_as_relative = false
+offset_left = -88.00001
+offset_top = -406.99997
+offset_right = -48.000008
+offset_bottom = -366.99997
+scale = Vector2(22.661762, 8.960002)
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true

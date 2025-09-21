@@ -15,6 +15,11 @@ var damage_count = 0
 var parry_count = 0
 var glits_count = 0
 
+# Pause variables
+var is_paused = false
+var pause_button = null
+var pause_screen = null
+
 # Signals
 signal movement_enabled
 signal movement_disabled
@@ -38,7 +43,7 @@ func _ready():
 		black_curtain.position.x = get_viewport().size.x
 
 func _process(delta):
-	if timer_running and timer_label:
+	if timer_running and timer_label and not is_paused:
 		elapsed_time += delta
 		timer_label.text = "%.2f" % elapsed_time
 
@@ -70,6 +75,7 @@ func _change_to_level(level_number):
 	current_level_number = level_number
 	get_tree().paused = false
 	input_blocked = false
+	is_paused = false
 	
 	if current_level_scene:
 		current_level_scene.queue_free()
@@ -149,11 +155,63 @@ func _setup_connections():
 		if not home_button.pressed.is_connected(_on_home_button_pressed):
 			home_button.pressed.connect(_on_home_button_pressed)
 	
+	# Connect pause button
+	_setup_pause_button()
+	
 	# Connect glits tracking
 	_connect_glits_tracking()
 	
 	# Setup timer
 	_setup_timer()
+
+func _setup_pause_button():
+	if current_level_scene and current_level_scene.has_node("UI/PauseButton"):
+		pause_button = current_level_scene.get_node("UI/PauseButton")
+		pause_screen = pause_button.get_node("PauseScreen") if pause_button.has_node("PauseScreen") else null
+		
+		if pause_button and not pause_button.pressed.is_connected(_on_pause_button_pressed):
+			pause_button.pressed.connect(_on_pause_button_pressed)
+		
+		# Make sure pause screen starts hidden
+		if pause_screen:
+			pause_screen.visible = false
+			
+			# Connect pause screen buttons
+			if pause_screen.has_node("RetryButton"):
+				var pause_retry_button = pause_screen.get_node("RetryButton")
+				if not pause_retry_button.pressed.is_connected(_on_pause_retry_button_pressed):
+					pause_retry_button.pressed.connect(_on_pause_retry_button_pressed)
+			
+			if pause_screen.has_node("ContinueButton"):
+				var continue_button = pause_screen.get_node("ContinueButton")
+				if not continue_button.pressed.is_connected(_on_continue_button_pressed):
+					continue_button.pressed.connect(_on_continue_button_pressed)
+			
+			if pause_screen.has_node("HomeButton"):
+				var pause_home_button = pause_screen.get_node("HomeButton")
+				if not pause_home_button.pressed.is_connected(_on_pause_home_button_pressed):
+					pause_home_button.pressed.connect(_on_pause_home_button_pressed)
+
+func _on_pause_button_pressed():
+	if not is_paused:
+		_pause_game()
+	else:
+		_unpause_game()
+
+func _pause_game():
+	is_paused = true
+	get_tree().paused = true
+	movement_disabled.emit()
+	
+	# Show pause screen
+	if pause_screen:
+		pause_screen.visible = true
+		pause_screen.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+		_set_ui_process_mode_recursive(pause_screen, Node.PROCESS_MODE_WHEN_PAUSED)
+	
+	# Keep pause button working while paused
+	if pause_button:
+		pause_button.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 
 func _connect_glits_tracking():
 	var possible_paths = ["CoinCounter", "ScoreManager", "UI/CoinCounter", "UI/ScoreManager"]
@@ -305,6 +363,7 @@ func _on_home_button_pressed():
 
 func _start_home_curtain_transition():
 	get_tree().paused = false
+	is_paused = false
 	var player = find_player_in_scene()
 	if not player:
 		return_to_menu()
@@ -343,7 +402,7 @@ func _start_home_curtain_transition():
 	tween.tween_property(player_curtain, "global_position:x", target_global_x, 2.5)
 	
 	# Wait for curtain to cover screen (same timing as retry)
-	await get_tree().create_timer(1.0).timeout
+	await get_tree().create_timer(0.8).timeout
 	
 	# Store reference to curtain before returning to menu
 	var temp_curtain_ref = player_curtain
@@ -358,6 +417,7 @@ func _start_home_curtain_transition():
 
 func _start_retry_curtain_transition():
 	get_tree().paused = false
+	is_paused = false
 	var player = find_player_in_scene()
 	if not player:
 		_restart_level_directly()
@@ -396,7 +456,7 @@ func _start_retry_curtain_transition():
 	tween.tween_property(player_curtain, "global_position:x", target_global_x, 2.5)
 	
 	# Wait for curtain to cover screen (same timing as original)
-	await get_tree().create_timer(1.0).timeout
+	await get_tree().create_timer(0.8).timeout
 	
 	# Store reference to curtain before reloading
 	var temp_curtain_ref = player_curtain
@@ -427,11 +487,13 @@ func _start_retry_curtain_transition():
 func _restart_level_after_curtain():
 	get_tree().paused = false
 	input_blocked = false
+	is_paused = false
 	_change_to_level(current_level_number)
 
 func _restart_level_directly():
 	get_tree().paused = false
 	input_blocked = false
+	is_paused = false
 	_change_to_level(current_level_number)
 
 func _set_ui_process_mode_recursive(node: Node, process_mode: int):
@@ -445,6 +507,7 @@ func _load_level_directly(level_number):
 func return_to_menu():
 	timer_running = false
 	input_blocked = false
+	is_paused = false
 	movement_enabled.emit()
 	get_tree().paused = false
 	_return_curtain_to_menu()
@@ -484,3 +547,31 @@ func _on_player_parry_success():
 
 func _on_glit_collected():
 	glits_count += 1
+
+# Pause screen button handlers
+func _on_pause_retry_button_pressed():
+	_unpause_game()
+	_start_retry_curtain_transition()
+
+func _on_continue_button_pressed():
+	_unpause_game()
+
+func _on_pause_home_button_pressed():
+	_unpause_game()
+	_start_home_curtain_transition()
+
+func _unpause_game():
+	is_paused = false
+	get_tree().paused = false
+	
+	# Hide pause screen
+	if pause_screen:
+		pause_screen.visible = false
+	
+	# Reset pause button process mode so it can be pressed again
+	if pause_button:
+		pause_button.process_mode = Node.PROCESS_MODE_INHERIT
+	
+	# Re-enable movement if not blocked by other systems
+	if not input_blocked:
+		movement_enabled.emit()
