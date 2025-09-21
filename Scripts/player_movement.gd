@@ -98,16 +98,19 @@ var current_zipline: Zipline = null
 var zipline_grab_position: float = 0.0
 
 var movement_blocked_by_game: bool = false
+var original_time_scale: float = 1.0
 
 func _ready():
-	health_script.died.connect(_on_player_died)
+	# Store the original time scale
+	original_time_scale = Engine.time_scale
 	
+	# ... rest of your existing _ready() code
+	health_script.died.connect(_on_player_died)
 	setup_charge_system()
 	setup_ui()
 	setup_durations()
 	setup_timers()
-	update_parry_ready_sprite()  # Initialize ParryReady sprite
-
+	update_parry_ready_sprite()
 func setup_ui():
 	if glint_sprite:
 		glint_sprite.visible = false
@@ -542,6 +545,9 @@ func assign_empty_texture_to_sprite(index: int):
 
 # Timer callbacks
 func _on_parry_timeout():
+	# ALWAYS reset timescale first, regardless of parry success/failure
+	Engine.time_scale = original_time_scale
+	
 	# Hide parry visual effects
 	if glint_sprite:
 		glint_sprite.visible = false
@@ -581,16 +587,19 @@ func _on_parry_cooldown_timeout():
 func _on_parry_pre_freeze_timeout():
 	is_in_pre_freeze_parry = false
 	is_in_parry_freeze = true
-	Engine.time_scale = 1
-	# Hide ParrySpark sprite immediately when freeze begins
+	
+
 	if parry_spark:
 		parry_spark.visible = false
 	parry_freeze_timer.start()
 
 func _on_parry_freeze_timeout():
 	is_in_parry_freeze = false
-	Engine.time_scale = 1.0
+	# Ensure timescale is reset
+	Engine.time_scale = original_time_scale
 	# ParrySpark is already hidden from _on_parry_pre_freeze_timeout()
+func reset_timescale():
+	Engine.time_scale = original_time_scale
 
 func _on_dash_timeout():
 	end_dash()
@@ -614,13 +623,15 @@ func set_last_attack_unparryable(unparryable: bool):
 		health_script.is_invulnerable = true
 
 func _on_player_died():
+	# ALWAYS reset timescale first
+	reset_timescale()
+	
 	is_parrying = false
 	is_dashing = false
 	is_bouncing = false
 	is_in_parry_freeze = false
 	is_in_pre_freeze_parry = false
 	is_vine_release_dash = false
-	
 	
 	if is_on_zipline and current_zipline:
 		current_zipline.release_player()
@@ -646,10 +657,13 @@ func _on_player_died():
 		parry_spark.visible = false
 	
 	reset_parry_stacks()
+	
+	# Set death slow-motion effect
 	Engine.time_scale = 0.2
 	$CollisionShape2D.set_deferred("disabled", true)
 	
 	await get_tree().create_timer(1.0).timeout
+	# Reset to normal before scene reload
 	Engine.time_scale = 1.0
 	get_tree().reload_current_scene()
 
