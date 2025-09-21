@@ -37,11 +37,20 @@ signal movement_disabled
 @export var go_color: Color = Color.GREEN
 
 @export_group("Medal System")
-@export var gold_time_threshold: float = 45.0
-@export var silver_time_threshold: float = 50.0
 @export var gold_medal_texture: Texture2D
 @export var silver_medal_texture: Texture2D
 @export var bronze_medal_texture: Texture2D
+
+# Level-specific medal time requirements
+var level_medal_times = {
+	"tutorial": {"gold": 999999999.0, "silver": 9999999999999999999.0},
+	1: {"gold": 43.0, "silver": 50.0},
+	2: {"gold": 55.0, "silver": 70.0},
+	3: {"gold": 40.0, "silver": 55.0},
+	4: {"gold": 65.0, "silver": 80.0},
+	5: {"gold": 50.0, "silver": 65.0},
+	# Add more levels as needed
+}
 
 func _ready():
 	level_select_menu.level_selected.connect(_on_level_selected)
@@ -360,9 +369,15 @@ func _show_medal(finish_results):
 		medal_node.visible = true
 
 func _get_medal_texture_by_time(time: float) -> Texture2D:
-	if time <= gold_time_threshold: return gold_medal_texture
-	elif time <= silver_time_threshold: return silver_medal_texture
-	else: return bronze_medal_texture
+	var current_level_key = "tutorial" if is_tutorial_mode else current_level_number
+	var medal_times = level_medal_times.get(current_level_key, {"gold": 45.0, "silver": 60.0})
+	
+	if time <= medal_times.gold:
+		return gold_medal_texture
+	elif time <= medal_times.silver:
+		return silver_medal_texture
+	else:
+		return bronze_medal_texture
 
 func _get_current_coin_score() -> int:
 	var possible_paths = ["CoinCounter", "ScoreManager", "UI/CoinCounter", "UI/ScoreManager"]

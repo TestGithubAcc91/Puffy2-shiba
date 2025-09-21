@@ -1,3 +1,4 @@
+
 extends CharacterBody2D
 
 const SPEED = 150.0
@@ -72,6 +73,11 @@ var assigned_textures: Array[Texture2D] = []
 @export var bounce_speed: float = 600.0
 @export var high_jump_cooldown: float = 2.0
 
+# NEW: Coyote time variables
+@export var coyote_time_duration: float = 0.1
+var coyote_time_timer: Timer
+var can_coyote_jump: bool = false
+
 var high_jump_cooldown_timer: Timer
 var can_high_jump: bool = true
 var dash_timer: Timer
@@ -99,6 +105,7 @@ var zipline_grab_position: float = 0.0
 
 var movement_blocked_by_game: bool = false
 var original_time_scale: float = 1.0
+var was_on_floor_last_frame: bool = false
 
 func _ready():
 	# Store the original time scale
@@ -111,6 +118,7 @@ func _ready():
 	setup_durations()
 	setup_timers()
 	update_parry_ready_sprite()
+
 func setup_ui():
 	if glint_sprite:
 		glint_sprite.visible = false
@@ -132,7 +140,8 @@ func setup_timers():
 		{timer = "dash_timer", wait_time = dash_duration, callback = "_on_dash_timeout"},
 		{timer = "dash_cooldown_timer", wait_time = dash_cooldown, callback = "_on_dash_cooldown_timeout"},
 		{timer = "bounce_timer", wait_time = bounce_delay, callback = "_on_bounce_timeout"},
-		{timer = "high_jump_cooldown_timer", wait_time = high_jump_cooldown, callback = "_on_high_jump_cooldown_timeout"}
+		{timer = "high_jump_cooldown_timer", wait_time = high_jump_cooldown, callback = "_on_high_jump_cooldown_timeout"},
+		{timer = "coyote_time_timer", wait_time = coyote_time_duration, callback = "_on_coyote_time_timeout"}
 	]
 	
 	for config in timer_configs:
@@ -159,10 +168,33 @@ func update_parry_ready_sprite():
 		parry_ready_sprite.visible = true
 
 func _physics_process(delta: float) -> void:
+	# NEW: Handle coyote time tracking
+	handle_coyote_time()
+	
 	handle_input()
 	handle_movement(delta)
 	# Update zipline friction VFX every frame to ensure proper state
 	update_zipline_friction_vfx()
+
+# NEW: Function to handle coyote time logic
+func handle_coyote_time():
+	var is_currently_on_floor = is_on_floor()
+	
+	# If we were on the ground last frame but not this frame, start coyote time
+	if was_on_floor_last_frame and not is_currently_on_floor and not is_on_zipline:
+		can_coyote_jump = true
+		coyote_time_timer.start()
+	# If we land on the ground, reset coyote time
+	elif is_currently_on_floor:
+		can_coyote_jump = false
+		coyote_time_timer.stop()
+	
+	# Update the tracking variable for next frame
+	was_on_floor_last_frame = is_currently_on_floor
+
+# NEW: Function to check if jump is available (floor or coyote time)
+func can_jump() -> bool:
+	return is_on_floor() or can_coyote_jump
 
 func handle_input():
 	# Don't process any input if movement is blocked by the game (countdown)
@@ -183,13 +215,21 @@ func handle_input():
 	if Input.is_action_just_pressed("Dash") and can_dash and current_parry_stacks >= 1 and not is_on_vine and not is_on_zipline_check:
 		activate_dash()
 	
-	# Regular jump - works normally when not on zipline
-	if Input.is_action_just_pressed("Jump") and is_on_floor() and not is_on_zipline_check:
+	# MODIFIED: Regular jump - now uses coyote time
+	if Input.is_action_just_pressed("Jump") and can_jump() and not is_on_zipline_check:
 		velocity.y = JUMP_VELOCITY
+		# NEW: Consume coyote time when used
+		if can_coyote_jump and not is_on_floor():
+			can_coyote_jump = false
+			coyote_time_timer.stop()
 	
-	# High jump - cannot be used while on vine OR zipline
-	if Input.is_action_just_pressed("HighJump") and is_on_floor() and can_high_jump and current_parry_stacks >= 2 and not is_on_vine and not is_on_zipline_check:
+	# MODIFIED: High jump - now uses coyote time
+	if Input.is_action_just_pressed("HighJump") and can_jump() and can_high_jump and current_parry_stacks >= 2 and not is_on_vine and not is_on_zipline_check:
 		activate_high_jump()
+		# NEW: Consume coyote time when used
+		if can_coyote_jump and not is_on_floor():
+			can_coyote_jump = false
+			coyote_time_timer.stop()
 	
 	# Parry - NOW WORKS ON ZIPLINE! Only blocked by vine swinging
 	if Input.is_action_just_pressed("Parry") and can_parry and not is_on_vine:
@@ -589,7 +629,6 @@ func _on_parry_pre_freeze_timeout():
 	is_in_pre_freeze_parry = false
 	is_in_parry_freeze = true
 	
-
 	if parry_spark:
 		parry_spark.visible = false
 	parry_freeze_timer.start()
@@ -599,6 +638,11 @@ func _on_parry_freeze_timeout():
 	# Ensure timescale is reset
 	Engine.time_scale = original_time_scale
 	# ParrySpark is already hidden from _on_parry_pre_freeze_timeout()
+
+# NEW: Coyote time timeout callback
+func _on_coyote_time_timeout():
+	can_coyote_jump = false
+
 func reset_timescale():
 	Engine.time_scale = original_time_scale
 
@@ -633,6 +677,8 @@ func _on_player_died():
 	is_in_parry_freeze = false
 	is_in_pre_freeze_parry = false
 	is_vine_release_dash = false
+	can_coyote_jump = false
+	was_on_floor_last_frame = false  # NEW: Reset floor tracking
 	
 	if is_on_zipline and current_zipline:
 		current_zipline.release_player()
@@ -640,7 +686,8 @@ func _on_player_died():
 		current_zipline = null
 		zipline_in_range = null
 	
-	for timer in [parry_timer, parry_cooldown_timer, parry_freeze_timer, parry_pre_freeze_timer, dash_timer, dash_cooldown_timer, bounce_timer]:
+	# NEW: Stop coyote time timer on death
+	for timer in [parry_timer, parry_cooldown_timer, parry_freeze_timer, parry_pre_freeze_timer, dash_timer, dash_cooldown_timer, bounce_timer, coyote_time_timer]:
 		timer.stop()
 	
 	animated_sprite.modulate.a = 1.0
@@ -696,6 +743,7 @@ func grab_zipline():
 			end_dash()
 		return true
 	return false
+
 
 func release_zipline():
 	if not is_on_zipline or not current_zipline:
