@@ -23,6 +23,9 @@ var pause_screen = null
 # Results variables
 var finish_results = null
 
+# Tutorial variables
+var is_tutorial_mode = false
+
 # Signals
 signal movement_enabled
 signal movement_disabled
@@ -42,6 +45,13 @@ signal movement_disabled
 
 func _ready():
 	level_select_menu.level_selected.connect(_on_level_selected)
+	
+	# Connect tutorial button if it exists
+	if level_select_menu.has_node("TutorialButton"):
+		var tutorial_button = level_select_menu.get_node("TutorialButton")
+		if not tutorial_button.pressed.is_connected(_on_tutorial_button_pressed):
+			tutorial_button.pressed.connect(_on_tutorial_button_pressed)
+	
 	if black_curtain and level_select_menu.has_node("Camera2D"):
 		black_curtain.position.x = get_viewport().size.x
 
@@ -55,11 +65,16 @@ func _input(event):
 		get_viewport().set_input_as_handled()
 
 func _on_level_selected(level_number):
+	is_tutorial_mode = false
 	_start_curtain_transition(level_number)
 
-func _start_curtain_transition(level_number):
+func _on_tutorial_button_pressed():
+	is_tutorial_mode = true
+	_start_curtain_transition("tutorial")
+
+func _start_curtain_transition(level_identifier):
 	if not black_curtain:
-		_load_level_directly(level_number)
+		_load_level_directly(level_identifier)
 		return
 	
 	var menu_camera = level_select_menu.get_node("Camera2D")
@@ -72,10 +87,19 @@ func _start_curtain_transition(level_number):
 	tween.tween_property(black_curtain, "position:x", -get_viewport().size.x, 2.5)
 	
 	await get_tree().create_timer(1).timeout
-	_change_to_level(level_number)
+	_change_to_level(level_identifier)
 
-func _change_to_level(level_number):
-	current_level_number = level_number
+func _change_to_level(level_identifier):
+	# Convert to string for consistent comparison
+	var level_id_str = str(level_identifier)
+	
+	if level_id_str == "tutorial":
+		current_level_number = 0  # Special identifier for tutorial
+		is_tutorial_mode = true
+	else:
+		current_level_number = int(level_identifier)
+		is_tutorial_mode = false
+	
 	get_tree().paused = false
 	input_blocked = false
 	is_paused = false
@@ -87,15 +111,24 @@ func _change_to_level(level_number):
 	
 	level_select_menu.visible = false
 	
-	match level_number:
-		1:
-			current_level_scene = preload("res://Scenes/level_1_holder.tscn").instantiate()
-			add_child(current_level_scene)
-			await get_tree().process_frame
-			
-			_switch_to_player_camera()
-			_setup_connections()
-			_start_countdown()
+	if level_id_str == "tutorial":
+		current_level_scene = preload("res://Scenes/tutorial_holder.tscn").instantiate()
+		add_child(current_level_scene)
+		await get_tree().process_frame
+		
+		_switch_to_player_camera()
+		_setup_connections()
+		_start_countdown()
+	else:
+		match int(level_identifier):
+			1:
+				current_level_scene = preload("res://Scenes/level_1_holder.tscn").instantiate()
+				add_child(current_level_scene)
+				await get_tree().process_frame
+				
+				_switch_to_player_camera()
+				_setup_connections()
+				_start_countdown()
 
 func _switch_to_player_camera():
 	var menu_camera = level_select_menu.get_node("Camera2D")
@@ -500,26 +533,35 @@ func _restart_level_after_curtain():
 	get_tree().paused = false
 	input_blocked = false
 	is_paused = false
-	_change_to_level(current_level_number)
+	
+	if is_tutorial_mode:
+		_change_to_level("tutorial")
+	else:
+		_change_to_level(current_level_number)
 
 func _restart_level_directly():
 	get_tree().paused = false
 	input_blocked = false
 	is_paused = false
-	_change_to_level(current_level_number)
+	
+	if is_tutorial_mode:
+		_change_to_level("tutorial")
+	else:
+		_change_to_level(current_level_number)
 
 func _set_ui_process_mode_recursive(node: Node, process_mode: int):
 	node.process_mode = process_mode
 	for child in node.get_children():
 		_set_ui_process_mode_recursive(child, process_mode)
 
-func _load_level_directly(level_number):
-	_change_to_level(level_number)
+func _load_level_directly(level_identifier):
+	_change_to_level(level_identifier)
 
 func return_to_menu():
 	timer_running = false
 	input_blocked = false
 	is_paused = false
+	is_tutorial_mode = false
 	movement_enabled.emit()
 	get_tree().paused = false
 	_return_curtain_to_menu()
@@ -538,6 +580,7 @@ func _return_to_menu_without_curtain():
 	timer_running = false
 	input_blocked = false
 	is_paused = false
+	is_tutorial_mode = false
 	movement_enabled.emit()
 	get_tree().paused = false
 	
@@ -549,8 +592,6 @@ func _return_to_menu_without_curtain():
 		level_select_menu.get_node("Camera2D").enabled = true
 	
 	level_select_menu.visible = true
-
-
 
 func _return_curtain_to_menu():
 	if not black_curtain: return

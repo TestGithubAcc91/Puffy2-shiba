@@ -175,6 +175,7 @@ texture_hover = ExtResource("13_mirbq")
 stretch_mode = 0
 
 [node name="PauseScreen" type="Node2D" parent="PauseButton"]
+visible = false
 position = Vector2(-81.126625, 65.14714)
 scale = Vector2(0.7404885, 0.7404885)
 
