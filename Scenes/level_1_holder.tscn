@@ -1,9 +1,10 @@
-[gd_scene load_steps=53 format=4 uid="uid://xpuocal0bde6"]
+[gd_scene load_steps=54 format=4 uid="uid://xpuocal0bde6"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_0g1xm"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="2_aqorp"]
 [ext_resource type="PackedScene" uid="uid://bbgbw33ksf1q3" path="res://Scenes/air_puff_V.tscn" id="3_1fln0"]
 [ext_resource type="PackedScene" uid="uid://bp1jjjj6d1sce" path="res://Scenes/coin.tscn" id="4_py7y2"]
+[ext_resource type="PackedScene" uid="uid://cl0a34606f5ud" path="res://Scenes/black_curtain.tscn" id="4_qkcyj"]
 [ext_resource type="PackedScene" uid="uid://beodtqr1g8lyc" path="res://Scenes/charge.tscn" id="5_uch74"]
 [ext_resource type="PackedScene" uid="uid://dcdvbgcpw0scp" path="res://Scenes/platform.tscn" id="6_qkcyj"]
 [ext_resource type="Texture2D" uid="uid://3ofgthge4i5c" path="res://Assets/sprites/MapSprites/world_tileset.png" id="7_jpewp"]
@@ -581,7 +582,7 @@ coin_counter_label = NodePath("../UI/GlitCounter/GlitNumber")
 
 [node name="Player" parent="." instance=ExtResource("2_aqorp")]
 z_index = 1
-position = Vector2(12, 2)
+position = Vector2(4796, -70)
 collision_layer = 2
 air_puffV_scene = ExtResource("3_1fln0")
 dash_distance = 90.0
@@ -597,6 +598,9 @@ zoom = Vector2(4, 4)
 limit_bottom = 60
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0
+
+[node name="BlackCurtain" parent="Player/Camera2D" instance=ExtResource("4_qkcyj")]
+position = Vector2(306, -45)
 
 [node name="LevelHolder" type="Node" parent="."]
 

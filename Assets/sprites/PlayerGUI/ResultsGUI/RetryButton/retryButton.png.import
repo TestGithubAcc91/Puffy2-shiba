@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://46vy7cb23jph"
-path="res://.godot/imported/goldMedal.png-4df33fbe1d766d3bf45631d27c1d5da1.ctex"
+uid="uid://bs7lwd080a8ha"
+path="res://.godot/imported/retryButton.png-037c2d6e69cb5d6787a4f71b9556b361.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/sprites/PlayerGUI/Medals/goldMedal.png"
-dest_files=["res://.godot/imported/goldMedal.png-4df33fbe1d766d3bf45631d27c1d5da1.ctex"]
+source_file="res://Assets/sprites/PlayerGUI/ResultsGUI/RetryButton/retryButton.png"
+dest_files=["res://.godot/imported/retryButton.png-037c2d6e69cb5d6787a4f71b9556b361.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cfeexgonv4yxm"
-path="res://.godot/imported/silverMedal.png-3027d97c8d22b12e4c3cd298770dbb8c.ctex"
+uid="uid://cjsawkybxll0f"
+path="res://.godot/imported/retryHover.png-558c7277f6eee20350b5e0fd2a078bc0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/sprites/PlayerGUI/Medals/silverMedal.png"
-dest_files=["res://.godot/imported/silverMedal.png-3027d97c8d22b12e4c3cd298770dbb8c.ctex"]
+source_file="res://Assets/sprites/PlayerGUI/puffyHP/retryHover.png"
+dest_files=["res://.godot/imported/retryHover.png-558c7277f6eee20350b5e0fd2a078bc0.ctex"]
 
 [params]
 

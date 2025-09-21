@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d0bxjq2weyjxm"
-path="res://.godot/imported/pixil-frame-0.png-aa32865cd6de588297639736f50fb272.ctex"
+uid="uid://vg1uq2ejhuwa"
+path="res://.godot/imported/retryHover.png-8abca5d8fd1e6235b1df87b1b24f7032.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Scenes/pixil-frame-0.png"
-dest_files=["res://.godot/imported/pixil-frame-0.png-aa32865cd6de588297639736f50fb272.ctex"]
+source_file="res://Assets/sprites/PlayerGUI/ResultsGUI/RetryButton/retryHover.png"
+dest_files=["res://.godot/imported/retryHover.png-8abca5d8fd1e6235b1df87b1b24f7032.ctex"]
 
 [params]
 

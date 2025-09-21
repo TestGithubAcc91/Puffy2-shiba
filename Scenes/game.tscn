@@ -1,11 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://dtcx6xj2og0ed"]
+[gd_scene load_steps=6 format=3 uid="uid://dtcx6xj2og0ed"]
 
 [ext_resource type="PackedScene" uid="uid://bck8lw4sj2ly6" path="res://Scenes/level_select_menu.tscn" id="1_81klo"]
 [ext_resource type="Script" uid="uid://86bicgodvvg4" path="res://Scripts/game.gd" id="1_wrm1d"]
-[ext_resource type="Texture2D" uid="uid://46vy7cb23jph" path="res://Assets/sprites/PlayerGUI/Medals/goldMedal.png" id="2_i6g32"]
-[ext_resource type="Texture2D" uid="uid://cfeexgonv4yxm" path="res://Assets/sprites/PlayerGUI/Medals/silverMedal.png" id="3_1l0tm"]
-[ext_resource type="Texture2D" uid="uid://c0hhe4dvv6nxg" path="res://Assets/sprites/PlayerGUI/GeneralGUI/blackTriangle.png" id="3_wrm1d"]
-[ext_resource type="Texture2D" uid="uid://dwtpbp4ivoq5c" path="res://Assets/sprites/PlayerGUI/Medals/bronzeMedal.png" id="4_v158k"]
+[ext_resource type="Texture2D" uid="uid://46vy7cb23jph" path="res://Assets/sprites/PlayerGUI/ResultsGUI/Medals/goldMedal.png" id="2_i6g32"]
+[ext_resource type="Texture2D" uid="uid://cfeexgonv4yxm" path="res://Assets/sprites/PlayerGUI/ResultsGUI/Medals/silverMedal.png" id="3_1l0tm"]
+[ext_resource type="Texture2D" uid="uid://dwtpbp4ivoq5c" path="res://Assets/sprites/PlayerGUI/ResultsGUI/Medals/bronzeMedal.png" id="4_v158k"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_wrm1d")
@@ -19,71 +18,3 @@ bronze_medal_texture = ExtResource("4_v158k")
 
 [node name="LevelSelectMenu" parent="." instance=ExtResource("1_81klo")]
 position = Vector2(-12, -88)
-
-[node name="BlackCurtain" type="Node2D" parent="."]
-z_index = 5
-position = Vector2(238, -87)
-
-[node name="CurtainLeft" type="Sprite2D" parent="BlackCurtain"]
-position = Vector2(-101, -69)
-scale = Vector2(3, 3)
-texture = ExtResource("3_wrm1d")
-
-[node name="Curtain2" type="Sprite2D" parent="BlackCurtain/CurtainLeft"]
-position = Vector2(0, 16)
-texture = ExtResource("3_wrm1d")
-
-[node name="Curtain3" type="Sprite2D" parent="BlackCurtain/CurtainLeft"]
-position = Vector2(0, 30)
-texture = ExtResource("3_wrm1d")
-
-[node name="Curtain4" type="Sprite2D" parent="BlackCurtain/CurtainLeft"]
-position = Vector2(0, 46)
-texture = ExtResource("3_wrm1d")
-
-[node name="Curtain5" type="Sprite2D" parent="BlackCurtain/CurtainLeft"]
-position = Vector2(0, 62)
-texture = ExtResource("3_wrm1d")
-
-[node name="Curtain6" type="Sprite2D" parent="BlackCurtain/CurtainLeft"]
-position = Vector2(0, 78.16667)
-texture = ExtResource("3_wrm1d")
-
-[node name="CurtainRight" type="Sprite2D" parent="BlackCurtain"]
-position = Vector2(829, -69)
-scale = Vector2(3, 3)
-texture = ExtResource("3_wrm1d")
-flip_h = true
-
-[node name="Curtain2" type="Sprite2D" parent="BlackCurtain/CurtainRight"]
-position = Vector2(0, 16)
-texture = ExtResource("3_wrm1d")
-flip_h = true
-
-[node name="Curtain3" type="Sprite2D" parent="BlackCurtain/CurtainRight"]
-position = Vector2(0, 30)
-texture = ExtResource("3_wrm1d")
-flip_h = true
-
-[node name="Curtain4" type="Sprite2D" parent="BlackCurtain/CurtainRight"]
-position = Vector2(0, 46)
-texture = ExtResource("3_wrm1d")
-flip_h = true
-
-[node name="Curtain5" type="Sprite2D" parent="BlackCurtain/CurtainRight"]
-position = Vector2(0, 62)
-texture = ExtResource("3_wrm1d")
-flip_h = true
-
-[node name="Curtain6" type="Sprite2D" parent="BlackCurtain/CurtainRight"]
-position = Vector2(0, 78.16667)
-texture = ExtResource("3_wrm1d")
-flip_h = true
-
-[node name="ColorRect" type="ColorRect" parent="BlackCurtain"]
-offset_left = -88.00001
-offset_top = -128.0
-offset_right = -48.000008
-offset_bottom = -88.0
-scale = Vector2(22.661762, 8.960002)
-color = Color(0, 0, 0, 1)
