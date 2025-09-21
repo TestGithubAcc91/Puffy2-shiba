@@ -559,17 +559,18 @@ func _on_parry_timeout():
 		parry_cooldown_timer.wait_time = parry_fail_cooldown
 		parry_cooldown_timer.start()
 		
-		# CRITICAL FIX: Only disable invulnerability if:
-		# 1. Player wasn't already invulnerable before the parry AND
-		# 2. This wasn't an unparryable attack (which should maintain iframes from damage)
-		if not was_invulnerable_before_parry and not last_attack_was_unparryable:
+		# FIXED: Always disable invulnerability after failed parry, UNLESS:
+		# 1. Player was already invulnerable before the parry started AND
+		# 2. The attack was unparryable (maintaining damage iframes)
+		if was_invulnerable_before_parry and last_attack_was_unparryable:
+			# Keep invulnerable - player had iframes before parry and took unparryable damage
+			health_script.is_invulnerable = true
+		else:
+			# Remove invulnerability - either parry failed normally or player wasn't invulnerable before
 			health_script.is_invulnerable = false
-		# If it was unparryable, the damage system has already handled iframes appropriately
-		# If player was already invulnerable, maintain that state
 	else:
-		# Successful parry - only disable invulnerability if player wasn't already invulnerable
-		if not was_invulnerable_before_parry:
-			health_script.is_invulnerable = false
+		# Successful parry - restore pre-parry invulnerability state
+		health_script.is_invulnerable = was_invulnerable_before_parry
 		can_parry = true
 		
 		# Update ParryReady sprite when parry state changes

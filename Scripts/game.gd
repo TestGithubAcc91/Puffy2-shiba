@@ -20,6 +20,9 @@ var is_paused = false
 var pause_button = null
 var pause_screen = null
 
+# Results variables
+var finish_results = null
+
 # Signals
 signal movement_enabled
 signal movement_disabled
@@ -280,7 +283,7 @@ func _on_level_finish_entered(body):
 func _show_finish_results():
 	if not (current_level_scene and current_level_scene.has_node("UI/FinishResults")): return
 	
-	var finish_results = current_level_scene.get_node("UI/FinishResults")
+	finish_results = current_level_scene.get_node("UI/FinishResults")
 	finish_results.visible = true
 	finish_results.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	_set_ui_process_mode_recursive(finish_results, Node.PROCESS_MODE_WHEN_PAUSED)
@@ -355,10 +358,19 @@ func find_player_in_scene() -> Node:
 	var nodes = current_level_scene.find_children("*", "CharacterBody2D", true, false)
 	return nodes[0] if nodes.size() > 0 else null
 
+func _hide_results_page():
+	"""Hide the results page similar to how the pause menu is hidden"""
+	if finish_results:
+		finish_results.visible = false
+		# Reset process mode
+		finish_results.process_mode = Node.PROCESS_MODE_INHERIT
+
 func _on_retry_button_pressed():
+	_hide_results_page()
 	_start_retry_curtain_transition()
 
 func _on_home_button_pressed():
+	_hide_results_page()
 	_start_home_curtain_transition()
 
 func _start_home_curtain_transition():
@@ -407,8 +419,8 @@ func _start_home_curtain_transition():
 	# Store reference to curtain before returning to menu
 	var temp_curtain_ref = player_curtain
 	
-	# Return to menu
-	return_to_menu()
+	# Return to menu without curtain animation (we already did it)
+	_return_to_menu_without_curtain()
 	
 	# Clean up the curtain after menu transition
 	await get_tree().create_timer(0.1).timeout
@@ -520,6 +532,25 @@ func return_to_menu():
 		level_select_menu.get_node("Camera2D").enabled = true
 	
 	level_select_menu.visible = true
+
+func _return_to_menu_without_curtain():
+	"""Return to menu without playing the curtain animation (used when curtain was already animated)"""
+	timer_running = false
+	input_blocked = false
+	is_paused = false
+	movement_enabled.emit()
+	get_tree().paused = false
+	
+	if current_level_scene:
+		current_level_scene.queue_free()
+		current_level_scene = null
+	
+	if level_select_menu.has_node("Camera2D"):
+		level_select_menu.get_node("Camera2D").enabled = true
+	
+	level_select_menu.visible = true
+
+
 
 func _return_curtain_to_menu():
 	if not black_curtain: return

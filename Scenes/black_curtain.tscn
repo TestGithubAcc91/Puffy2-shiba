@@ -9,7 +9,7 @@ z_as_relative = false
 [node name="CurtainLeft" type="Sprite2D" parent="."]
 z_index = 4096
 z_as_relative = false
-position = Vector2(-101, -69)
+position = Vector2(-101, 7.9999695)
 scale = Vector2(3, 3)
 texture = ExtResource("1_4iccq")
 
@@ -46,7 +46,7 @@ texture = ExtResource("1_4iccq")
 [node name="CurtainRight" type="Sprite2D" parent="."]
 z_index = 4096
 z_as_relative = false
-position = Vector2(829, -69)
+position = Vector2(829, 7.9999695)
 scale = Vector2(3, 3)
 texture = ExtResource("1_4iccq")
 flip_h = true
@@ -90,9 +90,9 @@ flip_h = true
 z_index = 4096
 z_as_relative = false
 offset_left = -88.00001
-offset_top = -128.0
+offset_top = -51.00004
 offset_right = -48.000008
-offset_bottom = -88.0
+offset_bottom = -11.000038
 scale = Vector2(22.661762, 8.960002)
 color = Color(0, 0, 0, 1)
 metadata/_edit_use_anchors_ = true
@@ -100,7 +100,7 @@ metadata/_edit_use_anchors_ = true
 [node name="CurtainLeft2" type="Sprite2D" parent="."]
 z_index = 4096
 z_as_relative = false
-position = Vector2(-101, -348)
+position = Vector2(-101, -271.00003)
 scale = Vector2(3, 3)
 texture = ExtResource("1_4iccq")
 
@@ -137,7 +137,7 @@ texture = ExtResource("1_4iccq")
 [node name="CurtainRight2" type="Sprite2D" parent="."]
 z_index = 4096
 z_as_relative = false
-position = Vector2(829, -348)
+position = Vector2(829, -271.00003)
 scale = Vector2(3, 3)
 texture = ExtResource("1_4iccq")
 flip_h = true
@@ -181,9 +181,9 @@ flip_h = true
 z_index = 4096
 z_as_relative = false
 offset_left = -88.00001
-offset_top = -406.99997
+offset_top = -330.0
 offset_right = -48.000008
-offset_bottom = -366.99997
+offset_bottom = -290.0
 scale = Vector2(22.661762, 8.960002)
 color = Color(0, 0, 0, 1)
 metadata/_edit_use_anchors_ = true

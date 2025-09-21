@@ -367,7 +367,7 @@ texture = ExtResource("16_poxr6")
 
 [node name="Player" parent="." instance=ExtResource("2_aqorp")]
 z_index = 1
-position = Vector2(25, -17)
+position = Vector2(-2, 3)
 collision_layer = 2
 dash_distance = 90.0
 dash_speed = 300.0
