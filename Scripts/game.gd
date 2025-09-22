@@ -415,53 +415,74 @@ func _hide_results_page():
 
 func _on_retry_button_pressed():
 	_hide_results_page()
+	_unpause_game()
 	_start_retry_curtain_transition()
 
 func _on_home_button_pressed():
 	_hide_results_page()
+	_unpause_game()
 	_start_home_curtain_transition()
 
+# UNIFIED HOME BUTTON TRANSITION - Works the same for tutorial and all levels
 func _start_home_curtain_transition():
-	get_tree().paused = false
-	is_paused = false
+	print("Starting home curtain transition - Tutorial mode: ", is_tutorial_mode, " Level: ", current_level_number)
+	
+	# Find player and camera - this should work for both tutorial and level 1
 	var player = find_player_in_scene()
 	if not player:
+		print("No player found, returning to menu directly")
 		return_to_menu()
 		return
 	
 	var player_camera = _find_player_camera(player)
-	var player_curtain = player_camera.get_node("BlackCurtain") if player_camera and player_camera.has_node("BlackCurtain") else null
-	
-	if not player_curtain:
+	if not player_camera:
+		print("No player camera found, returning to menu directly")
 		return_to_menu()
 		return
 	
+	var player_curtain = player_camera.get_node("BlackCurtain") if player_camera.has_node("BlackCurtain") else null
+	if not player_curtain:
+		print("No curtain found, returning to menu directly")
+		return_to_menu()
+		return
+	
+	print("Found all components, starting curtain animation")
+	
+	# Block input and disable movement
 	input_blocked = true
 	movement_disabled.emit()
 	
+	# Ensure curtain can be animated even if coming from paused state
+	player_curtain.process_mode = Node.PROCESS_MODE_ALWAYS
+	
 	# Get camera's current position before reparenting
 	var camera_global_pos = player_camera.global_position
+	var viewport_size = get_viewport().size
+	
+	print("Camera position: ", camera_global_pos)
+	print("Viewport size: ", viewport_size)
 	
 	# Temporarily reparent the BlackCurtain to the Game node to survive scene transition
 	player_curtain.reparent(self)  # Move to Game node
 	
 	# Position curtain off-screen to the right relative to camera position in world space
-	var viewport_size = get_viewport().size
-	player_curtain.global_position = Vector2(
-		camera_global_pos.x + viewport_size.x * 0.5 + viewport_size.x,  # Off-screen right
-		camera_global_pos.y  # Same Y as camera
-	)
+	var start_x = camera_global_pos.x + viewport_size.x * 0.5 + viewport_size.x
+	player_curtain.global_position = Vector2(start_x, camera_global_pos.y)
 	
-	# Create a tween to move the curtain (same parameters as retry)
+	print("Curtain start position: ", player_curtain.global_position)
+	
+	# Create a tween to move the curtain - ensure it works regardless of pause state
 	var tween = create_tween()
 	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	
 	# Move curtain from right to cover the screen and beyond in world space
-	var target_global_x = camera_global_pos.x - viewport_size.x * 0.5 - viewport_size.x
-	tween.tween_property(player_curtain, "global_position:x", target_global_x, 2.5)
+	var target_x = camera_global_pos.x - viewport_size.x * 0.5 - viewport_size.x
+	print("Curtain target position: ", target_x)
 	
-	# Wait for curtain to cover screen (same timing as retry)
+	tween.tween_property(player_curtain, "global_position:x", target_x, 2.5)
+	
+	# Wait for curtain to cover screen
 	await get_tree().create_timer(0.8).timeout
 	
 	# Store reference to curtain before returning to menu
@@ -470,14 +491,19 @@ func _start_home_curtain_transition():
 	# Return to menu without curtain animation (we already did it)
 	_return_to_menu_without_curtain()
 	
-	# Clean up the curtain after menu transition
-	await get_tree().create_timer(0.1).timeout
+	# CRITICAL: Wait for the full curtain animation to complete before cleanup
+	# This prevents the "snappy ending" by letting the tween finish naturally
 	if is_instance_valid(temp_curtain_ref):
-		temp_curtain_ref.queue_free()
+		# Wait for the FULL remaining animation time
+		await get_tree().create_timer(1.7).timeout  # Total remaining time (2.5 - 0.8)
+		
+		# Only cleanup if curtain still exists and animation should be complete
+		if is_instance_valid(temp_curtain_ref):
+			print("Cleaning up curtain after animation completion")
+			temp_curtain_ref.queue_free()
 
 func _start_retry_curtain_transition():
-	get_tree().paused = false
-	is_paused = false
+	# Make sure the curtain can animate properly
 	var player = find_player_in_scene()
 	if not player:
 		_restart_level_directly()
@@ -492,6 +518,9 @@ func _start_retry_curtain_transition():
 	
 	input_blocked = true
 	movement_disabled.emit()
+	
+	# Ensure curtain can be animated even if coming from paused state
+	player_curtain.process_mode = Node.PROCESS_MODE_ALWAYS
 	
 	# Get camera's current position before reparenting
 	var camera_global_pos = player_camera.global_position
@@ -506,7 +535,7 @@ func _start_retry_curtain_transition():
 		camera_global_pos.y  # Same Y as camera
 	)
 	
-	# Create a tween to move the curtain (same parameters as original)
+	# Create a tween to move the curtain - ensure it works regardless of pause state
 	var tween = create_tween()
 	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
@@ -534,14 +563,18 @@ func _start_retry_curtain_transition():
 			var curtain_global_pos_final = temp_curtain_ref.global_position
 			temp_curtain_ref.reparent(new_player_camera)
 			temp_curtain_ref.global_position = curtain_global_pos_final
+			# Reset process mode back to inherit
+			temp_curtain_ref.process_mode = Node.PROCESS_MODE_INHERIT
 			
-			# Let the curtain finish its animation
-			await get_tree().create_timer(1.4).timeout  # Remaining animation time
+			# Let the curtain finish its animation - wait for the full remaining time
+			await get_tree().create_timer(1.4).timeout  # Remaining animation time (2.5 - 0.8 - 0.1 - 0.2 buffer)
 		elif is_instance_valid(temp_curtain_ref):
-			# If no new camera found, clean up the curtain
+			# If no new camera found, wait for animation to complete before cleanup
+			await get_tree().create_timer(1.4).timeout
 			temp_curtain_ref.queue_free()
 	elif is_instance_valid(temp_curtain_ref):
-		# If no new player found, clean up the curtain
+		# If no new player found, wait for animation to complete before cleanup
+		await get_tree().create_timer(1.4).timeout
 		temp_curtain_ref.queue_free()
 
 func _restart_level_after_curtain():
