@@ -179,28 +179,39 @@ func _find_player_camera(player):
 func _setup_connections():
 	var player = find_player_in_scene()
 	if player:
-		# Movement signals
-		movement_disabled.connect(player._on_movement_disabled)
-		movement_enabled.connect(player._on_movement_enabled)
+		# Connect movement signals
+		if not movement_disabled.is_connected(player._on_movement_disabled):
+			movement_disabled.connect(player._on_movement_disabled)
+		if not movement_enabled.is_connected(player._on_movement_enabled):
+			movement_enabled.connect(player._on_movement_enabled)
 		
-		# Health tracking
+		# Connect damage tracking
 		if player.has_node("HealthScript"):
-			player.get_node("HealthScript").health_decreased.connect(_on_player_damage_taken)
+			var health_script = player.get_node("HealthScript")
+			if not health_script.health_decreased.is_connected(_on_player_damage_taken):
+				health_script.health_decreased.connect(_on_player_damage_taken)
 		
-		# Parry tracking
-		if player.has_signal("parry_success"):
+		# Connect parry tracking
+		if player.has_signal("parry_success") and not player.parry_success.is_connected(_on_player_parry_success):
 			player.parry_success.connect(_on_player_parry_success)
 	
-	# Level finish
+	# Connect level finish
 	if current_level_scene and current_level_scene.has_node("LevelFinish"):
-		current_level_scene.get_node("LevelFinish").body_entered.connect(_on_level_finish_entered)
+		var level_finish = current_level_scene.get_node("LevelFinish")
+		if not level_finish.body_entered.is_connected(_on_level_finish_entered):
+			level_finish.body_entered.connect(_on_level_finish_entered)
 	
-	# UI connections
-	_connect_ui_buttons()
+	# DON'T connect result buttons here - we'll connect them when results show
+	# This prevents timing issues
+	
+	# Connect pause button
 	_setup_pause_button()
+	
+	# Connect glits tracking
 	_connect_glits_tracking()
+	
+	# Setup timer
 	_setup_timer()
-	_connect_level_buttons_sound()
 
 func _connect_level_buttons_sound():
 	# Connect sound to all buttons in the current level scene
@@ -209,17 +220,7 @@ func _connect_level_buttons_sound():
 		for button in level_buttons:
 			_connect_button_sound(button)
 
-func _connect_ui_buttons():
-	var button_paths = [
-		{"path": "UI/FinishResults/RetryButton", "signal": "_on_retry_button_pressed"},
-		{"path": "UI/FinishResults/HomeButton", "signal": "_on_home_button_pressed"}
-	]
-	
-	for button_data in button_paths:
-		if current_level_scene and current_level_scene.has_node(button_data.path):
-			var button = current_level_scene.get_node(button_data.path)
-			button.pressed.connect(Callable(self, button_data.signal))
-			_connect_button_sound(button)
+
 
 func _setup_pause_button():
 	if not (current_level_scene and current_level_scene.has_node("UI/PauseButton")): return
@@ -311,6 +312,10 @@ func _show_finish_results():
 	finish_results = current_level_scene.get_node("UI/FinishResults")
 	finish_results.visible = true
 	
+	# CRITICAL: Ensure buttons are properly set up and connections exist
+	_ensure_result_buttons_connected()
+	
+	# Show results with delays
 	var results_data = [
 		{"path": "Results/Time", "text": "TIME................%.2f" % elapsed_time, "delay": 1.0},
 		{"path": "Results/Damage", "text": "DAMAGE.............%d" % damage_count, "delay": 0.5},
@@ -326,13 +331,210 @@ func _show_finish_results():
 			label.visible = true
 			if data.text: label.text = data.text
 	
+	# Show medal
 	await get_tree().create_timer(1.0).timeout
 	_show_medal(finish_results)
 	
+	# Show and enable buttons
 	await get_tree().create_timer(1.0).timeout
+	
+	# Make buttons visible and ensure they're properly configured
 	for button_name in ["RetryButton", "HomeButton"]:
 		if finish_results.has_node(button_name):
-			finish_results.get_node(button_name).visible = true
+			var button = finish_results.get_node(button_name)
+			button.visible = true
+			button.disabled = false
+			button.mouse_filter = Control.MOUSE_FILTER_PASS
+			print("Made button visible and clickable: ", button_name)
+	
+	# CRITICAL: Enable input after showing buttons
+	input_blocked = false
+	print("Input unblocked, buttons should be clickable now")
+	
+func _ensure_result_buttons_connected():
+	"""Ensure result buttons are properly connected - called right when results show"""
+	if not finish_results: return
+	
+	# Connect RetryButton
+	if finish_results.has_node("RetryButton"):
+		var retry_button = finish_results.get_node("RetryButton")
+		
+		# Disconnect any existing connections
+		if retry_button.pressed.is_connected(_on_retry_button_pressed):
+			retry_button.pressed.disconnect(_on_retry_button_pressed)
+		
+		# Connect fresh
+		retry_button.pressed.connect(_on_retry_button_pressed)
+		retry_button.disabled = false
+		retry_button.mouse_filter = Control.MOUSE_FILTER_PASS
+		print("Connected RetryButton")
+	
+	# Connect HomeButton  
+	if finish_results.has_node("HomeButton"):
+		var home_button = finish_results.get_node("HomeButton")
+		
+		# Disconnect any existing connections
+		if home_button.pressed.is_connected(_on_home_button_pressed):
+			home_button.pressed.disconnect(_on_home_button_pressed)
+			
+		# Connect fresh
+		home_button.pressed.connect(_on_home_button_pressed)
+		home_button.disabled = false
+		home_button.mouse_filter = Control.MOUSE_FILTER_PASS
+		print("Connected HomeButton")
+
+# Also update the _connect_ui_buttons function to be more robust
+func _connect_ui_buttons():
+	var button_paths = [
+		{"path": "UI/FinishResults/RetryButton", "signal": "_on_retry_button_pressed"},
+		{"path": "UI/FinishResults/HomeButton", "signal": "_on_home_button_pressed"}
+	]
+	
+	for button_data in button_paths:
+		if current_level_scene and current_level_scene.has_node(button_data.path):
+			var button = current_level_scene.get_node(button_data.path)
+			
+			# Ensure button is properly configured
+			button.disabled = false
+			button.mouse_filter = Control.MOUSE_FILTER_PASS
+			
+			# Connect the signal if not already connected
+			var method_name = button_data.signal
+			if not button.pressed.is_connected(Callable(self, method_name)):
+				button.pressed.connect(Callable(self, method_name))
+			
+			_connect_button_sound(button)
+			print("Connected button: " + button_data.path)  # Debug print
+
+# Update your button handlers with debug prints:
+func _on_retry_button_pressed():
+	print("RETRY BUTTON PRESSED - Starting retry sequence")
+	_hide_results_page()
+	input_blocked = true
+	_start_retry_curtain_transition()
+
+func _on_home_button_pressed():
+	print("HOME BUTTON PRESSED - Starting home sequence")
+	_hide_results_page()
+	input_blocked = true
+	_start_home_curtain_transition()
+
+func _start_home_curtain_transition():
+	print("Starting home curtain transition - Tutorial mode: ", is_tutorial_mode, " Level: ", current_level_number)
+	
+	# Find player and camera
+	var player = find_player_in_scene()
+	if not player:
+		print("No player found, returning to menu directly")
+		_return_to_menu_without_curtain()
+		return
+	
+	var player_camera = _find_player_camera(player)
+	if not player_camera:
+		print("No player camera found, returning to menu directly")
+		_return_to_menu_without_curtain()
+		return
+	
+	var player_curtain = player_camera.get_node("BlackCurtain") if player_camera.has_node("BlackCurtain") else null
+	if not player_curtain:
+		print("No curtain found, returning to menu directly")
+		_return_to_menu_without_curtain()
+		return
+	
+	print("Found all components, starting curtain animation")
+	
+	# Block input and disable movement
+	input_blocked = true
+	movement_disabled.emit()
+	
+	# Ensure curtain can be animated 
+	player_curtain.process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	# Use camera-relative positioning
+	var viewport_size = get_viewport().size
+	
+	# Ensure curtain is child of camera for proper relative positioning
+	if player_curtain.get_parent() != player_camera:
+		player_curtain.reparent(player_camera)
+	
+	# Position curtain relative to camera - prevents culling
+	player_curtain.position = Vector2(viewport_size.x, 0)
+	
+	print("Curtain positioned at: ", player_curtain.position, " (relative to camera)")
+	
+	# Create tween
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	
+	# Move curtain to cover screen
+	tween.tween_property(player_curtain, "position:x", -viewport_size.x, 2.5)
+	
+	# Wait for curtain to cover screen
+	await get_tree().create_timer(0.8).timeout
+	
+	# Return to menu
+	_return_to_menu_without_curtain()
+	
+	# Wait for animation to complete
+	await get_tree().create_timer(1.7).timeout
+
+func _start_retry_curtain_transition():
+	print("Starting retry curtain transition")
+	
+	# Find player and camera
+	var player = find_player_in_scene()
+	if not player:
+		_restart_level_after_curtain()
+		return
+	
+	var player_camera = _find_player_camera(player)
+	var player_curtain = player_camera.get_node("BlackCurtain") if player_camera and player_camera.has_node("BlackCurtain") else null
+	
+	if not player_curtain:
+		_restart_level_after_curtain()
+		return
+	
+	input_blocked = true
+	movement_disabled.emit()
+	
+	# Ensure curtain can be animated 
+	player_curtain.process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	# Use camera-relative positioning
+	var viewport_size = get_viewport().size
+	
+	# Ensure curtain is child of camera
+	if player_curtain.get_parent() != player_camera:
+		player_curtain.reparent(player_camera)
+	
+	# Position relative to camera
+	player_curtain.position = Vector2(viewport_size.x, 0)
+	
+	print("Retry curtain positioned at: ", player_curtain.position, " (camera-relative)")
+	
+	# Create tween
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	
+	# Animate to cover screen
+	tween.tween_property(player_curtain, "position:x", -viewport_size.x, 2.5)
+	
+	# Wait for curtain to cover screen
+	await get_tree().create_timer(0.8).timeout
+	
+	_restart_level_after_curtain()
+	
+	# Wait for animation to complete
+	await get_tree().create_timer(1.7).timeout
+
+
+# Add the missing _hide_results_page function:
+func _hide_results_page():
+	"""Hide the results page"""
+	if finish_results:
+		finish_results.visible = false
+		# Reset process mode
+		finish_results.process_mode = Node.PROCESS_MODE_INHERIT
 
 func _show_medal(finish_results):
 	if finish_results.has_node("Results/Medal"):
@@ -435,14 +637,7 @@ func _start_curtain_transition_generic(target_function: Callable):
 	target_function.call()
 	await get_tree().create_timer(1.7).timeout
 
-# Button handlers
-func _on_retry_button_pressed():
-	if finish_results: finish_results.visible = false
-	_start_curtain_transition_generic(_restart_level_after_curtain)
 
-func _on_home_button_pressed():
-	if finish_results: finish_results.visible = false
-	_start_curtain_transition_generic(_return_to_menu_without_curtain)
 
 func _on_pause_retry_button_pressed():
 	_unpause_game()
