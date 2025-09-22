@@ -1,4 +1,3 @@
-
 extends CharacterBody2D
 
 const SPEED = 150.0
@@ -19,6 +18,15 @@ const HIGH_JUMP_VELOCITY = -350.0
 # NEW: Export textures for ParryReady sprite states
 @export var parry_ready_texture: Texture2D
 @export var parry_not_ready_texture: Texture2D
+
+# NEW: Audio system (following Game.gd pattern)
+var whoosh_audio_player: AudioStreamPlayer
+var parry_audio_player: AudioStreamPlayer
+var zipline_audio_player: AudioStreamPlayer
+@export_group("Audio")
+@export var whoosh_sound: AudioStream
+@export var parry_success_sound: AudioStream
+@export var zipline_sound: AudioStream
 
 var last_attack_was_unparryable: bool = false
 
@@ -111,6 +119,9 @@ func _ready():
 	# Store the original time scale
 	original_time_scale = Engine.time_scale
 	
+	# NEW: Setup audio system (following Game.gd pattern)
+	_setup_audio_system()
+	
 	# ... rest of your existing _ready() code
 	health_script.died.connect(_on_player_died)
 	setup_charge_system()
@@ -118,6 +129,60 @@ func _ready():
 	setup_durations()
 	setup_timers()
 	update_parry_ready_sprite()
+
+# NEW: Setup audio system (copied from Game.gd pattern)
+func _setup_audio_system():
+	# Create dedicated AudioStreamPlayer for whoosh sounds
+	whoosh_audio_player = AudioStreamPlayer.new()
+	whoosh_audio_player.name = "WhooshAudioPlayer"
+	whoosh_audio_player.bus = "SFX"
+	if whoosh_sound:
+		whoosh_audio_player.stream = whoosh_sound
+	add_child(whoosh_audio_player)
+	
+	# Create dedicated AudioStreamPlayer for parry success sounds
+	parry_audio_player = AudioStreamPlayer.new()
+	parry_audio_player.name = "ParryAudioPlayer"
+	parry_audio_player.bus = "SFX"
+	if parry_success_sound:
+		parry_audio_player.stream = parry_success_sound
+	add_child(parry_audio_player)
+	
+	# Create dedicated AudioStreamPlayer for zipline sounds
+	zipline_audio_player = AudioStreamPlayer.new()
+	zipline_audio_player.name = "ZiplineAudioPlayer"
+	zipline_audio_player.bus = "SFX"
+	if zipline_sound:
+		zipline_audio_player.stream = zipline_sound
+	add_child(zipline_audio_player)
+	
+	print("Audio system setup complete - Whoosh: ", whoosh_sound != null, " Parry: ", parry_success_sound != null, " Zipline: ", zipline_sound != null)
+
+# NEW: Play whoosh sound (following Game.gd pattern)
+func _play_whoosh_sound():
+	if whoosh_audio_player and whoosh_sound:
+		whoosh_audio_player.play()
+		print("Playing whoosh sound")
+
+# NEW: Play parry success sound (following Game.gd pattern)
+func _play_parry_success_sound():
+	if parry_audio_player and parry_success_sound:
+		parry_audio_player.play()
+		print("Playing parry success sound")
+	else:
+		print("Parry sound failed - Player: ", parry_audio_player != null, " Sound: ", parry_success_sound != null)
+
+# NEW: Play zipline sound (looping while on zipline)
+func _play_zipline_sound():
+	if zipline_audio_player and zipline_sound and not zipline_audio_player.playing:
+		zipline_audio_player.play()
+		print("Playing zipline sound")
+
+# NEW: Stop zipline sound
+func _stop_zipline_sound():
+	if zipline_audio_player and zipline_audio_player.playing:
+		zipline_audio_player.stop()
+		print("Stopping zipline sound")
 
 func setup_ui():
 	if glint_sprite:
@@ -437,6 +502,9 @@ func on_parry_success():
 	# Update ParryReady sprite when parry state changes
 	update_parry_ready_sprite()
 	
+	# NEW: Play parry success sound effect
+	_play_parry_success_sound()
+	
 	parry_pre_freeze_timer.start()
 	call_deferred("_play_parry_animation")
 	
@@ -464,10 +532,17 @@ func activate_dash():
 	can_dash = false
 	is_vine_release_dash = false  # Regular dashes are NOT vine release dashes
 	
+	# NEW: Play whoosh sound effect
+	_play_whoosh_sound()
+	
 	spawn_air_puff()
 	animated_sprite.play("Dash")
 	dash_timer.start()
 	dash_cooldown_timer.start()
+
+# NEW: Function for vine component to trigger whoosh sound on dismount dash
+func play_vine_dismount_sound():
+	_play_whoosh_sound()
 
 func activate_high_jump():
 	if not can_high_jump or current_parry_stacks < 2:
@@ -479,6 +554,10 @@ func activate_high_jump():
 	velocity.y = HIGH_JUMP_VELOCITY
 	can_high_jump = false
 	high_jump_cooldown_timer.start()
+	
+	# NEW: Play whoosh sound effect
+	_play_whoosh_sound()
+	
 	spawn_air_puffV()
 
 func handle_wall_bounce():
@@ -671,6 +750,9 @@ func _on_player_died():
 	# ALWAYS reset timescale first
 	reset_timescale()
 	
+	# NEW: Stop all audio when player dies
+	_stop_zipline_sound()
+	
 	is_parrying = false
 	is_dashing = false
 	is_bouncing = false
@@ -741,6 +823,10 @@ func grab_zipline():
 		# Stop any current movement
 		if is_dashing:
 			end_dash()
+		
+		# NEW: Start playing zipline sound
+		_play_zipline_sound()
+		
 		return true
 	return false
 
@@ -748,6 +834,9 @@ func grab_zipline():
 func release_zipline():
 	if not is_on_zipline or not current_zipline:
 		return
+	
+	# NEW: Stop zipline sound
+	_stop_zipline_sound()
 	
 	# Perform a dash-like release if player has charges
 	if current_parry_stacks >= 1:

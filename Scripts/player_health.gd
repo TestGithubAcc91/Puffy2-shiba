@@ -1,5 +1,6 @@
 extends Node
 class_name Health
+
 signal health_changed(new_health: int)
 signal died
 signal iframe_started
@@ -16,8 +17,14 @@ var is_invulnerable: bool = false
 var iframe_timer: Timer
 var flicker_timer: Timer
 var is_flickering: bool = false
+
 # Reference to the animated sprite for flickering
 var animated_sprite: AnimatedSprite2D
+
+# NEW: Audio system for damage sounds
+var damage_audio_player: AudioStreamPlayer
+@export_group("Audio")
+@export var damage_sound: AudioStream
 
 func _ready():
 	current_health = max_health
@@ -26,6 +33,9 @@ func _ready():
 	var parent = get_parent()
 	if parent.has_node("MainSprite"):
 		animated_sprite = parent.get_node("MainSprite")
+	
+	# NEW: Setup audio system
+	_setup_audio_system()
 	
 	# Create iframe timer
 	iframe_timer = Timer.new()
@@ -39,6 +49,24 @@ func _ready():
 	flicker_timer.wait_time = flicker_interval
 	flicker_timer.timeout.connect(_on_flicker_timeout)
 	add_child(flicker_timer)
+
+# NEW: Setup audio system (following the same pattern as Player.gd)
+func _setup_audio_system():
+	# Create dedicated AudioStreamPlayer for damage sounds
+	damage_audio_player = AudioStreamPlayer.new()
+	damage_audio_player.name = "DamageAudioPlayer"
+	damage_audio_player.bus = "SFX"
+	if damage_sound:
+		damage_audio_player.stream = damage_sound
+	add_child(damage_audio_player)
+	
+	print("Health audio system setup complete - Damage: ", damage_sound != null)
+
+# NEW: Play damage sound effect
+func _play_damage_sound():
+	if damage_audio_player and damage_sound:
+		damage_audio_player.play()
+		print("Playing damage sound")
 
 func take_damage(amount: int, ignore_iframes: bool = false):
 	# Store health before damage
@@ -63,6 +91,9 @@ func take_damage(amount: int, ignore_iframes: bool = false):
 	
 	# Always emit damage_taken when damage function is called
 	damage_taken.emit()
+	
+	# NEW: Play damage sound effect when damage is actually taken
+	_play_damage_sound()
 	
 	# ALWAYS grant invulnerability and start visual iframes after taking damage
 	# This ensures the player gets iframes even when parrying unparryable attacks

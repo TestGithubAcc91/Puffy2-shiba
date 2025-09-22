@@ -251,6 +251,8 @@ func trigger_vine_release_dash(direction: Vector2):
 	player.spawn_air_puff()
 	player.animated_sprite.play("Dash")
 	
+	player.play_vine_dismount_sound()
+	
 	player.dash_timer.start()
 	if original_can_dash:
 		player.can_dash = true
