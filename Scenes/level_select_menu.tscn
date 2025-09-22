@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bck8lw4sj2ly6"]
+[gd_scene load_steps=15 format=3 uid="uid://bck8lw4sj2ly6"]
 
 [ext_resource type="Script" uid="uid://cojgak2pyu7c6" path="res://Scripts/level_select_menu.gd" id="1_52mtt"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="1_271b8"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://c7xrjmuinukls" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/greenButtonHover.png" id="10_yts2j"]
 [ext_resource type="BitMap" uid="uid://bb7g1utteh3sf" path="res://Assets/sprites/PlayerGUI/GeneralGUI/buttonMask.png" id="11_ube50"]
 [ext_resource type="Texture2D" uid="uid://c0hhe4dvv6nxg" path="res://Assets/sprites/PlayerGUI/GeneralGUI/blackTriangle.png" id="13_era5x"]
+[ext_resource type="Texture2D" uid="uid://ouqmuvrrxeqd" path="res://Assets/sprites/PlayerGUI/GeneralGUI/tiles.png" id="14_1ekpb"]
 
 [node name="LevelSelectMenu" type="Node2D"]
 script = ExtResource("1_52mtt")
@@ -335,3 +336,439 @@ offset_bottom = -109.0
 scale = Vector2(22.661762, 8.960002)
 color = Color(0, 0, 0, 1)
 metadata/_edit_use_anchors_ = true
+
+[node name="Tiles" type="Node2D" parent="Background"]
+position = Vector2(-72.13291, 23.787458)
+rotation = -0.29402962
+
+[node name="Tile" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-58.88185, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile2" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-27, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile3" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(5, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile4" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(37, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile5" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(68.88185, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile6" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(100.88185, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile7" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(133, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile8" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(164.88185, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile9" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(196.88185, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile10" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(228.88185, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile11" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(260.7637, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile12" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(292.7637, -88.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile13" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-58.88185, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile14" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-27, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile15" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(5, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile16" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(37, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile17" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(68.88185, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile18" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(100.88185, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile19" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(133, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile20" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(164.88185, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile21" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(196.88185, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile22" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(228.88185, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile23" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(260.7637, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile24" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(292.7637, -57)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile25" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-58.88185, -25)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile26" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-27, -25)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile27" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(5, -25)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile28" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(37, -25)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile29" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(68.88185, -25)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile30" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(100.88185, -25)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile31" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(133, -25)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile32" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(164.88185, -25)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile33" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(196.88185, -25)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile34" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(228.88185, -25)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile35" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(260.7637, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile36" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(292.7637, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile37" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-58.88185, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile38" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-27, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile39" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(5, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile40" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(37, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile41" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(68.88185, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile42" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(100.88185, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile43" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(133, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile44" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(164.88185, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile45" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(196.88185, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile46" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(228.88185, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile47" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(260.7637, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile48" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(292.7637, 7)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile49" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-58.88185, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile50" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-27, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile51" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(5, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile52" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(37, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile53" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(68.88185, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile54" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(100.88185, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile55" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(133, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile56" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(164.88185, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile57" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(196.88185, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile58" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(228.88185, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile59" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(260.7637, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile60" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(292.7637, 38.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile61" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-58.88185, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile62" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(-27, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile63" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(5, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile64" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(37, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile65" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(68.88185, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile66" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(100.88185, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile67" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(133, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile68" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(164.88185, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile69" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(196.88185, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile70" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(228.88185, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile71" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(260.7637, 70.75769)
+texture = ExtResource("14_1ekpb")
+
+[node name="Tile72" type="Sprite2D" parent="Background/Tiles"]
+self_modulate = Color(1, 1, 1, 0.3529412)
+z_index = -3
+position = Vector2(292.7637, 70.75769)
+texture = ExtResource("14_1ekpb")

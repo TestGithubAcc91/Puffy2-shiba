@@ -1,4 +1,5 @@
-# Game.gd
+# Game.gd - PRESERVES ORIGINAL CURTAIN SPRITES
+# Fixes positioning to prevent culling while keeping your spike-end curtain design
 extends Node
 
 @onready var level_select_menu = $LevelSelectMenu
@@ -61,8 +62,20 @@ func _ready():
 		if not tutorial_button.pressed.is_connected(_on_tutorial_button_pressed):
 			tutorial_button.pressed.connect(_on_tutorial_button_pressed)
 	
+	# Initialize curtain position
+	_reset_curtain_position()
+
+func _reset_curtain_position():
+	"""Ensure the curtain is in the correct starting position"""
 	if black_curtain and level_select_menu.has_node("Camera2D"):
+		# Make sure curtain is parented to menu camera
+		var menu_camera = level_select_menu.get_node("Camera2D")
+		if black_curtain.get_parent() != menu_camera:
+			black_curtain.reparent(menu_camera)
+		
+		# Reset position to off-screen right
 		black_curtain.position.x = get_viewport().size.x
+		print("Reset curtain position to: ", black_curtain.position.x)
 
 func _process(delta):
 	if timer_running and timer_label and not is_paused:
@@ -89,7 +102,11 @@ func _start_curtain_transition(level_identifier):
 	var menu_camera = level_select_menu.get_node("Camera2D")
 	if menu_camera:
 		menu_camera.enabled = true
-		black_curtain.position.x = get_viewport().size.x
+		
+		# CRITICAL FIX: Always reset curtain position and parent before starting transition
+		_reset_curtain_position()
+	
+	print("Starting curtain transition from position: ", black_curtain.position.x)
 	
 	var tween = create_tween()
 	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
@@ -423,11 +440,11 @@ func _on_home_button_pressed():
 	_unpause_game()
 	_start_home_curtain_transition()
 
-# UNIFIED HOME BUTTON TRANSITION - Works the same for tutorial and all levels
+# FIXED HOME BUTTON TRANSITION - Uses camera-relative positioning
 func _start_home_curtain_transition():
 	print("Starting home curtain transition - Tutorial mode: ", is_tutorial_mode, " Level: ", current_level_number)
 	
-	# Find player and camera - this should work for both tutorial and level 1
+	# Find player and camera
 	var player = find_player_in_scene()
 	if not player:
 		print("No player found, returning to menu directly")
@@ -455,32 +472,27 @@ func _start_home_curtain_transition():
 	# Ensure curtain can be animated even if coming from paused state
 	player_curtain.process_mode = Node.PROCESS_MODE_ALWAYS
 	
-	# Get camera's current position before reparenting
-	var camera_global_pos = player_camera.global_position
+	# CRITICAL FIX: Use camera-relative positioning instead of world positioning
 	var viewport_size = get_viewport().size
 	
-	print("Camera position: ", camera_global_pos)
-	print("Viewport size: ", viewport_size)
+	# Ensure curtain is child of camera for proper relative positioning
+	if player_curtain.get_parent() != player_camera:
+		player_curtain.reparent(player_camera)
 	
-	# Temporarily reparent the BlackCurtain to the Game node to survive scene transition
-	player_curtain.reparent(self)  # Move to Game node
+	# Position curtain relative to camera (screen coordinates) - prevents culling
+	player_curtain.position = Vector2(viewport_size.x, 0)  # Just off-screen right
 	
-	# Position curtain off-screen to the right relative to camera position in world space
-	var start_x = camera_global_pos.x + viewport_size.x * 0.5 + viewport_size.x
-	player_curtain.global_position = Vector2(start_x, camera_global_pos.y)
+	print("Curtain positioned at: ", player_curtain.position, " (relative to camera)")
 	
-	print("Curtain start position: ", player_curtain.global_position)
-	
-	# Create a tween to move the curtain - ensure it works regardless of pause state
+	# Create tween that works regardless of pause state
 	var tween = create_tween()
 	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	
-	# Move curtain from right to cover the screen and beyond in world space
-	var target_x = camera_global_pos.x - viewport_size.x * 0.5 - viewport_size.x
-	print("Curtain target position: ", target_x)
+	# Move curtain to cover screen (relative to camera)
+	tween.tween_property(player_curtain, "position:x", -viewport_size.x, 2.5)
 	
-	tween.tween_property(player_curtain, "global_position:x", target_x, 2.5)
+	print("Curtain target position: ", -viewport_size.x, " (relative to camera)")
 	
 	# Wait for curtain to cover screen
 	await get_tree().create_timer(0.8).timeout
@@ -491,19 +503,16 @@ func _start_home_curtain_transition():
 	# Return to menu without curtain animation (we already did it)
 	_return_to_menu_without_curtain()
 	
-	# CRITICAL: Wait for the full curtain animation to complete before cleanup
-	# This prevents the "snappy ending" by letting the tween finish naturally
+	# Wait for the full curtain animation to complete
+	await get_tree().create_timer(1.7).timeout
+	
+	# Cleanup curtain if it still exists
 	if is_instance_valid(temp_curtain_ref):
-		# Wait for the FULL remaining animation time
-		await get_tree().create_timer(1.7).timeout  # Total remaining time (2.5 - 0.8)
-		
-		# Only cleanup if curtain still exists and animation should be complete
-		if is_instance_valid(temp_curtain_ref):
-			print("Cleaning up curtain after animation completion")
-			temp_curtain_ref.queue_free()
+		print("Cleaning up curtain after animation completion")
+		temp_curtain_ref.queue_free()
 
 func _start_retry_curtain_transition():
-	# Make sure the curtain can animate properly
+	# Find player and camera
 	var player = find_player_in_scene()
 	if not player:
 		_restart_level_directly()
@@ -522,60 +531,33 @@ func _start_retry_curtain_transition():
 	# Ensure curtain can be animated even if coming from paused state
 	player_curtain.process_mode = Node.PROCESS_MODE_ALWAYS
 	
-	# Get camera's current position before reparenting
-	var camera_global_pos = player_camera.global_position
-	
-	# Temporarily reparent the BlackCurtain to the Game node to survive scene reload
-	player_curtain.reparent(self)  # Move to Game node
-	
-	# Position curtain off-screen to the right relative to camera position in world space
+	# CRITICAL FIX: Use camera-relative positioning instead of world positioning
 	var viewport_size = get_viewport().size
-	player_curtain.global_position = Vector2(
-		camera_global_pos.x + viewport_size.x * 0.5 + viewport_size.x,  # Off-screen right
-		camera_global_pos.y  # Same Y as camera
-	)
 	
-	# Create a tween to move the curtain - ensure it works regardless of pause state
+	# Ensure curtain is child of camera
+	if player_curtain.get_parent() != player_camera:
+		player_curtain.reparent(player_camera)
+	
+	# Position relative to camera (not world coordinates) - prevents culling
+	player_curtain.position = Vector2(viewport_size.x, 0)
+	
+	print("Retry curtain positioned at: ", player_curtain.position, " (camera-relative)")
+	
+	# Create tween
 	var tween = create_tween()
 	tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	
-	# Move curtain from right to cover the screen and beyond in world space
-	var target_global_x = camera_global_pos.x - viewport_size.x * 0.5 - viewport_size.x
-	tween.tween_property(player_curtain, "global_position:x", target_global_x, 2.5)
+	# Animate to cover screen
+	tween.tween_property(player_curtain, "position:x", -viewport_size.x, 2.5)
 	
-	# Wait for curtain to cover screen (same timing as original)
+	# Wait for curtain to cover screen
 	await get_tree().create_timer(0.8).timeout
-	
-	# Store reference to curtain before reloading
-	var temp_curtain_ref = player_curtain
 	
 	_restart_level_after_curtain()
 	
-	# Wait for new level to load and then reparent curtain back to new player camera
-	await get_tree().create_timer(0.1).timeout  # Small delay for scene to fully load
-	
-	var new_player = find_player_in_scene()
-	if new_player:
-		var new_player_camera = _find_player_camera(new_player)
-		if new_player_camera and is_instance_valid(temp_curtain_ref):
-			# Reparent curtain back to new player camera
-			var curtain_global_pos_final = temp_curtain_ref.global_position
-			temp_curtain_ref.reparent(new_player_camera)
-			temp_curtain_ref.global_position = curtain_global_pos_final
-			# Reset process mode back to inherit
-			temp_curtain_ref.process_mode = Node.PROCESS_MODE_INHERIT
-			
-			# Let the curtain finish its animation - wait for the full remaining time
-			await get_tree().create_timer(1.4).timeout  # Remaining animation time (2.5 - 0.8 - 0.1 - 0.2 buffer)
-		elif is_instance_valid(temp_curtain_ref):
-			# If no new camera found, wait for animation to complete before cleanup
-			await get_tree().create_timer(1.4).timeout
-			temp_curtain_ref.queue_free()
-	elif is_instance_valid(temp_curtain_ref):
-		# If no new player found, wait for animation to complete before cleanup
-		await get_tree().create_timer(1.4).timeout
-		temp_curtain_ref.queue_free()
+	# Wait for new level to load and animation to complete
+	await get_tree().create_timer(1.7).timeout
 
 func _restart_level_after_curtain():
 	get_tree().paused = false
@@ -624,7 +606,7 @@ func return_to_menu():
 	level_select_menu.visible = true
 
 func _return_to_menu_without_curtain():
-	"""Return to menu without playing the curtain animation (used when curtain was already animated)"""
+	"""Return to menu without playing curtain animation (used when curtain was already animated)"""
 	timer_running = false
 	input_blocked = false
 	is_paused = false
@@ -640,6 +622,9 @@ func _return_to_menu_without_curtain():
 		level_select_menu.get_node("Camera2D").enabled = true
 	
 	level_select_menu.visible = true
+	
+	# Reset curtain position when returning to menu
+	_reset_curtain_position()
 
 func _return_curtain_to_menu():
 	if not black_curtain: return
