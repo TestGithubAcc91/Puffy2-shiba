@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bck8lw4sj2ly6"]
+[gd_scene load_steps=18 format=3 uid="uid://bck8lw4sj2ly6"]
 
 [ext_resource type="Script" uid="uid://cojgak2pyu7c6" path="res://Scripts/level_select_menu.gd" id="1_52mtt"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="1_271b8"]
@@ -10,8 +10,11 @@
 [ext_resource type="Texture2D" uid="uid://cqkm2s6d4nm6" path="res://Assets/sprites/PlayerGUI/GeneralGUI/LockedLevel/lockedLevelHover.png" id="6_16w6l"]
 [ext_resource type="Texture2D" uid="uid://c4iwwwklkbaer" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/greenButton.png" id="8_461nm"]
 [ext_resource type="Texture2D" uid="uid://fxag7o0s0xak" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/greenButtonSelect.png" id="9_ube50"]
+[ext_resource type="Texture2D" uid="uid://doimbbqaho4ln" path="res://Assets/sprites/PlayerGUI/GeneralGUI/TutorialLevel/tutorialButton.png" id="10_2pb1k"]
 [ext_resource type="Texture2D" uid="uid://c7xrjmuinukls" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/greenButtonHover.png" id="10_yts2j"]
+[ext_resource type="Texture2D" uid="uid://bid2n3345n4ct" path="res://Assets/sprites/PlayerGUI/GeneralGUI/TutorialLevel/tutorialSelect.png" id="11_g6sov"]
 [ext_resource type="BitMap" uid="uid://bb7g1utteh3sf" path="res://Assets/sprites/PlayerGUI/GeneralGUI/buttonMask.png" id="11_ube50"]
+[ext_resource type="Texture2D" uid="uid://lgxx41etp31f" path="res://Assets/sprites/PlayerGUI/GeneralGUI/TutorialLevel/tutorialHover.png" id="12_26lpr"]
 [ext_resource type="Texture2D" uid="uid://c0hhe4dvv6nxg" path="res://Assets/sprites/PlayerGUI/GeneralGUI/blackTriangle.png" id="13_era5x"]
 [ext_resource type="Texture2D" uid="uid://ouqmuvrrxeqd" path="res://Assets/sprites/PlayerGUI/GeneralGUI/tiles.png" id="14_1ekpb"]
 
@@ -122,9 +125,9 @@ offset_bottom = 24.0
 grow_horizontal = 2
 grow_vertical = 2
 scale = Vector2(1.5, 1.5)
-texture_normal = ExtResource("8_461nm")
-texture_pressed = ExtResource("9_ube50")
-texture_hover = ExtResource("10_yts2j")
+texture_normal = ExtResource("10_2pb1k")
+texture_pressed = ExtResource("11_g6sov")
+texture_hover = ExtResource("12_26lpr")
 texture_click_mask = ExtResource("11_ube50")
 
 [node name="LockedButton" type="TextureButton" parent="."]

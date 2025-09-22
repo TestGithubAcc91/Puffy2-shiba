@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bt7suhna84lxf"
+path="res://.godot/imported/Purple Desire - The Grey Room _ Clark Sims.mp3-3a6e820e8943154a515718e92e99165e.mp3str"
+
+[deps]
+
+source_file="res://Assets/music/Purple Desire - The Grey Room _ Clark Sims.mp3"
+dest_files=["res://.godot/imported/Purple Desire - The Grey Room _ Clark Sims.mp3-3a6e820e8943154a515718e92e99165e.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
