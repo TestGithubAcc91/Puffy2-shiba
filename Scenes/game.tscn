@@ -22,6 +22,7 @@ button_click_sound = ExtResource("5_i6g32")
 position = Vector2(-12, -88)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 2
 
 [node name="BlackCurtain" parent="CanvasLayer" instance=ExtResource("7_1l0tm")]
 position = Vector2(1426, 342)

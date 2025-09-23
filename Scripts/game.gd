@@ -71,7 +71,7 @@ func _setup_root_curtain():
 		return
 	
 	# Position curtain off-screen to the right with 100px offset
-	black_curtain.position.x = get_viewport().size.x + 100
+	black_curtain.position.x = get_viewport().size.x + 300
 	black_curtain.z_index = 1000  # Ensure it's always on top
 	
 	print("Root curtain initialized at position: ", black_curtain.position)
@@ -136,7 +136,7 @@ func _start_curtain_transition_to_level(level_identifier):
 	var viewport_size = get_viewport().size
 	
 	# Start curtain off-screen to the right with 100px offset
-	black_curtain.position.x = viewport_size.x + 100
+	black_curtain.position.x = viewport_size.x + 300
 	
 	# Phase 1: Move curtain to cover screen
 	var tween = create_tween()
@@ -166,7 +166,7 @@ func _reveal_scene_with_curtain():
 	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	
 	# Move curtain off-screen to the left with 100px offset
-	tween.tween_property(black_curtain, "position:x", -100, 1.3)
+	tween.tween_property(black_curtain, "position:x", -1700, 1.3)
 	
 	# Start countdown while curtain is revealing (if in level)
 	if current_level_scene:
@@ -265,7 +265,7 @@ func _start_curtain_transition_to_menu():
 	var viewport_size = get_viewport().size
 	
 	# Start curtain off-screen to the right with 100px offset
-	black_curtain.position.x = viewport_size.x + 100
+	black_curtain.position.x = viewport_size.x + 300
 	
 	# Phase 1: Move curtain to cover current scene
 	var tween = create_tween()
@@ -297,7 +297,7 @@ func _reveal_menu_with_curtain():
 	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	
 	# Move curtain off-screen to the left with 100px offset to reveal menu
-	tween.tween_property(black_curtain, "position:x", -100, 1.3)
+	tween.tween_property(black_curtain, "position:x", -1700, 1.3)
 	
 	# Hide curtain when animation is complete
 	await tween.finished
