@@ -227,6 +227,41 @@ func _find_player_camera(player):
 	var cameras = player.find_children("*", "Camera2D", true, false)
 	return cameras[0] if cameras.size() > 0 else null
 
+# In Game.gd, modify the _start_countdown function:
+
+func _start_countdown():
+	input_blocked = true
+	movement_disabled.emit()
+	
+	var countdown_label = current_level_scene.get_node("UI/StartCountdown") if current_level_scene and current_level_scene.has_node("UI/StartCountdown") else null
+	if not countdown_label:
+		input_blocked = false
+		movement_enabled.emit()
+		return
+	
+	countdown_label.visible = true
+	var countdown_data = [
+		{"text": "READY?", "color": ready_color, "time": 1.0},
+		{"text": "SET...", "color": set_color, "time": 1.0},
+		{"text": "GO!!", "color": go_color, "time": 0.5}
+	]
+	
+	for data in countdown_data:
+		countdown_label.text = data.text
+		countdown_label.modulate = data.color
+		await get_tree().create_timer(data.time).timeout
+		
+		# NEW: Enable player movement when "GO!!" is shown
+		if data.text == "GO!!":
+			var player = find_player_in_scene()
+			if player and player.has_method("enable_movement_at_level_start"):
+				player.enable_movement_at_level_start()
+	
+	countdown_label.visible = false
+	input_blocked = false
+	movement_enabled.emit()
+	_start_timer()
+
 # SIMPLIFIED: Retry function using root curtain
 func _on_retry_button_pressed():
 	print("RETRY BUTTON PRESSED - Using simplified retry")
@@ -283,8 +318,6 @@ func _start_curtain_transition_to_menu():
 	await get_tree().create_timer(0.3).timeout
 	_reveal_menu_with_curtain()
 
-	
-	
 func _reveal_menu_with_curtain():
 	"""Move curtain to reveal the menu"""
 	if not black_curtain:
@@ -394,33 +427,6 @@ func _setup_timer():
 	if current_level_scene and current_level_scene.has_node("UI/TimerBackground/TimerNumber"):
 		timer_label = current_level_scene.get_node("UI/TimerBackground/TimerNumber")
 		timer_label.text = "0.00"
-
-func _start_countdown():
-	input_blocked = true
-	movement_disabled.emit()
-	
-	var countdown_label = current_level_scene.get_node("UI/StartCountdown") if current_level_scene and current_level_scene.has_node("UI/StartCountdown") else null
-	if not countdown_label:
-		input_blocked = false
-		movement_enabled.emit()
-		return
-	
-	countdown_label.visible = true
-	var countdown_data = [
-		{"text": "READY?", "color": ready_color, "time": 1.0},
-		{"text": "SET...", "color": set_color, "time": 1.0},
-		{"text": "GO!!", "color": go_color, "time": 0.5}
-	]
-	
-	for data in countdown_data:
-		countdown_label.text = data.text
-		countdown_label.modulate = data.color
-		await get_tree().create_timer(data.time).timeout
-	
-	countdown_label.visible = false
-	input_blocked = false
-	movement_enabled.emit()
-	_start_timer()
 
 func _start_timer():
 	timer_running = true

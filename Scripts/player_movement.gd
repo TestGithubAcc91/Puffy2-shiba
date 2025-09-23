@@ -115,9 +115,15 @@ var movement_blocked_by_game: bool = false
 var original_time_scale: float = 1.0
 var was_on_floor_last_frame: bool = false
 
+# NEW: Level start movement blocking
+var movement_blocked_at_level_start: bool = true
+
 func _ready():
 	# Store the original time scale
 	original_time_scale = Engine.time_scale
+	
+	# NEW: Start with movement blocked at level start
+	movement_blocked_at_level_start = true
 	
 	# NEW: Setup audio system (following Game.gd pattern)
 	_setup_audio_system()
@@ -157,6 +163,11 @@ func _setup_audio_system():
 	add_child(zipline_audio_player)
 	
 	print("Audio system setup complete - Whoosh: ", whoosh_sound != null, " Parry: ", parry_success_sound != null, " Zipline: ", zipline_sound != null)
+
+# NEW: Function to unblock movement at level start (called by Game.gd)
+func enable_movement_at_level_start():
+	movement_blocked_at_level_start = false
+	print("Player movement enabled at level start")
 
 # NEW: Play whoosh sound (following Game.gd pattern)
 func _play_whoosh_sound():
@@ -263,7 +274,8 @@ func can_jump() -> bool:
 
 func handle_input():
 	# Don't process any input if movement is blocked by the game (countdown)
-	if movement_blocked_by_game:
+	# NEW: Also check if movement is blocked at level start
+	if movement_blocked_by_game or movement_blocked_at_level_start:
 		return
 	
 	# Check if player is swinging on a vine OR on a zipline
@@ -373,7 +385,8 @@ func handle_normal_movement(delta: float):
 
 func get_effective_horizontal_input() -> float:
 	# Block movement during countdown
-	if movement_blocked_by_game:
+	# NEW: Also block movement at level start
+	if movement_blocked_by_game or movement_blocked_at_level_start:
 		return 0.0
 	
 	if (vine_component and vine_component.is_swinging and vine_component.inputs_blocked) or is_on_zipline:
