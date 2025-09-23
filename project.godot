@@ -21,7 +21,7 @@ GlobalAudio="*res://Scenes/global_music.tscn"
 
 [display]
 
-window/stretch/mode="canvas_items"
+window/stretch/mode="viewport"
 
 [editor_plugins]
 

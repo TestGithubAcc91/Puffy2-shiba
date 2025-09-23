@@ -1,4 +1,4 @@
-# Game.gd - Shortened while preserving all functionality
+# Game.gd - Enhanced curtain transitions with smooth black-to-black handoff
 extends Node
 
 @onready var level_select_menu = $LevelSelectMenu
@@ -57,7 +57,6 @@ func _ready():
 		level_select_menu.get_node("TutorialButton").pressed.connect(_on_tutorial_button_pressed)
 		_connect_button_sound(level_select_menu.get_node("TutorialButton"))
 	
-	# Explicitly connect Level1Button sound
 	if level_select_menu.has_node("Level1Button"):
 		_connect_button_sound(level_select_menu.get_node("Level1Button"))
 	
@@ -65,17 +64,15 @@ func _ready():
 	_connect_menu_buttons_sound()
 
 func _setup_audio_system():
-	# Create AudioStreamPlayer for button sounds
 	audio_player = AudioStreamPlayer.new()
 	audio_player.name = "ButtonAudioPlayer"
-	audio_player.bus = "SFX"  # Route to SFX bus
+	audio_player.bus = "SFX"
 	add_child(audio_player)
 	
 	if button_click_sound:
 		audio_player.stream = button_click_sound
 
 func _connect_menu_buttons_sound():
-	# Connect sound to level select menu buttons
 	var level_buttons = level_select_menu.find_children("*", "BaseButton", true, false)
 	for button in level_buttons:
 		_connect_button_sound(button)
@@ -108,30 +105,134 @@ func _input(event):
 
 func _on_level_selected(level_number):
 	is_tutorial_mode = false
-	_start_curtain_transition(level_number)
+	_start_scene_change_curtain_transition(level_number)
 
 func _on_tutorial_button_pressed():
 	is_tutorial_mode = true
-	_start_curtain_transition("tutorial")
+	_start_scene_change_curtain_transition("tutorial")
 
-func _start_curtain_transition(level_identifier):
+# ENHANCED: Scene change with smooth black-to-black transition
+func _start_scene_change_curtain_transition(level_identifier):
+	"""Enhanced curtain transition for scene changes with smooth black handoff"""
 	if not black_curtain:
 		_change_to_level(level_identifier)
 		return
+	
+	print("Starting scene change curtain transition to: ", level_identifier)
 	
 	var menu_camera = level_select_menu.get_node("Camera2D")
 	if menu_camera:
 		menu_camera.enabled = true
 		_reset_curtain_position()
 	
+	# Phase 1: Move curtain so the solid black rectangle part covers the entire screen
+	var viewport_size = get_viewport().size
 	var tween = create_tween()
 	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	tween.tween_property(black_curtain, "position:x", -get_viewport().size.x, 2.5)
 	
-	await get_tree().create_timer(1).timeout
-	_change_to_level(level_identifier)
+	# IMPROVED: Move curtain enough so solid black part covers screen completely
+	# Account for left spikes - move curtain to where the solid rectangle covers the screen
+	var cover_position = -viewport_size.x * 0.4  # Adjust based on your spike width
+	tween.tween_property(black_curtain, "position:x", cover_position, 1.2)
+	
+	# Wait for curtain to reach covering position (black rectangle phase)
+	await get_tree().create_timer(1.0).timeout  # Wait in black state
+	
+	# Phase 2: Load new scene with curtain already covering it
+	_change_to_level_with_curtain_covering(level_identifier)
 
+func _change_to_level_with_curtain_covering(level_identifier):
+	"""Load new level with curtain already in covering position for smooth handoff"""
+	var level_id_str = str(level_identifier)
+	current_level_number = 0 if level_id_str == "tutorial" else int(level_identifier)
+	is_tutorial_mode = (level_id_str == "tutorial")
+	
+	get_tree().paused = false
+	input_blocked = false
+	is_paused = false
+	
+	# Clean up old scene
+	if current_level_scene:
+		current_level_scene.queue_free()
+		current_level_scene = null
+		await get_tree().process_frame
+	
+	level_select_menu.visible = false
+	
+	# Load new level
+	var level_path = "res://Scenes/tutorial_holder.tscn" if is_tutorial_mode else "res://Scenes/level_%d_holder.tscn" % int(level_identifier)
+	current_level_scene = load(level_path).instantiate()
+	add_child(current_level_scene)
+	await get_tree().process_frame
+	
+	# DISABLE BlackCurtainTransition ColorRect after scene change
+	if current_level_scene and current_level_scene.has_node("UI/BlackCurtainTransition"):
+		var transition_rect = current_level_scene.get_node("UI/BlackCurtainTransition")
+		transition_rect.visible = false
+		print("Disabled BlackCurtainTransition ColorRect")
+	
+	# Switch cameras and position curtain to cover new scene
+	_switch_to_player_camera_with_curtain_covering()
+	_setup_connections()
+	
+	# Phase 3: Continue curtain animation in new scene (reveal new scene)
+	await get_tree().create_timer(0.3).timeout  # Brief pause in black
+	_continue_curtain_reveal_in_new_scene()
+
+
+func _switch_to_player_camera_with_curtain_covering():
+	"""Switch cameras and ensure curtain covers the new scene initially"""
+	var menu_camera = level_select_menu.get_node("Camera2D")
+	var player = find_player_in_scene()
+	var player_camera = _find_player_camera(player) if player else null
+	
+	if black_curtain and player_camera:
+		# Transfer curtain to new camera in covering position
+		black_curtain.reparent(player_camera)
+		
+		# CRITICAL FIX: Position curtain at center (0,0) so the solid black part covers screen
+		# Since the curtain was covering in the menu, keep it at center in player camera
+		black_curtain.position = Vector2(0, 0)  # Solid black rectangle at screen center
+		
+		print("Curtain transferred to player camera at covering position: ", black_curtain.position)
+	
+	if menu_camera: menu_camera.enabled = false
+	if player_camera: player_camera.enabled = true; player_camera.make_current()
+
+func _continue_curtain_reveal_in_new_scene():
+	"""Continue curtain animation to reveal the new scene"""
+	var player = find_player_in_scene()
+	var player_camera = _find_player_camera(player) if player else null
+	var curtain = player_camera.get_node("BlackCurtain") if player_camera and player_camera.has_node("BlackCurtain") else null
+	
+	if not curtain:
+		print("No curtain found in new scene, starting countdown directly")
+		_start_countdown()
+		return
+	
+	print("Continuing curtain reveal animation from position: ", curtain.position)
+	
+	# Phase 3: Move the existing curtain that's already covering the screen to the LEFT
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	
+	# CRITICAL FIX: Move curtain far enough LEFT to completely clear the camera view
+	var viewport_size = get_viewport().size
+	# Since the curtain is already positioned to cover the screen, move it way left
+	# Account for the full width of curtain including all spikes
+	var reveal_position = -viewport_size.x * 3.0  # Move 3 screen widths to the left
+	
+	print("Moving curtain from ", curtain.position.x, " to ", reveal_position)
+	
+	tween.tween_property(curtain, "position:x", reveal_position, 1.3)
+	
+	# Start countdown while curtain is revealing
+	await get_tree().create_timer(0.5).timeout
+	_start_countdown()
+
+# ORIGINAL CHANGE_TO_LEVEL FOR NON-CURTAIN CASES
 func _change_to_level(level_identifier):
+	"""Original level change without curtain covering (fallback)"""
 	var level_id_str = str(level_identifier)
 	current_level_number = 0 if level_id_str == "tutorial" else int(level_identifier)
 	is_tutorial_mode = (level_id_str == "tutorial")
@@ -147,7 +248,6 @@ func _change_to_level(level_identifier):
 	
 	level_select_menu.visible = false
 	
-	# Load appropriate level
 	var level_path = "res://Scenes/tutorial_holder.tscn" if is_tutorial_mode else "res://Scenes/level_%d_holder.tscn" % int(level_identifier)
 	current_level_scene = load(level_path).instantiate()
 	add_child(current_level_scene)
@@ -158,6 +258,7 @@ func _change_to_level(level_identifier):
 	_start_countdown()
 
 func _switch_to_player_camera():
+	"""Original camera switch without curtain management"""
 	var menu_camera = level_select_menu.get_node("Camera2D")
 	var player = find_player_in_scene()
 	var player_camera = _find_player_camera(player) if player else null
@@ -176,51 +277,226 @@ func _find_player_camera(player):
 	var cameras = player.find_children("*", "Camera2D", true, false)
 	return cameras[0] if cameras.size() > 0 else null
 
+# ENHANCED: Within-scene curtain transitions (retry/home from level)
+func _start_within_scene_curtain_transition(target_function: Callable):
+	"""Enhanced curtain transition within the same scene type"""
+	print("Starting within-scene curtain transition")
+	
+	var player = find_player_in_scene()
+	if not player:
+		print("No player found, executing target function directly")
+		target_function.call()
+		return
+	
+	var player_camera = _find_player_camera(player)
+	if not player_camera:
+		print("No player camera found, executing target function directly")
+		target_function.call()
+		return
+	
+	var player_curtain = player_camera.get_node("BlackCurtain") if player_camera.has_node("BlackCurtain") else null
+	if not player_curtain:
+		print("No curtain found, executing target function directly")
+		target_function.call()
+		return
+	
+	print("Found all components, starting within-scene curtain animation")
+	
+	# Block input and disable movement
+	input_blocked = true
+	movement_disabled.emit()
+	
+	# Ensure curtain can be animated 
+	player_curtain.process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	var viewport_size = get_viewport().size
+	
+	# Ensure curtain is child of camera for proper relative positioning
+	if player_curtain.get_parent() != player_camera:
+		player_curtain.reparent(player_camera)
+	
+	# Start from off-screen right
+	player_curtain.position = Vector2(viewport_size.x, 0)
+	
+	print("Curtain positioned at: ", player_curtain.position, " (relative to camera)")
+	
+	# Phase 1: Move curtain to cover screen
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(player_curtain, "position:x", -viewport_size.x, 1.2)
+	
+	# Wait for curtain to fully cover screen (black state)
+	await get_tree().create_timer(0.8).timeout
+	
+	# Phase 2: Execute the target function (load new content)
+	target_function.call()
+	
+	# Phase 3: Continue curtain to reveal new content (if still in same scene type)
+	await get_tree().create_timer(0.3).timeout
+	
+	# Check if we're still in a level scene (not returned to menu)
+	if current_level_scene:
+		_continue_curtain_reveal_after_within_scene_change()
+
+func _continue_curtain_reveal_after_within_scene_change():
+	"""Continue curtain reveal after within-scene change (like retry)"""
+	var player = find_player_in_scene()
+	var player_camera = _find_player_camera(player) if player else null
+	var curtain = player_camera.get_node("BlackCurtain") if player_camera and player_camera.has_node("BlackCurtain") else null
+	
+	if not curtain:
+		return
+	
+	print("Continuing curtain reveal after within-scene change")
+	
+	# Move curtain to reveal new content
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(curtain, "position:x", get_viewport().size.x, 1.3)
+
+# UPDATE EXISTING FUNCTIONS TO USE NEW SYSTEM
+
+func _on_retry_button_pressed():
+	print("RETRY BUTTON PRESSED - Starting retry sequence")
+	_hide_results_page()
+	_start_within_scene_curtain_transition(_restart_level_after_curtain)
+
+func _on_home_button_pressed():
+	print("HOME BUTTON PRESSED - Starting home sequence")  
+	_hide_results_page()
+	_start_scene_change_curtain_transition_to_menu()
+
+func _start_scene_change_curtain_transition_to_menu():
+	"""Enhanced curtain transition from level to menu with smooth black handoff"""
+	print("Starting scene change curtain transition to menu")
+	
+	# Find player and camera
+	var player = find_player_in_scene()
+	if not player:
+		print("No player found, returning to menu directly")
+		_return_to_menu_without_curtain()
+		return
+	
+	var player_camera = _find_player_camera(player)
+	if not player_camera:
+		print("No player camera found, returning to menu directly")
+		_return_to_menu_without_curtain()
+		return
+	
+	var player_curtain = player_camera.get_node("BlackCurtain") if player_camera.has_node("BlackCurtain") else null
+	if not player_curtain:
+		print("No curtain found, returning to menu directly")
+		_return_to_menu_without_curtain()
+		return
+	
+	print("Found all components, starting level-to-menu curtain animation")
+	
+	# Block input and disable movement
+	input_blocked = true
+	movement_disabled.emit()
+	
+	# Ensure curtain can be animated 
+	player_curtain.process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	var viewport_size = get_viewport().size
+	
+	# Ensure curtain is child of camera for proper relative positioning
+	if player_curtain.get_parent() != player_camera:
+		player_curtain.reparent(player_camera)
+	
+	# Position curtain relative to camera
+	player_curtain.position = Vector2(viewport_size.x, 0)
+	
+	print("Curtain positioned at: ", player_curtain.position, " (relative to camera)")
+	
+	# Phase 1: Move curtain to cover current level
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(player_curtain, "position:x", -viewport_size.x, 1.2)
+	
+	# Wait for curtain to cover screen (black state)
+	await get_tree().create_timer(0.8).timeout
+	
+	# Phase 2: Switch to menu with curtain covering it
+	_return_to_menu_with_curtain_covering()
+	
+	# Phase 3: Reveal menu
+	await get_tree().create_timer(0.3).timeout
+	_continue_curtain_reveal_menu()
+
+func _return_to_menu_with_curtain_covering():
+	"""Return to menu with curtain already covering for smooth transition"""
+	timer_running = false
+	input_blocked = false
+	is_paused = false
+	is_tutorial_mode = false
+	movement_enabled.emit()
+	get_tree().paused = false
+	
+	# Clean up level scene
+	if current_level_scene:
+		current_level_scene.queue_free()
+		current_level_scene = null
+	
+	# Switch to menu camera and transfer curtain
+	var menu_camera = level_select_menu.get_node("Camera2D")
+	if menu_camera:
+		menu_camera.enabled = true
+		
+		# Transfer curtain to menu camera in covering position
+		if black_curtain:
+			black_curtain.reparent(menu_camera)
+			black_curtain.position = Vector2(-get_viewport().size.x, 0)  # Already covering
+			print("Curtain transferred to menu camera in covering position")
+	
+	level_select_menu.visible = true
+
+func _continue_curtain_reveal_menu():
+	"""Continue curtain animation to reveal menu"""
+	if not black_curtain:
+		return
+	
+	print("Continuing curtain reveal for menu")
+	
+	# Reveal menu by moving curtain off-screen
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(black_curtain, "position:x", get_viewport().size.x, 1.3)
+
+# UPDATE PAUSE SYSTEM HANDLERS
+func _on_pause_retry_button_pressed():
+	_unpause_game()
+	_start_within_scene_curtain_transition(_restart_level_after_curtain)
+
+func _on_pause_home_button_pressed():
+	_unpause_game()
+	_start_scene_change_curtain_transition_to_menu()
+
+# KEEP ALL OTHER EXISTING FUNCTIONS UNCHANGED
 func _setup_connections():
 	var player = find_player_in_scene()
 	if player:
-		# Connect movement signals
 		if not movement_disabled.is_connected(player._on_movement_disabled):
 			movement_disabled.connect(player._on_movement_disabled)
 		if not movement_enabled.is_connected(player._on_movement_enabled):
 			movement_enabled.connect(player._on_movement_enabled)
 		
-		# Connect damage tracking
 		if player.has_node("HealthScript"):
 			var health_script = player.get_node("HealthScript")
 			if not health_script.health_decreased.is_connected(_on_player_damage_taken):
 				health_script.health_decreased.connect(_on_player_damage_taken)
 		
-		# Connect parry tracking
 		if player.has_signal("parry_success") and not player.parry_success.is_connected(_on_player_parry_success):
 			player.parry_success.connect(_on_player_parry_success)
 	
-	# Connect level finish
 	if current_level_scene and current_level_scene.has_node("LevelFinish"):
 		var level_finish = current_level_scene.get_node("LevelFinish")
 		if not level_finish.body_entered.is_connected(_on_level_finish_entered):
 			level_finish.body_entered.connect(_on_level_finish_entered)
 	
-	# DON'T connect result buttons here - we'll connect them when results show
-	# This prevents timing issues
-	
-	# Connect pause button
 	_setup_pause_button()
-	
-	# Connect glits tracking
 	_connect_glits_tracking()
-	
-	# Setup timer
 	_setup_timer()
-
-func _connect_level_buttons_sound():
-	# Connect sound to all buttons in the current level scene
-	if current_level_scene:
-		var level_buttons = current_level_scene.find_children("*", "BaseButton", true, false)
-		for button in level_buttons:
-			_connect_button_sound(button)
-
-
 
 func _setup_pause_button():
 	if not (current_level_scene and current_level_scene.has_node("UI/PauseButton")): return
@@ -312,10 +588,8 @@ func _show_finish_results():
 	finish_results = current_level_scene.get_node("UI/FinishResults")
 	finish_results.visible = true
 	
-	# CRITICAL: Ensure buttons are properly set up and connections exist
 	_ensure_result_buttons_connected()
 	
-	# Show results with delays
 	var results_data = [
 		{"path": "Results/Time", "text": "TIME................%.2f" % elapsed_time, "delay": 1.0},
 		{"path": "Results/Damage", "text": "DAMAGE.............%d" % damage_count, "delay": 0.5},
@@ -331,14 +605,11 @@ func _show_finish_results():
 			label.visible = true
 			if data.text: label.text = data.text
 	
-	# Show medal
 	await get_tree().create_timer(1.0).timeout
 	_show_medal(finish_results)
 	
-	# Show and enable buttons
 	await get_tree().create_timer(1.0).timeout
 	
-	# Make buttons visible and ensure they're properly configured
 	for button_name in ["RetryButton", "HomeButton"]:
 		if finish_results.has_node(button_name):
 			var button = finish_results.get_node(button_name)
@@ -347,193 +618,33 @@ func _show_finish_results():
 			button.mouse_filter = Control.MOUSE_FILTER_PASS
 			print("Made button visible and clickable: ", button_name)
 	
-	# CRITICAL: Enable input after showing buttons
 	input_blocked = false
 	print("Input unblocked, buttons should be clickable now")
 	
 func _ensure_result_buttons_connected():
-	"""Ensure result buttons are properly connected - called right when results show"""
 	if not finish_results: return
 	
-	# Connect RetryButton
 	if finish_results.has_node("RetryButton"):
 		var retry_button = finish_results.get_node("RetryButton")
-		
-		# Disconnect any existing connections
 		if retry_button.pressed.is_connected(_on_retry_button_pressed):
 			retry_button.pressed.disconnect(_on_retry_button_pressed)
-		
-		# Connect fresh
 		retry_button.pressed.connect(_on_retry_button_pressed)
 		retry_button.disabled = false
 		retry_button.mouse_filter = Control.MOUSE_FILTER_PASS
 		print("Connected RetryButton")
 	
-	# Connect HomeButton  
 	if finish_results.has_node("HomeButton"):
 		var home_button = finish_results.get_node("HomeButton")
-		
-		# Disconnect any existing connections
 		if home_button.pressed.is_connected(_on_home_button_pressed):
 			home_button.pressed.disconnect(_on_home_button_pressed)
-			
-		# Connect fresh
 		home_button.pressed.connect(_on_home_button_pressed)
 		home_button.disabled = false
 		home_button.mouse_filter = Control.MOUSE_FILTER_PASS
 		print("Connected HomeButton")
 
-# Also update the _connect_ui_buttons function to be more robust
-func _connect_ui_buttons():
-	var button_paths = [
-		{"path": "UI/FinishResults/RetryButton", "signal": "_on_retry_button_pressed"},
-		{"path": "UI/FinishResults/HomeButton", "signal": "_on_home_button_pressed"}
-	]
-	
-	for button_data in button_paths:
-		if current_level_scene and current_level_scene.has_node(button_data.path):
-			var button = current_level_scene.get_node(button_data.path)
-			
-			# Ensure button is properly configured
-			button.disabled = false
-			button.mouse_filter = Control.MOUSE_FILTER_PASS
-			
-			# Connect the signal if not already connected
-			var method_name = button_data.signal
-			if not button.pressed.is_connected(Callable(self, method_name)):
-				button.pressed.connect(Callable(self, method_name))
-			
-			_connect_button_sound(button)
-			print("Connected button: " + button_data.path)  # Debug print
-
-# Update your button handlers with debug prints:
-func _on_retry_button_pressed():
-	print("RETRY BUTTON PRESSED - Starting retry sequence")
-	_hide_results_page()
-	input_blocked = true
-	_start_retry_curtain_transition()
-
-func _on_home_button_pressed():
-	print("HOME BUTTON PRESSED - Starting home sequence")
-	_hide_results_page()
-	input_blocked = true
-	_start_home_curtain_transition()
-
-func _start_home_curtain_transition():
-	print("Starting home curtain transition - Tutorial mode: ", is_tutorial_mode, " Level: ", current_level_number)
-	
-	# Find player and camera
-	var player = find_player_in_scene()
-	if not player:
-		print("No player found, returning to menu directly")
-		_return_to_menu_without_curtain()
-		return
-	
-	var player_camera = _find_player_camera(player)
-	if not player_camera:
-		print("No player camera found, returning to menu directly")
-		_return_to_menu_without_curtain()
-		return
-	
-	var player_curtain = player_camera.get_node("BlackCurtain") if player_camera.has_node("BlackCurtain") else null
-	if not player_curtain:
-		print("No curtain found, returning to menu directly")
-		_return_to_menu_without_curtain()
-		return
-	
-	print("Found all components, starting curtain animation")
-	
-	# Block input and disable movement
-	input_blocked = true
-	movement_disabled.emit()
-	
-	# Ensure curtain can be animated 
-	player_curtain.process_mode = Node.PROCESS_MODE_ALWAYS
-	
-	# Use camera-relative positioning
-	var viewport_size = get_viewport().size
-	
-	# Ensure curtain is child of camera for proper relative positioning
-	if player_curtain.get_parent() != player_camera:
-		player_curtain.reparent(player_camera)
-	
-	# Position curtain relative to camera - prevents culling
-	player_curtain.position = Vector2(viewport_size.x, 0)
-	
-	print("Curtain positioned at: ", player_curtain.position, " (relative to camera)")
-	
-	# Create tween
-	var tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	
-	# Move curtain to cover screen
-	tween.tween_property(player_curtain, "position:x", -viewport_size.x, 2.5)
-	
-	# Wait for curtain to cover screen
-	await get_tree().create_timer(0.8).timeout
-	
-	# Return to menu
-	_return_to_menu_without_curtain()
-	
-	# Wait for animation to complete
-	await get_tree().create_timer(1.7).timeout
-
-func _start_retry_curtain_transition():
-	print("Starting retry curtain transition")
-	
-	# Find player and camera
-	var player = find_player_in_scene()
-	if not player:
-		_restart_level_after_curtain()
-		return
-	
-	var player_camera = _find_player_camera(player)
-	var player_curtain = player_camera.get_node("BlackCurtain") if player_camera and player_camera.has_node("BlackCurtain") else null
-	
-	if not player_curtain:
-		_restart_level_after_curtain()
-		return
-	
-	input_blocked = true
-	movement_disabled.emit()
-	
-	# Ensure curtain can be animated 
-	player_curtain.process_mode = Node.PROCESS_MODE_ALWAYS
-	
-	# Use camera-relative positioning
-	var viewport_size = get_viewport().size
-	
-	# Ensure curtain is child of camera
-	if player_curtain.get_parent() != player_camera:
-		player_curtain.reparent(player_camera)
-	
-	# Position relative to camera
-	player_curtain.position = Vector2(viewport_size.x, 0)
-	
-	print("Retry curtain positioned at: ", player_curtain.position, " (camera-relative)")
-	
-	# Create tween
-	var tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	
-	# Animate to cover screen
-	tween.tween_property(player_curtain, "position:x", -viewport_size.x, 2.5)
-	
-	# Wait for curtain to cover screen
-	await get_tree().create_timer(0.8).timeout
-	
-	_restart_level_after_curtain()
-	
-	# Wait for animation to complete
-	await get_tree().create_timer(1.7).timeout
-
-
-# Add the missing _hide_results_page function:
 func _hide_results_page():
-	"""Hide the results page"""
 	if finish_results:
 		finish_results.visible = false
-		# Reset process mode
 		finish_results.process_mode = Node.PROCESS_MODE_INHERIT
 
 func _show_medal(finish_results):
@@ -577,7 +688,6 @@ func find_player_in_scene() -> Node:
 	var nodes = current_level_scene.find_children("*", "CharacterBody2D", true, false)
 	return nodes[0] if nodes.size() > 0 else null
 
-# Pause system
 func _on_pause_button_pressed():
 	if not is_paused:
 		_pause_game()
@@ -610,45 +720,8 @@ func _set_ui_process_mode_recursive(node: Node, process_mode: int):
 	for child in node.get_children():
 		_set_ui_process_mode_recursive(child, process_mode)
 
-# Curtain transitions
-func _start_curtain_transition_generic(target_function: Callable):
-	var player = find_player_in_scene()
-	var player_camera = _find_player_camera(player) if player else null
-	var curtain = player_camera.get_node("BlackCurtain") if player_camera and player_camera.has_node("BlackCurtain") else null
-	
-	if not curtain:
-		target_function.call()
-		return
-	
-	input_blocked = true
-	movement_disabled.emit()
-	curtain.process_mode = Node.PROCESS_MODE_ALWAYS
-	
-	var viewport_size = get_viewport().size
-	if curtain.get_parent() != player_camera:
-		curtain.reparent(player_camera)
-	curtain.position = Vector2(viewport_size.x, 0)
-	
-	var tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	tween.tween_property(curtain, "position:x", -viewport_size.x, 2.5)
-	
-	await get_tree().create_timer(0.8).timeout
-	target_function.call()
-	await get_tree().create_timer(1.7).timeout
-
-
-
-func _on_pause_retry_button_pressed():
-	_unpause_game()
-	_start_curtain_transition_generic(_restart_level_after_curtain)
-
 func _on_continue_button_pressed():
 	_unpause_game()
-
-func _on_pause_home_button_pressed():
-	_unpause_game()
-	_start_curtain_transition_generic(_return_to_menu_without_curtain)
 
 func _restart_level_after_curtain():
 	get_tree().paused = false
