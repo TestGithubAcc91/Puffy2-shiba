@@ -55,6 +55,10 @@ var is_in_pre_freeze_parry: bool = false
 @export var parry_freeze_duration: float = 0.3
 @export var parry_pre_freeze_duration: float = 0.1
 
+# FIXED: Add safety timer to prevent permanent freezes
+var parry_safety_timer: Timer
+@export var parry_safety_duration: float = 2.0  # Maximum time for entire parry sequence
+
 # Charge system variables
 @export var max_parry_stacks: int = 3
 var current_parry_stacks: int = 0
@@ -215,6 +219,7 @@ func setup_timers():
 		{timer = "parry_cooldown_timer", callback = "_on_parry_cooldown_timeout"},
 		{timer = "parry_pre_freeze_timer", wait_time = parry_pre_freeze_duration, callback = "_on_parry_pre_freeze_timeout"},
 		{timer = "parry_freeze_timer", wait_time = parry_freeze_duration, callback = "_on_parry_freeze_timeout"},
+		{timer = "parry_safety_timer", wait_time = parry_safety_duration, callback = "_on_parry_safety_timeout"},
 		{timer = "dash_timer", wait_time = dash_duration, callback = "_on_dash_timeout"},
 		{timer = "dash_cooldown_timer", wait_time = dash_cooldown, callback = "_on_dash_cooldown_timeout"},
 		{timer = "bounce_timer", wait_time = bounce_delay, callback = "_on_bounce_timeout"},
@@ -246,6 +251,9 @@ func update_parry_ready_sprite():
 		parry_ready_sprite.visible = true
 
 func _physics_process(delta: float) -> void:
+	# FIXED: Always ensure timescale is properly maintained in physics process
+	_check_and_fix_timescale()
+	
 	# NEW: Handle coyote time tracking
 	handle_coyote_time()
 	
@@ -253,6 +261,14 @@ func _physics_process(delta: float) -> void:
 	handle_movement(delta)
 	# Update zipline friction VFX every frame to ensure proper state
 	update_zipline_friction_vfx()
+
+# FIXED: Function to check and fix stuck timescale
+func _check_and_fix_timescale():
+	# If we're not in any parry state but timescale is wrong, fix it
+	if not is_parrying and not is_in_parry_freeze and not is_in_pre_freeze_parry:
+		if Engine.time_scale != original_time_scale:
+			print("WARNING: Fixing stuck timescale from ", Engine.time_scale, " to ", original_time_scale)
+			Engine.time_scale = original_time_scale
 
 # NEW: Function to handle coyote time logic
 func handle_coyote_time():
@@ -480,10 +496,13 @@ func setup_air_puff_cleanup(air_puff):
 		air_puff.add_child(cleanup_timer)
 		cleanup_timer.start()
 
-# Parry system
+# FIXED: Enhanced parry system with better state management
 func activate_parry():
 	if not can_parry:
 		return
+	
+	# FIXED: Reset all parry states before starting new parry
+	_reset_all_parry_states()
 	
 	# Store the invulnerability state before parry
 	was_invulnerable_before_parry = health_script.is_invulnerable
@@ -501,10 +520,41 @@ func activate_parry():
 		glint_sprite.play("default")
 	
 	parry_timer.start()
+	# FIXED: Start safety timer to prevent permanent freezes
+	parry_safety_timer.start()
 	
 	# Update animation if on zipline
 	if is_on_zipline:
 		animated_sprite.play("Parry")
+	
+	print("Parry activated - Safety timer started")
+
+# FIXED: Function to reset all parry states
+func _reset_all_parry_states():
+	is_parrying = false
+	is_in_parry_freeze = false
+	is_in_pre_freeze_parry = false
+	parry_was_successful = false
+	
+	# Stop all parry-related timers
+	if parry_timer:
+		parry_timer.stop()
+	if parry_pre_freeze_timer:
+		parry_pre_freeze_timer.stop()
+	if parry_freeze_timer:
+		parry_freeze_timer.stop()
+	if parry_safety_timer:
+		parry_safety_timer.stop()
+	
+	# Hide all parry VFX
+	if glint_sprite:
+		glint_sprite.visible = false
+		glint_sprite.stop()
+	if parry_spark:
+		parry_spark.visible = false
+	
+	# FIXED: Always reset timescale when resetting states
+	Engine.time_scale = original_time_scale
 
 func on_parry_success():
 	parry_was_successful = true
@@ -525,6 +575,8 @@ func on_parry_success():
 	
 	# NEW: Emit the parry success signal for tracking
 	parry_success.emit()
+	
+	print("Parry success - Pre-freeze started")
 
 func _play_parry_animation():
 	if is_in_pre_freeze_parry:
@@ -677,8 +729,10 @@ func assign_empty_texture_to_sprite(index: int):
 		else:
 			empty_charge_sprites[index].modulate.a = 0.3
 
-# Timer callbacks
+# FIXED: Enhanced timer callbacks with better state management
 func _on_parry_timeout():
+	print("Parry timeout triggered - Success: ", parry_was_successful)
+	
 	# ALWAYS reset timescale first, regardless of parry success/failure
 	Engine.time_scale = original_time_scale
 	
@@ -713,13 +767,19 @@ func _on_parry_timeout():
 	# Reset flags for next parry
 	last_attack_was_unparryable = false
 	was_invulnerable_before_parry = false
+	
+	# FIXED: Stop safety timer since parry completed normally
+	if parry_safety_timer:
+		parry_safety_timer.stop()
 
 func _on_parry_cooldown_timeout():
 	can_parry = true
 	# Update ParryReady sprite when parry becomes available again
 	update_parry_ready_sprite()
+	print("Parry cooldown finished - Can parry again")
 
 func _on_parry_pre_freeze_timeout():
+	print("Pre-freeze timeout - Starting main freeze")
 	is_in_pre_freeze_parry = false
 	is_in_parry_freeze = true
 	
@@ -728,10 +788,38 @@ func _on_parry_pre_freeze_timeout():
 	parry_freeze_timer.start()
 
 func _on_parry_freeze_timeout():
+	print("Parry freeze timeout - Ending freeze")
 	is_in_parry_freeze = false
 	# Ensure timescale is reset
 	Engine.time_scale = original_time_scale
 	# ParrySpark is already hidden from _on_parry_pre_freeze_timeout()
+	
+	# FIXED: Stop safety timer since parry sequence completed
+	if parry_safety_timer:
+		parry_safety_timer.stop()
+
+# FIXED: Safety timer callback to prevent permanent freezes
+func _on_parry_safety_timeout():
+	print("SAFETY: Parry safety timer triggered - Force resetting parry state")
+	
+	# Force reset all parry states
+	_reset_all_parry_states()
+	
+	# Reset invulnerability appropriately
+	if was_invulnerable_before_parry:
+		health_script.is_invulnerable = true
+	else:
+		health_script.is_invulnerable = false
+	
+	# Reset cooldown
+	can_parry = true
+	update_parry_ready_sprite()
+	
+	# Reset flags
+	last_attack_was_unparryable = false
+	was_invulnerable_before_parry = false
+	
+	print("SAFETY: Parry state force reset complete")
 
 # NEW: Coyote time timeout callback
 func _on_coyote_time_timeout():
@@ -762,17 +850,19 @@ func set_last_attack_unparryable(unparryable: bool):
 		health_script.is_invulnerable = true
 
 func _on_player_died():
+	print("Player died - Resetting all states")
+	
 	# ALWAYS reset timescale first
 	reset_timescale()
 	
 	# NEW: Stop all audio when player dies
 	_stop_zipline_sound()
 	
-	is_parrying = false
+	# FIXED: Use the centralized reset function
+	_reset_all_parry_states()
+	
 	is_dashing = false
 	is_bouncing = false
-	is_in_parry_freeze = false
-	is_in_pre_freeze_parry = false
 	is_vine_release_dash = false
 	can_coyote_jump = false
 	was_on_floor_last_frame = false  # NEW: Reset floor tracking
@@ -783,9 +873,10 @@ func _on_player_died():
 		current_zipline = null
 		zipline_in_range = null
 	
-	# NEW: Stop coyote time timer on death
-	for timer in [parry_timer, parry_cooldown_timer, parry_freeze_timer, parry_pre_freeze_timer, dash_timer, dash_cooldown_timer, bounce_timer, coyote_time_timer]:
-		timer.stop()
+	# FIXED: Stop all timers including safety timer
+	for timer in [parry_timer, parry_cooldown_timer, parry_freeze_timer, parry_pre_freeze_timer, parry_safety_timer, dash_timer, dash_cooldown_timer, bounce_timer, coyote_time_timer]:
+		if timer:
+			timer.stop()
 	
 	animated_sprite.modulate.a = 1.0
 	bounce_direction_vector = Vector2.ZERO

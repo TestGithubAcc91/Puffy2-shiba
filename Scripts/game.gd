@@ -8,6 +8,9 @@ var current_level_scene = null
 var input_blocked = false
 var current_level_number = 0
 
+# NEW: Curtain transition state tracking
+var curtain_transitioning = false
+
 # Game state tracking - UNCHANGED
 var timer_running = false
 var elapsed_time = 0.0
@@ -84,7 +87,9 @@ func _reset_curtain_position():
 	var viewport_size = get_viewport().size
 	black_curtain.position.x = viewport_size.x + 300
 	black_curtain.visible = false
-	print("Curtain reset to position: ", black_curtain.position)
+	# NEW: Mark curtain as ready when reset
+	curtain_transitioning = false
+	print("Curtain reset to position: ", black_curtain.position, " - Transition complete")
 
 func _setup_audio_system():
 	audio_player = AudioStreamPlayer.new()
@@ -119,11 +124,23 @@ func _process(delta):
 func _input(event):
 	if input_blocked: get_viewport().set_input_as_handled()
 
+# NEW: Protected level selection with curtain check
 func _on_level_selected(level_number):
+	# Block if curtain is transitioning
+	if curtain_transitioning:
+		print("Level selection blocked - curtain transitioning")
+		return
+	
 	is_tutorial_mode = false
 	_start_curtain_transition_to_level(level_number)
 
+# NEW: Protected tutorial button with curtain check
 func _on_tutorial_button_pressed():
+	# Block if curtain is transitioning
+	if curtain_transitioning:
+		print("Tutorial button blocked - curtain transitioning")
+		return
+	
 	is_tutorial_mode = true
 	_start_curtain_transition_to_level("tutorial")
 
@@ -134,7 +151,15 @@ func _start_curtain_transition_to_level(level_identifier):
 		_change_to_level(level_identifier)
 		return
 	
+	# NEW: Block if already transitioning
+	if curtain_transitioning:
+		print("Transition blocked - already in progress")
+		return
+	
 	print("Starting curtain transition to level: ", level_identifier)
+	
+	# NEW: Mark curtain as transitioning
+	curtain_transitioning = true
 	
 	# Block input during transition
 	input_blocked = true
@@ -147,6 +172,7 @@ func _start_curtain_transition_to_level(level_identifier):
 	# Reset curtain to starting position (right side)
 	_reset_curtain_position()
 	black_curtain.visible = true
+	curtain_transitioning = true  # Keep it true after reset for this transition
 	
 	var viewport_size = get_viewport().size
 	
@@ -187,7 +213,7 @@ func _reveal_scene_with_curtain():
 	
 	# Reset curtain position after animation is complete
 	await tween.finished
-	_reset_curtain_position()
+	_reset_curtain_position()  # This will set curtain_transitioning = false
 
 # SIMPLIFIED: Level change function (keeping original logic intact)
 func _change_to_level(level_identifier):
@@ -274,8 +300,13 @@ func _start_countdown():
 	movement_enabled.emit()
 	_start_timer()
 
-# SIMPLIFIED: Retry function using root curtain
+# SIMPLIFIED: Retry function using root curtain with protection
 func _on_retry_button_pressed():
+	# NEW: Block if curtain is transitioning
+	if curtain_transitioning:
+		print("Retry button blocked - curtain transitioning")
+		return
+	
 	print("RETRY BUTTON PRESSED - Using simplified retry")
 	_hide_results_page()
 	
@@ -283,6 +314,11 @@ func _on_retry_button_pressed():
 	_start_curtain_transition_to_level(level_identifier)
 
 func _on_pause_retry_button_pressed():
+	# NEW: Block if curtain is transitioning
+	if curtain_transitioning:
+		print("Pause retry button blocked - curtain transitioning")
+		return
+	
 	print("PAUSE RETRY BUTTON PRESSED - Using simplified retry")
 	_unpause_game()
 	
@@ -290,6 +326,11 @@ func _on_pause_retry_button_pressed():
 	_start_curtain_transition_to_level(level_identifier)
 
 func _on_home_button_pressed():
+	# NEW: Block if curtain is transitioning
+	if curtain_transitioning:
+		print("Home button blocked - curtain transitioning")
+		return
+	
 	print("HOME BUTTON PRESSED - Using simplified home transition")  
 	_hide_results_page()
 	_start_curtain_transition_to_menu()
@@ -300,7 +341,15 @@ func _start_curtain_transition_to_menu():
 		return_to_menu()
 		return
 	
+	# NEW: Block if already transitioning
+	if curtain_transitioning:
+		print("Menu transition blocked - already in progress")
+		return
+	
 	print("Starting curtain transition to menu")
+	
+	# NEW: Mark curtain as transitioning
+	curtain_transitioning = true
 	
 	# Block input during transition
 	input_blocked = true
@@ -313,6 +362,7 @@ func _start_curtain_transition_to_menu():
 	# Reset curtain to starting position (right side)
 	_reset_curtain_position()
 	black_curtain.visible = true
+	curtain_transitioning = true  # Keep it true after reset for this transition
 	
 	var viewport_size = get_viewport().size
 	
@@ -348,10 +398,15 @@ func _reveal_menu_with_curtain():
 	
 	# Reset curtain position after animation is complete
 	await tween.finished
-	_reset_curtain_position()
+	_reset_curtain_position()  # This will set curtain_transitioning = false
 
-# UPDATE PAUSE SYSTEM HANDLERS
+# UPDATE PAUSE SYSTEM HANDLERS with protection
 func _on_pause_home_button_pressed():
+	# NEW: Block if curtain is transitioning
+	if curtain_transitioning:
+		print("Pause home button blocked - curtain transitioning")
+		return
+	
 	_unpause_game()
 	_start_curtain_transition_to_menu()
 
@@ -404,6 +459,11 @@ func _setup_connections():
 	_setup_timer()
 	
 func _on_player_died_trigger_retry():
+	# NEW: Block if curtain is transitioning
+	if curtain_transitioning:
+		print("Player death retry blocked - curtain transitioning")
+		return
+	
 	print("PLAYER DIED - Triggering retry via curtain transition")
 	
 	# Stop timer and block input
@@ -418,6 +478,11 @@ func _on_player_died_trigger_retry():
 	
 	
 func _on_player_died():
+	# NEW: Block if curtain is transitioning
+	if curtain_transitioning:
+		print("Player death blocked - curtain transitioning")
+		return
+	
 	print("PLAYER DIED - Triggering retry sequence")
 	
 	# Stop timer and block input
