@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=4 uid="uid://c0nq8ap7acdqu"]
+[gd_scene load_steps=34 format=4 uid="uid://c0nq8ap7acdqu"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_r0ulf"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scenes/parallax_background_holder.gd" id="2_8mws5"]
@@ -7,7 +7,6 @@
 [ext_resource type="Texture2D" uid="uid://dkp07rod7ho0" path="res://Assets/sprites/MapSprites/Parallax/3.png" id="5_puwjn"]
 [ext_resource type="Texture2D" uid="uid://c1oi1gq3iicpo" path="res://Assets/sprites/MapSprites/Parallax/4.png" id="6_g20xy"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="7_vd72t"]
-[ext_resource type="PackedScene" uid="uid://cl0a34606f5ud" path="res://Scenes/black_curtain.tscn" id="8_8nar4"]
 [ext_resource type="PackedScene" uid="uid://beodtqr1g8lyc" path="res://Scenes/charge.tscn" id="9_fja5c"]
 [ext_resource type="Texture2D" uid="uid://cpb1vtttqxmn3" path="res://Assets/sprites/MapSprites/forestTilemap.png" id="10_f4ilv"]
 [ext_resource type="Texture2D" uid="uid://bi0j2fpvt17pk" path="res://Assets/sprites/MapSprites/darkerDirt.png" id="11_oahd5"]
@@ -659,6 +658,3 @@ zoom = Vector2(4, 4)
 limit_bottom = 60
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0
-
-[node name="BlackCurtain" parent="Player/Camera2D" instance=ExtResource("8_8nar4")]
-position = Vector2(329, -48)

@@ -272,6 +272,7 @@ texture_hover = ExtResource("22_oywgw")
 stretch_mode = 0
 
 [node name="BlackCurtainTransition" type="ColorRect" parent="."]
+visible = false
 offset_left = -445.0
 offset_top = -473.0
 offset_right = 1445.0

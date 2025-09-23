@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://dtcx6xj2og0ed"]
+[gd_scene load_steps=8 format=3 uid="uid://dtcx6xj2og0ed"]
 
 [ext_resource type="PackedScene" uid="uid://bck8lw4sj2ly6" path="res://Scenes/level_select_menu.tscn" id="1_81klo"]
 [ext_resource type="Script" uid="uid://86bicgodvvg4" path="res://Scripts/game.gd" id="1_wrm1d"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://cfeexgonv4yxm" path="res://Assets/sprites/PlayerGUI/ResultsGUI/Medals/silverMedal.png" id="3_1l0tm"]
 [ext_resource type="Texture2D" uid="uid://dwtpbp4ivoq5c" path="res://Assets/sprites/PlayerGUI/ResultsGUI/Medals/bronzeMedal.png" id="4_v158k"]
 [ext_resource type="AudioStream" uid="uid://dnanvvmwutjc4" path="res://Assets/sounds/tap.wav" id="5_i6g32"]
+[ext_resource type="PackedScene" uid="uid://cl0a34606f5ud" path="res://Scenes/black_curtain.tscn" id="7_1l0tm"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_wrm1d")
@@ -19,3 +20,9 @@ button_click_sound = ExtResource("5_i6g32")
 
 [node name="LevelSelectMenu" parent="." instance=ExtResource("1_81klo")]
 position = Vector2(-12, -88)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="BlackCurtain" parent="CanvasLayer" instance=ExtResource("7_1l0tm")]
+position = Vector2(1426, 342)
+scale = Vector2(1.8562697, 1.7803726)
