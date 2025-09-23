@@ -33,6 +33,8 @@ var last_attack_was_unparryable: bool = false
 # NEW: Signal to track successful parries
 signal parry_success
 
+signal player_died_trigger_retry
+
 # Parry variables
 var parry_timer: Timer
 var is_parrying: bool = false
@@ -808,7 +810,10 @@ func _on_player_died():
 	await get_tree().create_timer(1.0).timeout
 	# Reset to normal before scene reload
 	Engine.time_scale = 1.0
-	get_tree().reload_current_scene()
+	
+	# NEW: Instead of reloading the scene directly, emit a signal that Game.gd can listen to
+	# This will trigger the same curtain transition as the retry button
+	emit_signal("player_died_trigger_retry")
 
 func grab_vine(vine: Vine):
 	print("Player grab_vine method called")

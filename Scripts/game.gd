@@ -28,6 +28,7 @@ var connected_buttons = []
 # Signals - UNCHANGED
 signal movement_enabled
 signal movement_disabled
+signal player_died
 
 # Export settings - UNCHANGED
 @export_group("Countdown Colors")
@@ -367,11 +368,15 @@ func _setup_connections():
 			movement_disabled.connect(player._on_movement_disabled)
 		if not movement_enabled.is_connected(player._on_movement_enabled):
 			movement_enabled.connect(player._on_movement_enabled)
+			
+			# NEW: Connect player's died signal to trigger retry
+		if not player.player_died_trigger_retry.is_connected(_on_player_died_trigger_retry):
+			player.player_died_trigger_retry.connect(_on_player_died_trigger_retry)
 		
 		if player.has_node("HealthScript"):
 			var health_script = player.get_node("HealthScript")
-			if not health_script.health_decreased.is_connected(_on_player_damage_taken):
-				health_script.health_decreased.connect(_on_player_damage_taken)
+			if not health_script.died.is_connected(_on_player_died):
+				health_script.died.connect(_on_player_died)
 		
 		if player.has_signal("parry_success") and not player.parry_success.is_connected(_on_player_parry_success):
 			player.parry_success.connect(_on_player_parry_success)
@@ -384,7 +389,37 @@ func _setup_connections():
 	_setup_pause_button()
 	_connect_glits_tracking()
 	_setup_timer()
-
+	
+func _on_player_died_trigger_retry():
+	print("PLAYER DIED - Triggering retry via curtain transition")
+	
+	# Stop timer and block input
+	_stop_timer()
+	input_blocked = true
+	movement_disabled.emit()
+	
+	# Trigger the same retry functionality as the retry button
+	var level_identifier = "tutorial" if is_tutorial_mode else current_level_number
+	_start_curtain_transition_to_level(level_identifier)
+	
+	
+	
+func _on_player_died():
+	print("PLAYER DIED - Triggering retry sequence")
+	
+	# Stop timer and block input
+	_stop_timer()
+	input_blocked = true
+	movement_disabled.emit()
+	
+	# Wait a moment for death animation to play
+	await get_tree().create_timer(1.5).timeout
+	
+	# Trigger the same retry functionality as the retry button
+	var level_identifier = "tutorial" if is_tutorial_mode else current_level_number
+	_start_curtain_transition_to_level(level_identifier)
+	
+	
 func _setup_pause_button():
 	if not (current_level_scene and current_level_scene.has_node("UI/PauseButton")): return
 	
