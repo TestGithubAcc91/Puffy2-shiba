@@ -14,7 +14,7 @@
 [ext_resource type="AudioStream" uid="uid://bchv0f7la7ywk" path="res://Assets/sounds/happy-message-ping-351298.mp3" id="7_l6n3p"]
 [ext_resource type="Texture2D" uid="uid://d3yjier25qwfg" path="res://Assets/sprites/PlayerSprites/parry_jumpPuffy.png" id="7_tx1dd"]
 [ext_resource type="Texture2D" uid="uid://b6f36ebip5og4" path="res://Assets/sprites/PlayerGUI/parryCharges/parryChargeEmpty.png" id="8_f1ek2"]
-[ext_resource type="AudioStream" uid="uid://bmma06gaagbk7" path="res://Assets/sounds/click-104721.mp3" id="8_wpjfl"]
+[ext_resource type="AudioStream" uid="uid://bsvembrlyrso0" path="res://Assets/sounds/ropemvmt_rope-zip-slow_mp_6-96318.mp3" id="8_wpjfl"]
 [ext_resource type="Texture2D" uid="uid://cc46slmlinkrh" path="res://Assets/sprites/PlayerSprites/glint_anim.png" id="9_f1ek2"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="10_tx1dd"]
 [ext_resource type="Script" uid="uid://ciukewv7haujl" path="res://Scripts/vine_component.gd" id="13_ukyrk"]

@@ -71,11 +71,20 @@ func _setup_root_curtain():
 		print("ERROR: BlackCurtain node not found! Please add a ColorRect named 'BlackCurtain' as child of Game node")
 		return
 	
-	# Position curtain off-screen to the right with 100px offset
-	black_curtain.position.x = get_viewport().size.x + 300
+	_reset_curtain_position()
 	black_curtain.z_index = 1000  # Ensure it's always on top
 	
 	print("Root curtain initialized at position: ", black_curtain.position)
+
+func _reset_curtain_position():
+	"""Reset the curtain to its starting position (off-screen to the right)"""
+	if not black_curtain:
+		return
+	
+	var viewport_size = get_viewport().size
+	black_curtain.position.x = viewport_size.x + 300
+	black_curtain.visible = false
+	print("Curtain reset to position: ", black_curtain.position)
 
 func _setup_audio_system():
 	audio_player = AudioStreamPlayer.new()
@@ -134,10 +143,12 @@ func _start_curtain_transition_to_level(level_identifier):
 	# Ensure curtain is properly positioned and visible
 	black_curtain.visible = true
 	black_curtain.z_index = 1000
-	var viewport_size = get_viewport().size
 	
-	# Start curtain off-screen to the right with 100px offset
-	black_curtain.position.x = viewport_size.x + 300
+	# Reset curtain to starting position (right side)
+	_reset_curtain_position()
+	black_curtain.visible = true
+	
+	var viewport_size = get_viewport().size
 	
 	# Phase 1: Move curtain to cover screen
 	var tween = create_tween()
@@ -174,9 +185,9 @@ func _reveal_scene_with_curtain():
 		await get_tree().create_timer(0.5).timeout
 		_start_countdown()
 	
-	# Hide curtain when animation is complete
+	# Reset curtain position after animation is complete
 	await tween.finished
-	black_curtain.visible = false
+	_reset_curtain_position()
 
 # SIMPLIFIED: Level change function (keeping original logic intact)
 func _change_to_level(level_identifier):
@@ -298,10 +309,12 @@ func _start_curtain_transition_to_menu():
 	# Ensure curtain is properly positioned and visible
 	black_curtain.visible = true
 	black_curtain.z_index = 1000
-	var viewport_size = get_viewport().size
 	
-	# Start curtain off-screen to the right with 100px offset
-	black_curtain.position.x = viewport_size.x + 300
+	# Reset curtain to starting position (right side)
+	_reset_curtain_position()
+	black_curtain.visible = true
+	
+	var viewport_size = get_viewport().size
 	
 	# Phase 1: Move curtain to cover current scene
 	var tween = create_tween()
@@ -333,9 +346,9 @@ func _reveal_menu_with_curtain():
 	# Move curtain off-screen to the left with 100px offset to reveal menu
 	tween.tween_property(black_curtain, "position:x", -1700, 1.3)
 	
-	# Hide curtain when animation is complete
+	# Reset curtain position after animation is complete
 	await tween.finished
-	black_curtain.visible = false
+	_reset_curtain_position()
 
 # UPDATE PAUSE SYSTEM HANDLERS
 func _on_pause_home_button_pressed():
