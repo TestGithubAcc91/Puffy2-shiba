@@ -1,8 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://6h362foug0m3"]
+[gd_scene load_steps=10 format=3 uid="uid://6h362foug0m3"]
 
 [ext_resource type="Texture2D" uid="uid://5u2ka5vyf3no" path="res://Assets/sprites/EnemySprites/beamer.png" id="1_0tdxm"]
 [ext_resource type="Script" uid="uid://bfwv2bcvtioni" path="res://Scripts/beamer.gd" id="1_b06mb"]
 [ext_resource type="PackedScene" uid="uid://xnuk6x05vok" path="res://Scenes/beam.tscn" id="2_380w4"]
+[ext_resource type="AudioStream" uid="uid://cr54hdubkirom" path="res://Assets/sounds/pulse_sound_try1-89547.mp3" id="3_o4xrs"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yp3ta"]
 atlas = ExtResource("1_0tdxm")
@@ -49,6 +50,7 @@ animations = [{
 script = ExtResource("1_b06mb")
 beam_scene = ExtResource("2_380w4")
 beam_count = 11
+beam_sound = ExtResource("3_o4xrs")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_yp3ta")

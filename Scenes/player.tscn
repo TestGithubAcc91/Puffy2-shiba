@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3 uid="uid://bkfnr4qat1ah0"]
+[gd_scene load_steps=46 format=3 uid="uid://bkfnr4qat1ah0"]
 
 [ext_resource type="Script" uid="uid://dbdi6y3t2arwa" path="res://Scripts/player_movement.gd" id="1_cvnsp"]
 [ext_resource type="PackedScene" uid="uid://cw3hs2qsg2k4t" path="res://Scenes/air_puff_H.tscn" id="2_pu2lt"]
@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://d3yjier25qwfg" path="res://Assets/sprites/PlayerSprites/parry_jumpPuffy.png" id="7_tx1dd"]
 [ext_resource type="Texture2D" uid="uid://b6f36ebip5og4" path="res://Assets/sprites/PlayerGUI/parryCharges/parryChargeEmpty.png" id="8_f1ek2"]
 [ext_resource type="AudioStream" uid="uid://bsvembrlyrso0" path="res://Assets/sounds/ropemvmt_rope-zip-slow_mp_6-96318.mp3" id="8_wpjfl"]
+[ext_resource type="AudioStream" uid="uid://bmma06gaagbk7" path="res://Assets/sounds/click-104721.mp3" id="9_bi64h"]
 [ext_resource type="Texture2D" uid="uid://cc46slmlinkrh" path="res://Assets/sprites/PlayerSprites/glint_anim.png" id="9_f1ek2"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="10_tx1dd"]
 [ext_resource type="Script" uid="uid://ciukewv7haujl" path="res://Scripts/vine_component.gd" id="13_ukyrk"]
@@ -206,6 +207,7 @@ parry_not_ready_texture = ExtResource("16_fd4e3")
 whoosh_sound = ExtResource("6_fs7ks")
 parry_success_sound = ExtResource("7_l6n3p")
 zipline_sound = ExtResource("8_wpjfl")
+click_sound = ExtResource("9_bi64h")
 charge_texture_1 = ExtResource("4_vgqql")
 charge_texture_2 = ExtResource("5_x3wgy")
 charge_texture_3 = ExtResource("4_8erm5")

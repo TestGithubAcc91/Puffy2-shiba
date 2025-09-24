@@ -24,8 +24,10 @@ var pause_screen = null
 var finish_results = null
 var is_tutorial_mode = false
 
-# Audio system - UNCHANGED
+# Audio system - ENHANCED with results thud sound and go sound
 var audio_player: AudioStreamPlayer
+var results_audio_player: AudioStreamPlayer  # NEW: Separate audio player for results screen
+var go_audio_player: AudioStreamPlayer  # NEW: Separate audio player for "GO!!" sound
 var connected_buttons = []
 
 # Signals - UNCHANGED
@@ -33,7 +35,7 @@ signal movement_enabled
 signal movement_disabled
 signal player_died
 
-# Export settings - UNCHANGED
+# Export settings - ENHANCED with thud sound
 @export_group("Countdown Colors")
 @export var ready_color: Color = Color.RED
 @export var set_color: Color = Color.YELLOW
@@ -46,6 +48,8 @@ signal player_died
 
 @export_group("Audio")
 @export var button_click_sound: AudioStream
+@export var results_thud_sound: AudioStream  # NEW: Thud sound for results screen
+@export var go_sound: AudioStream  # NEW: Unique sound for "GO!!" countdown
 
 # Level medal requirements - UNCHANGED
 var level_medal_times = {
@@ -91,7 +95,9 @@ func _reset_curtain_position():
 	curtain_transitioning = false
 	print("Curtain reset to position: ", black_curtain.position, " - Transition complete")
 
+# ENHANCED: Setup all three audio players
 func _setup_audio_system():
+	# Original button audio player
 	audio_player = AudioStreamPlayer.new()
 	audio_player.name = "ButtonAudioPlayer"
 	audio_player.bus = "SFX"
@@ -99,6 +105,24 @@ func _setup_audio_system():
 	
 	if button_click_sound:
 		audio_player.stream = button_click_sound
+	
+	# NEW: Results screen thud audio player
+	results_audio_player = AudioStreamPlayer.new()
+	results_audio_player.name = "ResultsAudioPlayer"
+	results_audio_player.bus = "SFX"
+	add_child(results_audio_player)
+	
+	if results_thud_sound:
+		results_audio_player.stream = results_thud_sound
+	
+	# NEW: "GO!!" sound audio player
+	go_audio_player = AudioStreamPlayer.new()
+	go_audio_player.name = "GoAudioPlayer"
+	go_audio_player.bus = "SFX"
+	add_child(go_audio_player)
+	
+	if go_sound:
+		go_audio_player.stream = go_sound
 
 func _connect_menu_buttons_sound():
 	var level_buttons = level_select_menu.find_children("*", "BaseButton", true, false)
@@ -115,6 +139,18 @@ func _connect_button_sound(button: BaseButton):
 func _play_button_sound():
 	if audio_player and button_click_sound:
 		audio_player.play()
+
+# NEW: Function to play thud sound for results screen
+func _play_results_thud_sound():
+	if results_audio_player and results_thud_sound:
+		results_audio_player.play()
+		print("Playing thud sound for results element")
+
+# NEW: Function to play "GO!!" sound
+func _play_go_sound():
+	if go_audio_player and go_sound:
+		go_audio_player.play()
+		print("Playing GO!! sound effect")
 
 func _process(delta):
 	if timer_running and timer_label and not is_paused:
@@ -287,6 +323,13 @@ func _start_countdown():
 	for data in countdown_data:
 		countdown_label.text = data.text
 		countdown_label.modulate = data.color
+		
+		# NEW: Play different sounds for different countdown text
+		if data.text == "GO!!":
+			_play_go_sound()  # Unique sound for "GO!!"
+		else:
+			_play_results_thud_sound()  # Thud sound for "READY?" and "SET..."
+		
 		await get_tree().create_timer(data.time).timeout
 		
 		# NEW: Enable player movement when "GO!!" is shown
@@ -555,6 +598,7 @@ func _on_level_finish_entered(body):
 		movement_disabled.emit()
 		_show_finish_results()
 
+# ENHANCED: Results screen with thud sounds
 func _show_finish_results():
 	if not (current_level_scene and current_level_scene.has_node("UI/FinishResults")): return
 	
@@ -564,11 +608,11 @@ func _show_finish_results():
 	_ensure_result_buttons_connected()
 	
 	var results_data = [
-		{"path": "Results/Time", "text": "TIME................%.2f" % elapsed_time, "delay": 1.0},
-		{"path": "Results/Damage", "text": "DAMAGE.............%d" % damage_count, "delay": 0.5},
-		{"path": "Results/Parries", "text": "PARRIES............%d" % parry_count, "delay": 0.5},
-		{"path": "Results/Glits", "text": "GLITS...............%d" % _get_current_coin_score(), "delay": 0.5},
-		{"path": "Results/FinalResult", "text": "", "delay": 1.0}
+		{"path": "Results/Time", "text": "TIME................%.2f" % elapsed_time, "delay": 1.0, "play_sound": true},
+		{"path": "Results/Damage", "text": "DAMAGE.............%d" % damage_count, "delay": 0.5, "play_sound": true},
+		{"path": "Results/Parries", "text": "PARRIES............%d" % parry_count, "delay": 0.5, "play_sound": true},
+		{"path": "Results/Glits", "text": "GLITS...............%d" % _get_current_coin_score(), "delay": 0.5, "play_sound": true},
+		{"path": "Results/FinalResult", "text": "", "delay": 1.0, "play_sound": false}
 	]
 	
 	for data in results_data:
@@ -576,13 +620,19 @@ func _show_finish_results():
 		if finish_results.has_node(data.path):
 			var label = finish_results.get_node(data.path)
 			label.visible = true
-			if data.text: label.text = data.text
+			if data.text: 
+				label.text = data.text
+			
+			# NEW: Play thud sound for each text element (except FinalResult)
+			if data.play_sound:
+				_play_results_thud_sound()
 	
 	await get_tree().create_timer(1.0).timeout
 	_show_medal(finish_results)
 	
 	await get_tree().create_timer(1.0).timeout
 	
+	# NOTE: Home and Retry buttons do NOT play thud sounds - they keep their original click sounds
 	for button_name in ["RetryButton", "HomeButton"]:
 		if finish_results.has_node(button_name):
 			var button = finish_results.get_node(button_name)
@@ -604,6 +654,8 @@ func _ensure_result_buttons_connected():
 		retry_button.pressed.connect(_on_retry_button_pressed)
 		retry_button.disabled = false
 		retry_button.mouse_filter = Control.MOUSE_FILTER_PASS
+		# Connect regular button click sound (not thud)
+		_connect_button_sound(retry_button)
 		print("Connected RetryButton")
 	
 	if finish_results.has_node("HomeButton"):
@@ -613,6 +665,8 @@ func _ensure_result_buttons_connected():
 		home_button.pressed.connect(_on_home_button_pressed)
 		home_button.disabled = false
 		home_button.mouse_filter = Control.MOUSE_FILTER_PASS
+		# Connect regular button click sound (not thud)
+		_connect_button_sound(home_button)
 		print("Connected HomeButton")
 
 func _hide_results_page():
@@ -620,6 +674,7 @@ func _hide_results_page():
 		finish_results.visible = false
 		finish_results.process_mode = Node.PROCESS_MODE_INHERIT
 
+# ENHANCED: Medal display with thud sound
 func _show_medal(finish_results):
 	if finish_results.has_node("Results/Medal"):
 		var medal_node = finish_results.get_node("Results/Medal")
@@ -627,6 +682,9 @@ func _show_medal(finish_results):
 		if medal_texture and medal_node is Sprite2D:
 			medal_node.texture = medal_texture
 		medal_node.visible = true
+		
+		# NEW: Play thud sound when medal appears
+		_play_results_thud_sound()
 
 func _get_medal_texture_by_time(time: float) -> Texture2D:
 	var level_key = "tutorial" if is_tutorial_mode else current_level_number

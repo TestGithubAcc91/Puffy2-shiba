@@ -23,10 +23,12 @@ const HIGH_JUMP_VELOCITY = -350.0
 var whoosh_audio_player: AudioStreamPlayer
 var parry_audio_player: AudioStreamPlayer
 var zipline_audio_player: AudioStreamPlayer
+var click_audio_player: AudioStreamPlayer
 @export_group("Audio")
 @export var whoosh_sound: AudioStream
 @export var parry_success_sound: AudioStream
 @export var zipline_sound: AudioStream
+@export var click_sound: AudioStream
 
 var last_attack_was_unparryable: bool = false
 
@@ -168,7 +170,15 @@ func _setup_audio_system():
 		zipline_audio_player.stream = zipline_sound
 	add_child(zipline_audio_player)
 	
-	print("Audio system setup complete - Whoosh: ", whoosh_sound != null, " Parry: ", parry_success_sound != null, " Zipline: ", zipline_sound != null)
+	# Create dedicated AudioStreamPlayer for click sounds (vine/zipline mounting)
+	click_audio_player = AudioStreamPlayer.new()
+	click_audio_player.name = "ClickAudioPlayer"
+	click_audio_player.bus = "SFX"
+	if click_sound:
+		click_audio_player.stream = click_sound
+	add_child(click_audio_player)
+	
+	print("Audio system setup complete - Whoosh: ", whoosh_sound != null, " Parry: ", parry_success_sound != null, " Zipline: ", zipline_sound != null, " Click: ", click_sound != null)
 
 # NEW: Function to unblock movement at level start (called by Game.gd)
 func enable_movement_at_level_start():
@@ -200,6 +210,14 @@ func _stop_zipline_sound():
 	if zipline_audio_player and zipline_audio_player.playing:
 		zipline_audio_player.stop()
 		print("Stopping zipline sound")
+
+# NEW: Play click sound (for vine/zipline mounting)
+func _play_click_sound():
+	if click_audio_player and click_sound:
+		click_audio_player.play()
+		print("Playing click sound")
+	else:
+		print("Click sound failed - Player: ", click_audio_player != null, " Sound: ", click_sound != null)
 
 func setup_ui():
 	if glint_sprite:
@@ -254,6 +272,9 @@ func _physics_process(delta: float) -> void:
 	# FIXED: Always ensure timescale is properly maintained in physics process
 	_check_and_fix_timescale()
 	
+	# NEW: Check if zipline sound should stop (player no longer on zipline)
+	_check_zipline_sound_state()
+	
 	# NEW: Handle coyote time tracking
 	handle_coyote_time()
 	
@@ -261,6 +282,12 @@ func _physics_process(delta: float) -> void:
 	handle_movement(delta)
 	# Update zipline friction VFX every frame to ensure proper state
 	update_zipline_friction_vfx()
+
+# NEW: Function to check and stop zipline sound if no longer on zipline
+func _check_zipline_sound_state():
+	# If zipline sound is playing but we're not on a zipline, stop it
+	if zipline_audio_player and zipline_audio_player.playing and not is_on_zipline:
+		_stop_zipline_sound()
 
 # FIXED: Function to check and fix stuck timescale
 func _check_and_fix_timescale():
@@ -611,6 +638,10 @@ func activate_dash():
 func play_vine_dismount_sound():
 	_play_whoosh_sound()
 
+# NEW: Function for vine component to trigger click sound on mount
+func play_vine_mount_sound():
+	_play_click_sound()
+
 func activate_high_jump():
 	if not can_high_jump or current_parry_stacks < 2:
 		return
@@ -858,6 +889,10 @@ func _on_player_died():
 	# NEW: Stop all audio when player dies
 	_stop_zipline_sound()
 	
+	# Stop click sound if playing
+	if click_audio_player and click_audio_player.playing:
+		click_audio_player.stop()
+	
 	# FIXED: Use the centralized reset function
 	_reset_all_parry_states()
 	
@@ -910,6 +945,8 @@ func grab_vine(vine: Vine):
 	print("Player grab_vine method called")
 	if vine.player_in_grab_area and has_node("VineComponent"):
 		print("Player attempting to grab vine through VineComponent")
+		# The VineComponent will handle the actual mounting and should call play_vine_mount_sound()
+		# when the vine is successfully mounted
 		$VineComponent.grab_vine(vine)
 
 func handle_zipline_movement(delta: float):
@@ -932,6 +969,9 @@ func grab_zipline():
 		# Stop any current movement
 		if is_dashing:
 			end_dash()
+		
+		# NEW: Play click sound when mounting zipline
+		_play_click_sound()
 		
 		# NEW: Start playing zipline sound
 		_play_zipline_sound()

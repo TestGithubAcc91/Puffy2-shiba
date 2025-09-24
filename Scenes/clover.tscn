@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://b2vrnra2k4b62"]
+[gd_scene load_steps=12 format=3 uid="uid://b2vrnra2k4b62"]
 
 [ext_resource type="Script" uid="uid://bpaaursrp8ll0" path="res://Scripts/clover.gd" id="1_aiwxb"]
 [ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="2_aiwxb"]
 [ext_resource type="Texture2D" uid="uid://7unu6cpkdyak" path="res://Assets/sprites/EnemySprites/cloverIdle.png" id="2_e75hx"]
+[ext_resource type="AudioStream" uid="uid://dxfnajygii3q3" path="res://Assets/sounds/steel-blade-slice-2-188214.mp3" id="2_gxew5"]
 [ext_resource type="Texture2D" uid="uid://durhawqgmqonb" path="res://Assets/sprites/EnemySprites/cloverSpiked.png" id="3_rmcxx"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="5_v6fci"]
 
@@ -45,6 +46,7 @@ radius = 6.0
 
 [node name="Clover" type="Node2D"]
 script = ExtResource("1_aiwxb")
+spike_sound = ExtResource("2_gxew5")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, 6)

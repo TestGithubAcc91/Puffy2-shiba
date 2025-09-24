@@ -15,6 +15,10 @@ const SPEED = 60
 @export var circular_radius: float = 75.0  # Radius of the circular path
 @export var circular_speed: float = 2.0  # Speed of circular movement (radians per second)
 
+# Audio properties - NEW
+@export_group("Audio")
+@export var spike_sound: AudioStream  # Sound to play when spiking
+
 # Detection and state variables
 var player_detected = false
 var detection_timer = 0.0
@@ -30,6 +34,9 @@ var circular_angle: float = 0.0  # Current angle for circular movement
 @onready var detection_area: Area2D = $KillzoneScript_Area
 @onready var unparryable_warning: Label = $UnparryableWarning
 
+# Audio system - NEW
+var spike_audio_player: AudioStreamPlayer2D
+
 func _ready():
 	# Store the initial position for vertical movement reference
 	initial_position = position
@@ -41,6 +48,27 @@ func _ready():
 	# Hide the warning label initially
 	if unparryable_warning:
 		unparryable_warning.visible = false
+	
+	# Setup audio system - NEW
+	_setup_audio_system()
+
+# NEW: Setup the audio system
+func _setup_audio_system():
+	spike_audio_player = AudioStreamPlayer2D.new()
+	spike_audio_player.name = "SpikeAudioPlayer2D"
+	spike_audio_player.bus = "SFX"  # Use SFX bus like the main game
+	add_child(spike_audio_player)
+	
+	if spike_sound:
+		spike_audio_player.stream = spike_sound
+	
+	print("Enemy spike audio system initialized")
+
+# NEW: Function to play spike sound
+func _play_spike_sound():
+	if spike_audio_player and spike_sound:
+		spike_audio_player.play()
+		print("Playing spike sound effect")
 
 func _process(delta: float):
 	# Handle player detection timer
@@ -151,13 +179,21 @@ func toggle_circular_movement():
 		circular_angle = 0.0
 		animated_sprite.flip_h = false  # Reset sprite orientation
 
+# Detection with conditional spike sound - only plays on state change
 func _on_detection_area_body_entered(body: Node2D):
 	var health_component = body.get_node("HealthScript") if body.has_node("HealthScript") else null
 	if health_component:  # Only trigger if it's actually the player
+		# Only play sound if transitioning from non-spiked to spiked
+		var was_spiked = is_spiked
+		
 		player_detected = true
 		is_spiked = true  # Set spiked flag
 		detection_timer = 2.0  # 2 seconds
 		animated_sprite.play("Spiked")
+		
+		# NEW: Only play spike sound if we weren't already spiked
+		if not was_spiked:
+			_play_spike_sound()
 		
 		# Show the unparryable warning
 		if unparryable_warning:

@@ -144,6 +144,9 @@ func determine_initial_swing_direction(vine: Vine) -> float:
 	return sign(player_relative_x) if abs(player_relative_x) > 5.0 else 1.0
 
 func grab_vine(vine: Vine):
+	if player and player.has_method("play_vine_mount_sound"):
+		player.play_vine_mount_sound()
+	
 	# FIXED: Properly clean up previous vine before grabbing new one
 	if is_swinging and current_vine and current_vine != vine:
 		# Clean up previous vine completely

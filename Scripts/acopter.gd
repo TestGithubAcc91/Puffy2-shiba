@@ -3,16 +3,24 @@ extends Node2D
 @export var fire_rate: float = 2.0  # Time between shots in seconds
 @export var spawn_offset: Vector2 = Vector2(0, 4)  # Offset from helicopter center to spawn acorns
 @export var facing_left: bool = false  # Toggle for direction
+
 # Vertical movement properties
 @export var vertical_movement_enabled: bool = true  # Toggle vertical movement on/off
 @export var vertical_distance: float = 50.0  # Distance to move up and down
 @export var vertical_speed: float = 30.0  # Speed of vertical movement
+
+# Audio properties - NEW
+@export_group("Audio")
+@export var shoot_sound: AudioStream  # Sound to play when shooting
 
 var fire_timer: Timer
 var animated_sprite: AnimatedSprite2D
 var initial_position: Vector2
 var moving_up: bool = true
 var is_active: bool = true  # Flag to control helicopter activity
+
+# Audio system - NEW
+var shoot_audio_player: AudioStreamPlayer2D
 
 func _ready():
 	# Store the initial position for vertical movement reference
@@ -33,6 +41,33 @@ func _ready():
 	
 	# Connect to player's death signal if available
 	connect_to_player_signals()
+	
+	# Setup audio system - NEW
+	_setup_audio_system()
+
+# NEW: Setup the audio system
+func _setup_audio_system():
+	shoot_audio_player = AudioStreamPlayer2D.new()
+	shoot_audio_player.name = "ShootAudioPlayer2D"
+	shoot_audio_player.bus = "SFX"  # Use SFX bus like the main game
+	
+	# NEW: Configure sound range and attenuation
+	shoot_audio_player.max_distance = 300.0  # Sound becomes inaudible beyond this distance
+	shoot_audio_player.attenuation = 1.0  # How quickly sound fades (higher = faster fade)
+
+	
+	add_child(shoot_audio_player)
+	
+	if shoot_sound:
+		shoot_audio_player.stream = shoot_sound
+	
+	print("Helicopter shoot audio system initialized")
+
+# NEW: Function to play shoot sound
+func _play_shoot_sound():
+	if shoot_audio_player and shoot_sound:
+		shoot_audio_player.play()
+		print("Playing helicopter shoot sound effect")
 
 func connect_to_player_signals():
 	# Try to find the player and connect to its death signal
@@ -134,7 +169,10 @@ func start_shooting_sequence():
 	# Check if still active after await
 	if not is_active:
 		return
-		
+	
+	# NEW: Play shoot sound when spawning acorn
+	_play_shoot_sound()
+	
 	spawn_acorn()
 	
 	# FIXED: Check tree again after first await

@@ -6,7 +6,15 @@ extends Node2D
 @export var beam_count: int = 5  # Number of beam squares to create
 @export var beam_start_offset: float = -5  # Distance from shooter to start beam
 @export var direction: Direction = Direction.UP  # Beam direction
+
+# Audio properties - NEW
+@export_group("Audio")
+@export var beam_sound: AudioStream  # Looping sound to play while beam is active
+
 @onready var animated_sprite = $AnimatedSprite2D
+
+# Audio system - NEW
+var beam_audio_player: AudioStreamPlayer2D
 
 enum Direction {
 	UP,
@@ -27,6 +35,39 @@ var warning_beam_tweens = []  # Store tween references
 func _ready() -> void:
 	animated_sprite.play("default")
 	set_rotation_for_direction()
+	
+	# Setup audio system - NEW
+	_setup_audio_system()
+
+# NEW: Setup the audio system
+func _setup_audio_system():
+	beam_audio_player = AudioStreamPlayer2D.new()
+	beam_audio_player.name = "BeamAudioPlayer2D"
+	beam_audio_player.bus = "SFX"  # Use SFX bus like the main game
+	
+	# Configure sound range and attenuation (same as helicopter)
+	beam_audio_player.max_distance = 250.0  # Sound becomes inaudible beyond this distance
+	beam_audio_player.attenuation = 0.4 # How quickly sound fades
+
+	
+	add_child(beam_audio_player)
+	
+	if beam_sound:
+		beam_audio_player.stream = beam_sound
+	
+	print("Beam shooter audio system initialized")
+
+# NEW: Function to start looping beam sound
+func _start_beam_sound():
+	if beam_audio_player and beam_sound:
+		beam_audio_player.play()
+		print("Starting beam loop sound")
+
+# NEW: Function to stop looping beam sound
+func _stop_beam_sound():
+	if beam_audio_player:
+		beam_audio_player.stop()
+		print("Stopping beam loop sound")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -47,6 +88,9 @@ func _process(delta: float) -> void:
 			is_speeding_up = false
 			is_on_cooldown = true
 			destroy_beam()
+			
+			# NEW: Stop beam sound when beam ends
+			_stop_beam_sound()
 		elif is_on_cooldown:
 			# Cooldown finished, can start next cycle
 			is_on_cooldown = false
@@ -58,6 +102,9 @@ func _process(delta: float) -> void:
 			is_speeding_up = false
 			destroy_warning_beam()  # Remove warning beam before creating real beam
 			create_beam()
+			
+			# NEW: Start looping beam sound when beam becomes active
+			_start_beam_sound()
 		
 		animation_timer = 0.0
 
@@ -221,3 +268,7 @@ func destroy_warning_beam():
 func set_direction(new_direction: Direction):
 	direction = new_direction
 	set_rotation_for_direction()
+
+# NEW: Cleanup function to ensure sound stops if beam shooter is destroyed
+func _exit_tree():
+	_stop_beam_sound()
