@@ -15,14 +15,22 @@ func _ready():
 	# Replace "Level1Button" with your actual TextureButton's name
 	$Level1Button.pressed.connect(_on_level_1_button_pressed)
 	
-	# Connect hover signals
+	# Connect hover signals for Level 1
 	$Level1Button.mouse_entered.connect(_on_level_1_button_hover_start)
 	$Level1Button.mouse_exited.connect(_on_level_1_button_hover_end)
 	
-	# You can also connect multiple level buttons here:
-	# $Level2Button.pressed.connect(_on_level_2_button_pressed)
+	# FIXED: Connect Level 2 button
+	$Level2Button.pressed.connect(_on_level_2_button_pressed)
+	
+	# Optional: Add hover effects for Level 2 as well
+	$Level2Button.mouse_entered.connect(_on_level_2_button_hover_start)
+	$Level2Button.mouse_exited.connect(_on_level_2_button_hover_end)
+	
+	# You can also connect additional level buttons here:
 	# $Level3Button.pressed.connect(_on_level_3_button_pressed)
+	# $Level4Button.pressed.connect(_on_level_4_button_pressed)
 
+# Level 1 button handlers
 func _on_level_1_button_pressed():
 	level_selected.emit(1)
 
@@ -43,3 +51,37 @@ func _on_level_1_button_hover_end():
 	# Create new tween to fade out
 	tween = create_tween()
 	tween.tween_property(forest_background, "modulate:a", 0.0, 0.3)
+
+# FIXED: Added Level 2 button handlers
+func _on_level_2_button_pressed():
+	level_selected.emit(2)
+
+# Optional: Level 2 hover effects (you can customize the background for Level 2)
+func _on_level_2_button_hover_start():
+	# Kill any existing tween
+	if tween:
+		tween.kill()
+	
+	# Create new tween to fade in
+	# You might want to change this to a different background for Level 2
+	tween = create_tween()
+	tween.tween_property(forest_background, "modulate:a", 1.0, 0.3)
+
+func _on_level_2_button_hover_end():
+	# Kill any existing tween
+	if tween:
+		tween.kill()
+	
+	# Create new tween to fade out
+	tween = create_tween()
+	tween.tween_property(forest_background, "modulate:a", 0.0, 0.3)
+
+# Template functions for additional levels (uncomment and modify as needed)
+# func _on_level_3_button_pressed():
+# 	level_selected.emit(3)
+# 
+# func _on_level_4_button_pressed():
+# 	level_selected.emit(4)
+# 
+# func _on_level_5_button_pressed():
+# 	level_selected.emit(5)

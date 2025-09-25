@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://bck8lw4sj2ly6"]
+[gd_scene load_steps=20 format=3 uid="uid://bck8lw4sj2ly6"]
 
 [ext_resource type="Script" uid="uid://cojgak2pyu7c6" path="res://Scripts/level_select_menu.gd" id="1_52mtt"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="1_271b8"]
@@ -14,8 +14,11 @@
 [ext_resource type="Texture2D" uid="uid://bid2n3345n4ct" path="res://Assets/sprites/PlayerGUI/GeneralGUI/TutorialLevel/tutorialSelect.png" id="11_g6sov"]
 [ext_resource type="BitMap" uid="uid://bb7g1utteh3sf" path="res://Assets/sprites/PlayerGUI/GeneralGUI/buttonMask.png" id="11_ube50"]
 [ext_resource type="Texture2D" uid="uid://lgxx41etp31f" path="res://Assets/sprites/PlayerGUI/GeneralGUI/TutorialLevel/tutorialHover.png" id="12_26lpr"]
+[ext_resource type="Texture2D" uid="uid://c537dnwhwwo0r" path="res://Assets/sprites/PlayerGUI/GeneralGUI/BlueLevel/blueButton.png" id="12_f18ie"]
 [ext_resource type="Texture2D" uid="uid://c0hhe4dvv6nxg" path="res://Assets/sprites/PlayerGUI/GeneralGUI/blackTriangle.png" id="13_era5x"]
+[ext_resource type="Texture2D" uid="uid://efo7thejcqdk" path="res://Assets/sprites/PlayerGUI/GeneralGUI/BlueLevel/blueButtonSelect.png" id="13_swa0l"]
 [ext_resource type="Texture2D" uid="uid://ouqmuvrrxeqd" path="res://Assets/sprites/PlayerGUI/GeneralGUI/tiles.png" id="14_1ekpb"]
+[ext_resource type="Texture2D" uid="uid://cnrc3flrthw07" path="res://Assets/sprites/PlayerGUI/GeneralGUI/BlueLevel/blueButtonHover.png" id="14_wa85o"]
 
 [node name="LevelSelectMenu" type="Node2D"]
 script = ExtResource("1_52mtt")
@@ -108,6 +111,24 @@ texture_pressed = ExtResource("9_ube50")
 texture_hover = ExtResource("10_yts2j")
 texture_click_mask = ExtResource("11_ube50")
 
+[node name="Level2Button" type="TextureButton" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -36.0
+offset_top = -24.0
+offset_right = 12.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.5, 1.5)
+texture_normal = ExtResource("12_f18ie")
+texture_pressed = ExtResource("13_swa0l")
+texture_hover = ExtResource("14_wa85o")
+texture_click_mask = ExtResource("11_ube50")
+
 [node name="TutorialButton" type="TextureButton" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
@@ -127,17 +148,6 @@ texture_hover = ExtResource("12_26lpr")
 texture_click_mask = ExtResource("11_ube50")
 
 [node name="LockedButton" type="TextureButton" parent="."]
-offset_left = -36.0
-offset_top = -24.0
-offset_right = 12.0
-offset_bottom = 24.0
-scale = Vector2(1.5, 1.5)
-texture_normal = ExtResource("3_aljgx")
-texture_pressed = ExtResource("5_hstaq")
-texture_hover = ExtResource("6_16w6l")
-texture_click_mask = ExtResource("11_ube50")
-
-[node name="LockedButton2" type="TextureButton" parent="."]
 offset_left = -36.0
 offset_top = 1.0
 offset_right = 12.0
@@ -336,8 +346,9 @@ color = Color(0, 0, 0, 1)
 metadata/_edit_use_anchors_ = true
 
 [node name="Tiles" type="Node2D" parent="Background"]
-position = Vector2(-72.13291, 23.787458)
+position = Vector2(-231.08102, 112.22104)
 rotation = -0.29402962
+scale = Vector2(1.911365, 1.911365)
 
 [node name="Tile" type="Sprite2D" parent="Background/Tiles"]
 self_modulate = Color(1, 1, 1, 0.3529412)

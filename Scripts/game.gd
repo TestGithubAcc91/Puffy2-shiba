@@ -1,4 +1,4 @@
-# Game.gd - Simplified curtain transitions with root-level black curtain
+# Game.gd - Enhanced with explicit Level 2 support
 extends Node
 
 @onready var level_select_menu = $LevelSelectMenu
@@ -51,23 +51,33 @@ signal player_died
 @export var results_thud_sound: AudioStream  # NEW: Thud sound for results screen
 @export var go_sound: AudioStream  # NEW: Unique sound for "GO!!" countdown
 
-# Level medal requirements - UNCHANGED
+# Level medal requirements - ENHANCED with Level 2
 var level_medal_times = {
 	"tutorial": {"gold": 999999999.0, "silver": 9999999999999999999.0},
-	1: {"gold": 43.0, "silver": 50.0}, 2: {"gold": 55.0, "silver": 70.0},
-	3: {"gold": 40.0, "silver": 55.0}, 4: {"gold": 65.0, "silver": 80.0},
+	1: {"gold": 43.0, "silver": 50.0}, 
+	2: {"gold": 55.0, "silver": 70.0},  # Level 2 medal requirements
+	3: {"gold": 40.0, "silver": 55.0}, 
+	4: {"gold": 65.0, "silver": 80.0},
 	5: {"gold": 50.0, "silver": 65.0}
 }
 
 func _ready():
 	_setup_audio_system()
 	level_select_menu.level_selected.connect(_on_level_selected)
+	
+	# Connect tutorial button
 	if level_select_menu.has_node("TutorialButton"):
 		level_select_menu.get_node("TutorialButton").pressed.connect(_on_tutorial_button_pressed)
 		_connect_button_sound(level_select_menu.get_node("TutorialButton"))
 	
+	# Connect Level 1 button
 	if level_select_menu.has_node("Level1Button"):
 		_connect_button_sound(level_select_menu.get_node("Level1Button"))
+	
+	# ENHANCED: Connect Level 2 button explicitly
+	if level_select_menu.has_node("Level2Button"):
+		_connect_button_sound(level_select_menu.get_node("Level2Button"))
+		print("Level 2 button found and connected")
 	
 	_setup_root_curtain()
 	_connect_menu_buttons_sound()
@@ -160,13 +170,20 @@ func _process(delta):
 func _input(event):
 	if input_blocked: get_viewport().set_input_as_handled()
 
-# NEW: Protected level selection with curtain check
+# ENHANCED: Level selection with explicit level 2 support and validation
 func _on_level_selected(level_number):
 	# Block if curtain is transitioning
 	if curtain_transitioning:
 		print("Level selection blocked - curtain transitioning")
 		return
 	
+	# ENHANCED: Validate level number and provide feedback
+	var valid_levels = [1, 2, 3, 4, 5]  # Add more levels as needed
+	if level_number not in valid_levels:
+		print("ERROR: Invalid level number: ", level_number)
+		return
+	
+	print("Starting level: ", level_number)
 	is_tutorial_mode = false
 	_start_curtain_transition_to_level(level_number)
 
@@ -251,9 +268,9 @@ func _reveal_scene_with_curtain():
 	await tween.finished
 	_reset_curtain_position()  # This will set curtain_transitioning = false
 
-# SIMPLIFIED: Level change function (keeping original logic intact)
+# ENHANCED: Level change function with explicit Level 2 support
 func _change_to_level(level_identifier):
-	"""ORIGINAL level change logic - UNCHANGED"""
+	"""Enhanced level change logic with Level 2 support"""
 	var level_id_str = str(level_identifier)
 	current_level_number = 0 if level_id_str == "tutorial" else int(level_identifier)
 	is_tutorial_mode = (level_id_str == "tutorial")
@@ -269,7 +286,34 @@ func _change_to_level(level_identifier):
 	
 	level_select_menu.visible = false
 	
-	var level_path = "res://Scenes/tutorial_holder.tscn" if is_tutorial_mode else "res://Scenes/level_%d_holder.tscn" % int(level_identifier)
+	# ENHANCED: Determine level path with explicit Level 2 support
+	var level_path: String
+	if is_tutorial_mode:
+		level_path = "res://Scenes/tutorial_holder.tscn"
+	else:
+		# ENHANCED: Support for level 2 and future levels
+		match int(level_identifier):
+			1:
+				level_path = "res://Scenes/level_1_holder.tscn"
+			2:
+				level_path = "res://Scenes/level_2_holder.tscn"  # Note: matching your naming convention
+			3:
+				level_path = "res://Scenes/level_3_holder.tscn"
+			4:
+				level_path = "res://Scenes/level_4_holder.tscn"
+			5:
+				level_path = "res://Scenes/level_5_holder.tscn"
+			_:
+				print("ERROR: No scene file defined for level ", level_identifier)
+				return
+	
+	# ENHANCED: Verify scene file exists before loading
+	if not ResourceLoader.exists(level_path):
+		print("ERROR: Scene file not found: ", level_path)
+		print("Make sure level2holder.tscn exists in the Scenes folder")
+		return
+	
+	print("Loading level scene: ", level_path)
 	current_level_scene = load(level_path).instantiate()
 	add_child(current_level_scene)
 	await get_tree().process_frame
@@ -282,6 +326,8 @@ func _change_to_level(level_identifier):
 	
 	_switch_to_player_camera()
 	_setup_connections()
+	
+	print("Successfully loaded and setup level: ", level_identifier)
 
 func _switch_to_player_camera():
 	"""ORIGINAL camera switch logic - UNCHANGED (no curtain management)"""
@@ -480,15 +526,22 @@ func _setup_connections():
 		if not movement_enabled.is_connected(player._on_movement_enabled):
 			movement_enabled.connect(player._on_movement_enabled)
 			
-			# NEW: Connect player's died signal to trigger retry
+		# Connect player's died signal to trigger retry
 		if not player.player_died_trigger_retry.is_connected(_on_player_died_trigger_retry):
 			player.player_died_trigger_retry.connect(_on_player_died_trigger_retry)
 		
+		# FIXED: Connect to the Health script's damage signals
 		if player.has_node("HealthScript"):
 			var health_script = player.get_node("HealthScript")
 			if not health_script.died.is_connected(_on_player_died):
 				health_script.died.connect(_on_player_died)
+			
+			# NEW: Connect to the health_decreased signal to track damage
+			if not health_script.health_decreased.is_connected(_on_player_damage_taken):
+				health_script.health_decreased.connect(_on_player_damage_taken)
+				print("Connected health_decreased signal to damage tracking")
 		
+		# Connect parry signal if it exists
 		if player.has_signal("parry_success") and not player.parry_success.is_connected(_on_player_parry_success):
 			player.parry_success.connect(_on_player_parry_success)
 	

@@ -1,7 +1,8 @@
-[gd_scene load_steps=10 format=3 uid="uid://bc1iv20fh08ug"]
+[gd_scene load_steps=11 format=3 uid="uid://bc1iv20fh08ug"]
 
 [ext_resource type="Script" uid="uid://bn7hknq2ce4gv" path="res://Scripts/lifesaver.gd" id="1_jx5wh"]
 [ext_resource type="Texture2D" uid="uid://bpe8rnp0xveng" path="res://Assets/sprites/InteractableSprites/lifesaver.png" id="1_q7acv"]
+[ext_resource type="AudioStream" uid="uid://bmma06gaagbk7" path="res://Assets/sounds/click-104721.mp3" id="2_yvnoo"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jx5wh"]
 atlas = ExtResource("1_q7acv")
@@ -58,7 +59,8 @@ radius = 9.0
 [node name="Lifesaver" type="Area2D"]
 collision_mask = 2
 script = ExtResource("1_jx5wh")
-rotation_speed = 1.5
+rotation_speed = 0.3
+mount_click_sound = ExtResource("2_yvnoo")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_yvnoo")

@@ -5,12 +5,18 @@ extends Area2D
 @export var rotation_speed: float = 2.0  # Time between rotations in seconds
 @export var use_dash_for_horizontal: bool = true  # Use dash instead of velocity for left/right
 
+# Sound effects
+@export var mount_click_sound: AudioStream  # Sound when player enters lifesaver
+
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 var player_in_lifesaver: bool = false
 var current_player: CharacterBody2D = null
 var player_original_sprite_alpha: float = 1.0
 var player_was_movement_blocked: bool = false
+
+# Audio player for sound effects
+var audio_player: AudioStreamPlayer2D
 
 # Rotation system - now instant snapping
 var current_rotation_index: int = 0  # 0=up, 1=right, 2=down, 3=left
@@ -23,6 +29,10 @@ func _ready():
 	# Connect the area signals
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	
+	# Setup audio player
+	audio_player = AudioStreamPlayer2D.new()
+	add_child(audio_player)
 	
 	# Setup rotation timer
 	rotation_timer = Timer.new()
@@ -68,6 +78,11 @@ func _capture_player(player: CharacterBody2D):
 	
 	current_player = player
 	player_in_lifesaver = true
+	
+	# Play click sound when player mounts the lifesaver
+	if mount_click_sound and audio_player:
+		audio_player.stream = mount_click_sound
+		audio_player.play()
 	
 	# Store original sprite alpha and make sprite invisible
 	if player.has_node("MainSprite"):
