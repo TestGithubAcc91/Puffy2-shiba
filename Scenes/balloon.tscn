@@ -1,0 +1,78 @@
+[gd_scene load_steps=12 format=3 uid="uid://bt2naj8cqliq3"]
+
+[ext_resource type="Script" uid="uid://btkdkxo57gdqm" path="res://Scripts/balloon.gd" id="1_4wcav"]
+[ext_resource type="Texture2D" uid="uid://l81hwyg5n1rh" path="res://Assets/sprites/InteractableSprites/balloon.png" id="1_hkhi7"]
+[ext_resource type="AudioStream" uid="uid://dfryhd7ytwlcv" path="res://Assets/sounds/party-balloon-pop-323588.mp3" id="2_5iodc"]
+[ext_resource type="AudioStream" uid="uid://cykxa2axuqx1u" path="res://Assets/sounds/pop-402323.mp3" id="3_nrerx"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4wcav"]
+atlas = ExtResource("1_hkhi7")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hkhi7"]
+atlas = ExtResource("1_hkhi7")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_os1p0"]
+atlas = ExtResource("1_hkhi7")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5iodc"]
+atlas = ExtResource("1_hkhi7")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nrerx"]
+atlas = ExtResource("1_hkhi7")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_os1p0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4wcav")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hkhi7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_os1p0")
+}],
+"loop": false,
+"name": &"pop",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5iodc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nrerx")
+}],
+"loop": false,
+"name": &"regenerate",
+"speed": 10.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_kbj1d"]
+radius = 8.0
+
+[node name="Balloon" type="Area2D"]
+collision_mask = 2
+script = ExtResource("1_4wcav")
+pop_sound = ExtResource("2_5iodc")
+regenerate_sound = ExtResource("3_nrerx")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_os1p0")
+animation = &"regenerate"
+autoplay = "default"
+frame = 1
+frame_progress = 1.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_kbj1d")
