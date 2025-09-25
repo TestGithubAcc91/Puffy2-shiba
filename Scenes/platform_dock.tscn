@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://copahs8wobsov"]
+
+[ext_resource type="Texture2D" uid="uid://bwd8ihlxwcp1y" path="res://Assets/sprites/MapSprites/platformDock.png" id="2_vvmxf"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_n5262"]
+size = Vector2(32, 0)
+
+[node name="PlatformDock" type="AnimatableBody2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -4)
+shape = SubResource("RectangleShape2D_n5262")
+one_way_collision = true
+
+[node name="PlatformDock" type="Sprite2D" parent="."]
+position = Vector2(0, 4)
+texture = ExtResource("2_vvmxf")

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ctb200ontx4as"
-path="res://.godot/imported/1.png-1de6d95337cf02e759c40b69709212d7.ctex"
+uid="uid://v358ti2kasuv"
+path="res://.godot/imported/beach4.png-87f0ae8d6712fb61133b9dea2cee9314.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/sprites/MapSprites/Parallax/1.png"
-dest_files=["res://.godot/imported/1.png-1de6d95337cf02e759c40b69709212d7.ctex"]
+source_file="res://Assets/sprites/MapSprites/Parallax/Beach/beach4.png"
+dest_files=["res://.godot/imported/beach4.png-87f0ae8d6712fb61133b9dea2cee9314.ctex"]
 
 [params]
 
