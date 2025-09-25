@@ -66,6 +66,8 @@ collision_mask = 2
 script = ExtResource("1_4wcav")
 pop_sound = ExtResource("2_5iodc")
 regenerate_sound = ExtResource("3_nrerx")
+bob_amplitude = 2.0
+bob_speed = 1.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_os1p0")

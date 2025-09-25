@@ -8,6 +8,10 @@ const BALLOON_BOUNCE_VELOCITY = -350.0
 # Sound effects
 @export var pop_sound: AudioStream
 @export var regenerate_sound: AudioStream
+# Bobbing animation settings
+@export var bob_amplitude: float = 3.0  # How far up/down to bob (in pixels)
+@export var bob_speed: float = 2.0      # How fast to bob (cycles per second)
+
 var can_bounce: bool = true
 var bounce_timer: Timer
 var regenerate_timer: Timer
@@ -15,9 +19,17 @@ var audio_player: AudioStreamPlayer2D
 # Optional: Visual feedback
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D  # Adjust path as needed
 
+# Bobbing animation variables
+var initial_position: Vector2
+var bob_time: float = 0.0
+var is_bobbing: bool = true
+
 func _ready():
 	# Connect the body_entered signal
 	body_entered.connect(_on_body_entered)
+	
+	# Store the initial position for bobbing reference
+	initial_position = position
 	
 	# Setup audio player
 	audio_player = AudioStreamPlayer2D.new()
@@ -36,6 +48,13 @@ func _ready():
 	regenerate_timer.one_shot = true
 	regenerate_timer.timeout.connect(_on_regenerate_timeout)
 	add_child(regenerate_timer)
+
+func _process(delta):
+	# Handle bobbing animation when balloon is active and visible
+	if is_bobbing and modulate.a > 0.0:
+		bob_time += delta
+		var bob_offset = sin(bob_time * bob_speed * TAU) * bob_amplitude
+		position.y = initial_position.y + bob_offset
 
 func _on_body_entered(body):
 	# Check if the entering body is the player and we can bounce
@@ -62,6 +81,9 @@ func bounce_player(player):
 	pop_balloon()
 
 func pop_balloon():
+	# Stop bobbing during pop sequence
+	is_bobbing = false
+	
 	# Play pop sound effect
 	if pop_sound and audio_player:
 		audio_player.stream = pop_sound
@@ -126,3 +148,6 @@ func restore_balloon():
 	modulate.a = 1.0  # Make visible
 	set_deferred("monitoring", true)
 	set_deferred("monitorable", true)
+	
+	# Resume bobbing animation
+	is_bobbing = true

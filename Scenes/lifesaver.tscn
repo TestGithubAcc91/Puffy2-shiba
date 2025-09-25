@@ -1,0 +1,73 @@
+[gd_scene load_steps=10 format=3 uid="uid://bc1iv20fh08ug"]
+
+[ext_resource type="Script" uid="uid://bn7hknq2ce4gv" path="res://Scripts/lifesaver.gd" id="1_jx5wh"]
+[ext_resource type="Texture2D" uid="uid://bpe8rnp0xveng" path="res://Assets/sprites/InteractableSprites/lifesaver.png" id="1_q7acv"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jx5wh"]
+atlas = ExtResource("1_q7acv")
+region = Rect2(0, 0, 17, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yvnoo"]
+atlas = ExtResource("1_q7acv")
+region = Rect2(17, 0, 17, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_54ru3"]
+atlas = ExtResource("1_q7acv")
+region = Rect2(34, 0, 17, 17)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_yvnoo"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jx5wh")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yvnoo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_54ru3")
+}],
+"loop": true,
+"name": &"withPlayer",
+"speed": 5.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q7acv"]
+atlas = ExtResource("1_q7acv")
+region = Rect2(51, 0, 17, 17)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jx5wh"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q7acv")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_d0i8h"]
+radius = 9.0
+
+[node name="Lifesaver" type="Area2D"]
+collision_mask = 2
+script = ExtResource("1_jx5wh")
+rotation_speed = 1.5
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_yvnoo")
+autoplay = "default"
+frame_progress = 0.051559757
+
+[node name="Arrow" type="AnimatedSprite2D" parent="AnimatedSprite2D"]
+position = Vector2(0, -16)
+sprite_frames = SubResource("SpriteFrames_jx5wh")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_d0i8h")
