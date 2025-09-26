@@ -1,0 +1,51 @@
+[gd_scene load_steps=9 format=3 uid="uid://ryjs4hcxad6y"]
+
+[ext_resource type="Script" uid="uid://c76m5pk7aswoe" path="res://Scripts/finner.gd" id="1_vev8j"]
+[ext_resource type="AudioStream" uid="uid://dgni088dbphec" path="res://Assets/sounds/water-splash-199583.mp3" id="2_kh4fm"]
+[ext_resource type="Texture2D" uid="uid://cxt5keikq3qr" path="res://Assets/sprites/EnemySprites/finner.png" id="2_qwlra"]
+[ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="4_afxe8"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kh4fm"]
+atlas = ExtResource("2_qwlra")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vev8j"]
+atlas = ExtResource("2_qwlra")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_e388w"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kh4fm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vev8j")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 4.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_r4o34"]
+radius = 6.0
+
+[node name="Finner" type="Node2D"]
+script = ExtResource("1_vev8j")
+horizontal_distance = 50.0
+vertical_distance = 120.0
+vertical_chance = 1.0
+splash_sound = ExtResource("2_kh4fm")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, 6)
+sprite_frames = SubResource("SpriteFrames_e388w")
+animation = &"Idle"
+autoplay = "Idle"
+frame_progress = 0.5794409
+
+[node name="KillzoneScript_Area" parent="." instance=ExtResource("4_afxe8")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillzoneScript_Area"]
+position = Vector2(-1, 6)
+shape = SubResource("CircleShape2D_r4o34")

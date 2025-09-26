@@ -10,7 +10,7 @@ extends Node2D
 @export var launch_velocity: Vector2 = Vector2(150.0, -200.0)  # Initial velocity (x, y)
 @export var gravity_scale: float = 1.0  # Multiplier for gravity effect
 
-# Audio properties
+# Audio properties - ENHANCED to match helicopter
 @export_group("Audio")
 @export var shoot_sound: AudioStream  # Sound to play when shooting
 
@@ -18,7 +18,7 @@ var fire_timer: Timer
 var animated_sprite: AnimatedSprite2D
 var is_active: bool = true  # Flag to control enemy activity
 
-# Audio system
+# Audio system - ENHANCED
 var shoot_audio_player: AudioStreamPlayer2D
 
 func _ready():
@@ -38,18 +38,18 @@ func _ready():
 	# Connect to player's death signal if available
 	connect_to_player_signals()
 	
-	# Setup audio system
+	# Setup audio system - ENHANCED
 	_setup_audio_system()
 
-# Setup the audio system
+# ENHANCED: Setup the audio system to match helicopter
 func _setup_audio_system():
 	shoot_audio_player = AudioStreamPlayer2D.new()
 	shoot_audio_player.name = "ShootAudioPlayer2D"
 	shoot_audio_player.bus = "SFX"  # Use SFX bus like the main game
 	
-	# Configure sound range and attenuation
+	# ENHANCED: Configure sound range and attenuation like helicopter
 	shoot_audio_player.max_distance = 300.0  # Sound becomes inaudible beyond this distance
-	shoot_audio_player.attenuation = 1.0  # How quickly sound fades
+	shoot_audio_player.attenuation = 1.0  # How quickly sound fades (higher = faster fade)
 	
 	add_child(shoot_audio_player)
 	
@@ -58,7 +58,7 @@ func _setup_audio_system():
 	
 	print("Parabolic shooter audio system initialized")
 
-# Function to play shoot sound
+# ENHANCED: Function to play shoot sound with debug output like helicopter
 func _play_shoot_sound():
 	if shoot_audio_player and shoot_sound:
 		shoot_audio_player.play()
@@ -120,32 +120,32 @@ func start_shooting_sequence():
 	if not tree or not is_active:
 		return
 	
-	# Wait 1.0 seconds before spawning the projectile
-	await tree.create_timer(1.0).timeout
-	
-	# Check if still active after await
-	if not is_active:
-		return
-	
-	# Play shoot sound when spawning projectile
-	_play_shoot_sound()
-	
-	spawn_projectile()
-	
-	# Check tree again after first await
-	tree = get_tree()
-	if not tree or not is_active:
-		return
-	
-	# Wait another 0.2 seconds after spawning
-	await tree.create_timer(0.2).timeout
+	# Wait 0.9 seconds then end shoot animation (0.1s before projectile spawn)
+	await tree.create_timer(0.95).timeout
 	
 	# Check if still active after await
 	if not is_active or not is_instance_valid(animated_sprite):
 		return
 		
-	# Return to idle animation
+	# Return to idle animation (0.1s before projectile spawn)
 	animated_sprite.play("Idle")
+	
+	# Check tree again
+	tree = get_tree()
+	if not tree or not is_active:
+		return
+	
+	# Wait the final 0.1 seconds before spawning projectile
+	await tree.create_timer(0.1).timeout
+	
+	# Check if still active after await
+	if not is_active:
+		return
+	
+	# ENHANCED: Play shoot sound when spawning projectile (matches helicopter timing)
+	_play_shoot_sound()
+	
+	spawn_projectile()
 
 func spawn_projectile():
 	# Safety checks
