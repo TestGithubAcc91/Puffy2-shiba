@@ -1,7 +1,7 @@
-[gd_scene load_steps=36 format=4 uid="uid://c0nq8ap7acdqu"]
+[gd_scene load_steps=34 format=4 uid="uid://c0nq8ap7acdqu"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_r0ulf"]
-[ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scenes/parallax_background_holder.gd" id="2_8mws5"]
+[ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_8mws5"]
 [ext_resource type="Texture2D" uid="uid://ctb200ontx4as" path="res://Assets/sprites/MapSprites/Parallax/Forest/1.png" id="3_rhaqj"]
 [ext_resource type="Texture2D" uid="uid://co702fm6v3rb2" path="res://Assets/sprites/MapSprites/Parallax/Forest/2.png" id="4_7ywvi"]
 [ext_resource type="Texture2D" uid="uid://dkp07rod7ho0" path="res://Assets/sprites/MapSprites/Parallax/Forest/3.png" id="5_puwjn"]
@@ -22,8 +22,6 @@
 [ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="21_ewmmb"]
 [ext_resource type="PackedScene" uid="uid://cb7bykcqm152b" path="res://Scenes/ui.tscn" id="22_c7u3i"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="23_8mws5"]
-[ext_resource type="PackedScene" uid="uid://bt2naj8cqliq3" path="res://Scenes/balloon.tscn" id="23_rhaqj"]
-[ext_resource type="PackedScene" uid="uid://bc1iv20fh08ug" path="res://Scenes/lifesaver.tscn" id="24_rhaqj"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_exi56"]
 texture = ExtResource("10_f4ilv")
@@ -660,9 +658,3 @@ zoom = Vector2(4, 4)
 limit_bottom = 60
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0
-
-[node name="Balloon" parent="." instance=ExtResource("23_rhaqj")]
-position = Vector2(101, -12)
-
-[node name="Lifesaver" parent="." instance=ExtResource("24_rhaqj")]
-position = Vector2(152, -16)

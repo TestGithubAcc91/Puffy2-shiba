@@ -166,7 +166,6 @@ func _on_rotation_timer_timeout():
 	# Instant snap instead of gradual rotation
 	rotation = deg_to_rad(target_rotation_degrees)
 	
-	print("Snapped to rotation: ", target_rotation_degrees, " degrees (direction: ", _get_direction_name(), ")")
 
 func _apply_directional_exit_force(player: CharacterBody2D):
 	"""Apply force in the direction the lifesaver is facing"""

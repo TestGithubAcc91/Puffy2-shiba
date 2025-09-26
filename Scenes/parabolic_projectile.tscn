@@ -1,0 +1,79 @@
+[gd_scene load_steps=13 format=3 uid="uid://dnwiq6uedmhbl"]
+
+[ext_resource type="Script" uid="uid://divb8uqa4kunb" path="res://Scripts/parabolic_projectile.gd" id="1_fkuwt"]
+[ext_resource type="Texture2D" uid="uid://b5ro8sinimot7" path="res://Assets/sprites/VFXSprites/smokePuff.png" id="2_mdbju"]
+[ext_resource type="Texture2D" uid="uid://n5fkpuvus3jf" path="res://Assets/sprites/EnemySprites/splitter.png" id="3_fkuwt"]
+[ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="4_v748l"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nyyjb"]
+atlas = ExtResource("2_mdbju")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ps4mp"]
+atlas = ExtResource("2_mdbju")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oo2mo"]
+atlas = ExtResource("2_mdbju")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6b3av"]
+atlas = ExtResource("2_mdbju")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wv3r8"]
+atlas = ExtResource("2_mdbju")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mdbju"]
+atlas = ExtResource("3_fkuwt")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_m5rsc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nyyjb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ps4mp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oo2mo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6b3av")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wv3r8")
+}],
+"loop": false,
+"name": &"Disappear",
+"speed": 9.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mdbju")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_7sqex"]
+radius = 5.0
+
+[node name="ParabolicProjectile" type="Node2D"]
+script = ExtResource("1_fkuwt")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 1
+sprite_frames = SubResource("SpriteFrames_m5rsc")
+animation = &"Idle"
+autoplay = "Idle"
+
+[node name="KillzoneScript_Area" parent="." instance=ExtResource("4_v748l")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillzoneScript_Area"]
+position = Vector2(0, 1)
+shape = SubResource("CircleShape2D_7sqex")

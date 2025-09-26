@@ -1,0 +1,58 @@
+[gd_scene load_steps=9 format=3 uid="uid://bjq0mmqgga4ei"]
+
+[ext_resource type="Texture2D" uid="uid://n5fkpuvus3jf" path="res://Assets/sprites/EnemySprites/splitter.png" id="1_5wqb6"]
+[ext_resource type="Script" uid="uid://cdvb6weic5e5f" path="res://Scripts/splitter.gd" id="1_6qnqq"]
+[ext_resource type="PackedScene" uid="uid://dnwiq6uedmhbl" path="res://Scenes/parabolic_projectile.tscn" id="2_xn7qo"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wnqhd"]
+atlas = ExtResource("1_5wqb6")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x8dtt"]
+atlas = ExtResource("1_5wqb6")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6qnqq"]
+atlas = ExtResource("1_5wqb6")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xn7qo"]
+atlas = ExtResource("1_5wqb6")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wbwx7"]
+animations = [{
+"frames": [{
+"duration": 5.0,
+"texture": SubResource("AtlasTexture_wnqhd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x8dtt")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6qnqq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xn7qo")
+}],
+"loop": true,
+"name": &"Shoot",
+"speed": 10.0
+}]
+
+[node name="Splitter" type="Node2D"]
+script = ExtResource("1_6qnqq")
+projectile_scene = ExtResource("2_xn7qo")
+facing_left = true
+launch_velocity = Vector2(50, -200)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_wbwx7")
+animation = &"Idle"
+autoplay = "Idle"
+frame_progress = 0.0018629603

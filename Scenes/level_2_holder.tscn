@@ -1,7 +1,7 @@
-[gd_scene load_steps=33 format=4 uid="uid://b4anf2rhxqq7j"]
+[gd_scene load_steps=31 format=4 uid="uid://b4anf2rhxqq7j"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_64n6m"]
-[ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scenes/parallax_background_holder.gd" id="2_brrp5"]
+[ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_brrp5"]
 [ext_resource type="Texture2D" uid="uid://fo7i7w6nllq6" path="res://Assets/sprites/MapSprites/Parallax/Beach/beach1.png" id="3_mihvx"]
 [ext_resource type="Texture2D" uid="uid://dsulcgp1nmcl0" path="res://Assets/sprites/MapSprites/Parallax/Beach/beach2.png" id="4_64n6m"]
 [ext_resource type="Texture2D" uid="uid://cjc5g6rqqkndk" path="res://Assets/sprites/MapSprites/Parallax/Beach/beach3.png" id="5_brrp5"]
@@ -12,11 +12,9 @@
 [ext_resource type="Texture2D" uid="uid://cpb1vtttqxmn3" path="res://Assets/sprites/MapSprites/forestTilemap.png" id="11_xpug7"]
 [ext_resource type="Texture2D" uid="uid://c0487nslkvewu" path="res://Assets/sprites/MapSprites/dirtDecor.png" id="14_h7wtb"]
 [ext_resource type="PackedScene" uid="uid://bc1iv20fh08ug" path="res://Scenes/lifesaver.tscn" id="15_64n6m"]
+[ext_resource type="PackedScene" uid="uid://bjq0mmqgga4ei" path="res://Scenes/splitter.tscn" id="15_aqsiq"]
 [ext_resource type="Texture2D" uid="uid://ccrdvk3ljp3xr" path="res://Assets/sprites/MapSprites/beachTilemap.png" id="15_mihvx"]
 [ext_resource type="PackedScene" uid="uid://copahs8wobsov" path="res://Scenes/platform_dock.tscn" id="16_64n6m"]
-[ext_resource type="PackedScene" uid="uid://b2vrnra2k4b62" path="res://Scenes/clover.tscn" id="16_gmlpl"]
-[ext_resource type="PackedScene" uid="uid://c5dckssmfxqgb" path="res://Scenes/acopter.tscn" id="17_ulqy8"]
-[ext_resource type="PackedScene" uid="uid://6h362foug0m3" path="res://Scenes/beamer.tscn" id="18_bt4hp"]
 [ext_resource type="PackedScene" uid="uid://bej301f82t1dg" path="res://Scenes/spikes.tscn" id="19_6iwv4"]
 [ext_resource type="PackedScene" uid="uid://bt2naj8cqliq3" path="res://Scenes/balloon.tscn" id="19_jq3d1"]
 [ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="23_bc617"]
@@ -227,25 +225,15 @@ tile_set = SubResource("TileSet_exi56")
 
 [node name="EnemyHolder" type="Node" parent="LevelHolder"]
 
-[node name="Clover" parent="LevelHolder/EnemyHolder" instance=ExtResource("16_gmlpl")]
-position = Vector2(-314, -61)
-vertical_movement_enabled = false
-circular_movement_enabled = true
-
-[node name="Acopter" parent="LevelHolder/EnemyHolder" instance=ExtResource("17_ulqy8")]
-position = Vector2(-281, -31)
-facing_left = true
-vertical_distance = 20.0
-vertical_speed = 50.0
-
-[node name="Beamer" parent="LevelHolder/EnemyHolder" instance=ExtResource("18_bt4hp")]
-position = Vector2(-427, -17)
-
 [node name="SpikeHolder" type="Node" parent="LevelHolder/EnemyHolder"]
 
 [node name="Spikes" parent="LevelHolder/EnemyHolder/SpikeHolder" instance=ExtResource("19_6iwv4")]
 z_index = -1
 position = Vector2(-376, 121)
+
+[node name="Splitter" parent="LevelHolder/EnemyHolder/SpikeHolder" instance=ExtResource("15_aqsiq")]
+position = Vector2(200, -85)
+launch_velocity = Vector2(100, -200)
 
 [node name="MovementHolder" type="Node" parent="LevelHolder"]
 
