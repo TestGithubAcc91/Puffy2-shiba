@@ -51,7 +51,6 @@ func _physics_process(delta: float):
 		
 		# Handle jump input to exit lifesaver
 		if Input.is_action_just_pressed("Jump"):
-			print("Player jumping out of lifesaver")
 			_release_player()
 	
 	# Debug check: verify player is still valid
@@ -90,6 +89,11 @@ func _capture_player(player: CharacterBody2D):
 		player_original_sprite_alpha = sprite.modulate.a
 		sprite.modulate.a = 0.0  # Make invisible
 	
+	# NEW: Tell health script to force invisibility
+	if player.has_node("HealthScript"):
+		var health_script = player.get_node("HealthScript")
+		health_script.set_force_invisible(true)
+	
 	# Store original movement state and disable most movement
 	player_was_movement_blocked = player.movement_blocked_by_game
 	player._on_movement_disabled()
@@ -124,6 +128,11 @@ func _release_player():
 		return
 	
 	var player = current_player
+	
+	# NEW: Tell health script to stop forcing invisibility
+	if player.has_node("HealthScript"):
+		var health_script = player.get_node("HealthScript")
+		health_script.set_force_invisible(false)
 	
 	# Restore sprite visibility
 	if player.has_node("MainSprite"):
@@ -168,42 +177,63 @@ func _on_rotation_timer_timeout():
 	
 
 func _apply_directional_exit_force(player: CharacterBody2D):
-	"""Apply force in the direction the lifesaver is facing"""
+	"""Apply force in the direction the lifesaver is facing - FREE for all directions"""
 	var exit_vector: Vector2
 	
 	match current_rotation_index:
 		0:  # Up
 			exit_vector = Vector2(0, -exit_force_magnitude)
 			player.velocity = exit_vector
-		1:  # Right - Always use dash functionality
+		1:  # Right - FREE dash functionality
 			if use_dash_for_horizontal and player.has_method("activate_dash"):
-				# Face right and trigger dash without parry stack requirement
+				# Face right and trigger FREE dash
 				player.animated_sprite.flip_h = false
-				# Temporarily add a parry stack if needed for dash to work
-				var original_stacks = player.current_parry_stacks
-				if original_stacks < 1:
-					player.current_parry_stacks = 1
-				player.activate_dash()
-				# Don't restore the stack - let the dash consume it normally
+				_activate_free_dash(player)
 			else:
 				exit_vector = Vector2(exit_force_magnitude, 0)
 				player.velocity = exit_vector
 		2:  # Down
 			exit_vector = Vector2(0, exit_force_magnitude)
 			player.velocity = exit_vector
-		3:  # Left - Always use dash functionality
+		3:  # Left - FREE dash functionality
 			if use_dash_for_horizontal and player.has_method("activate_dash"):
-				# Face left and trigger dash without parry stack requirement
+				# Face left and trigger FREE dash
 				player.animated_sprite.flip_h = true
-				# Temporarily add a parry stack if needed for dash to work
-				var original_stacks = player.current_parry_stacks
-				if original_stacks < 1:
-					player.current_parry_stacks = 1
-				player.activate_dash()
-				# Don't restore the stack - let the dash consume it normally
+				_activate_free_dash(player)
 			else:
 				exit_vector = Vector2(-exit_force_magnitude, 0)
 				player.velocity = exit_vector
+
+func _activate_free_dash(player: CharacterBody2D):
+	"""Activate dash without consuming parry stacks - FREE lifesaver dismount"""
+	# Store original parry stacks
+	var original_stacks = player.current_parry_stacks
+	
+	# Temporarily set dash availability and provide a temporary stack if needed
+	var original_can_dash = player.can_dash
+	player.can_dash = true
+	
+	# If player has no stacks, temporarily give them one for the dash
+	var gave_temporary_stack = false
+	if original_stacks < 1:
+		player.current_parry_stacks = 1
+		gave_temporary_stack = true
+	
+	# Activate the dash
+	player.activate_dash()
+	
+	# If we gave a temporary stack, restore the original count after dash activation
+	# Since activate_dash() consumes one stack, we need to add it back
+	if gave_temporary_stack:
+		player.current_parry_stacks = original_stacks
+		player.parry_stacks_changed.emit(player.current_parry_stacks)
+		player.update_charge_sprites()
+	else:
+		# Player had stacks but we want lifesaver dismount to be free
+		# So we give back the consumed stack
+		player.current_parry_stacks = original_stacks
+		player.parry_stacks_changed.emit(player.current_parry_stacks)
+		player.update_charge_sprites()
 
 func _get_direction_name() -> String:
 	"""Get readable name for current direction"""
@@ -258,6 +288,11 @@ func _force_release_without_jump():
 		return
 	
 	var player = current_player
+	
+	# NEW: Tell health script to stop forcing invisibility
+	if player.has_node("HealthScript"):
+		var health_script = player.get_node("HealthScript")
+		health_script.set_force_invisible(false)
 	
 	# Restore sprite visibility
 	if player.has_node("MainSprite"):

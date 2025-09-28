@@ -62,7 +62,7 @@ func _setup_audio_system():
 func _play_shoot_sound():
 	if shoot_audio_player and shoot_sound:
 		shoot_audio_player.play()
-		print("Playing parabolic shooter sound effect")
+
 
 func connect_to_player_signals():
 	# Try to find the player and connect to its death signal

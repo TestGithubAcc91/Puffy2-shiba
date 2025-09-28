@@ -21,11 +21,13 @@ var whoosh_audio_player: AudioStreamPlayer
 var parry_audio_player: AudioStreamPlayer
 var zipline_audio_player: AudioStreamPlayer
 var click_audio_player: AudioStreamPlayer
+var jump_audio_player: AudioStreamPlayer
 @export_group("Audio")
 @export var whoosh_sound: AudioStream
 @export var parry_success_sound: AudioStream
 @export var zipline_sound: AudioStream
 @export var click_sound: AudioStream
+@export var jump_sound: AudioStream
 
 var last_attack_was_unparryable: bool = false
 signal parry_success
@@ -146,6 +148,12 @@ func _setup_audio_system():
 	click_audio_player.bus = "SFX"
 	if click_sound: click_audio_player.stream = click_sound
 	add_child(click_audio_player)
+	
+	jump_audio_player = AudioStreamPlayer.new()
+	jump_audio_player.name = "JumpAudioPlayer"
+	jump_audio_player.bus = "SFX"
+	if jump_sound: jump_audio_player.stream = jump_sound
+	add_child(jump_audio_player)
 
 func enable_movement_at_level_start():
 	movement_blocked_at_level_start = false
@@ -164,6 +172,9 @@ func _stop_zipline_sound():
 
 func _play_click_sound():
 	if click_audio_player and click_sound: click_audio_player.play()
+
+func _play_jump_sound():
+	if jump_audio_player and jump_sound: jump_audio_player.play()
 
 func setup_ui():
 	if glint_sprite: glint_sprite.visible = false
@@ -247,6 +258,7 @@ func handle_input():
 	
 	if Input.is_action_just_pressed("Jump") and can_jump() and not is_on_zipline_check:
 		velocity.y = JUMP_VELOCITY
+		_play_jump_sound()
 		if can_coyote_jump and not is_on_floor():
 			can_coyote_jump = false
 			coyote_time_timer.stop()
@@ -600,6 +612,7 @@ func _on_player_died():
 	reset_timescale()
 	_stop_zipline_sound()
 	if click_audio_player and click_audio_player.playing: click_audio_player.stop()
+	if jump_audio_player and jump_audio_player.playing: jump_audio_player.stop()
 	_reset_all_parry_states()
 	is_dashing = false
 	is_bouncing = false

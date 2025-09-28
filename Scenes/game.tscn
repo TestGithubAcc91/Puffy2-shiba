@@ -1,14 +1,17 @@
-[gd_scene load_steps=10 format=3 uid="uid://dtcx6xj2og0ed"]
+[gd_scene load_steps=13 format=3 uid="uid://dtcx6xj2og0ed"]
 
 [ext_resource type="PackedScene" uid="uid://bck8lw4sj2ly6" path="res://Scenes/level_select_menu.tscn" id="1_81klo"]
 [ext_resource type="Script" uid="uid://86bicgodvvg4" path="res://Scripts/game.gd" id="1_wrm1d"]
 [ext_resource type="Texture2D" uid="uid://46vy7cb23jph" path="res://Assets/sprites/PlayerGUI/ResultsGUI/Medals/goldMedal.png" id="2_i6g32"]
 [ext_resource type="Texture2D" uid="uid://cfeexgonv4yxm" path="res://Assets/sprites/PlayerGUI/ResultsGUI/Medals/silverMedal.png" id="3_1l0tm"]
 [ext_resource type="Texture2D" uid="uid://dwtpbp4ivoq5c" path="res://Assets/sprites/PlayerGUI/ResultsGUI/Medals/bronzeMedal.png" id="4_v158k"]
-[ext_resource type="AudioStream" uid="uid://dnanvvmwutjc4" path="res://Assets/sounds/tap.wav" id="5_i6g32"]
+[ext_resource type="AudioStream" uid="uid://dd8ahtgbhn7s4" path="res://Assets/sounds/086354_8-bit-arcade-video-game-start-sound-effect-gun-reload-and-jump-81124.mp3" id="5_rku1e"]
 [ext_resource type="AudioStream" uid="uid://darq7qg777iuj" path="res://Assets/sounds/drop-stack-of-paper-whoomp-47948.mp3" id="6_v158k"]
 [ext_resource type="PackedScene" uid="uid://cl0a34606f5ud" path="res://Scenes/black_curtain.tscn" id="7_1l0tm"]
 [ext_resource type="AudioStream" uid="uid://cog7escua1n63" path="res://Assets/sounds/horn-stabs-entrance-14741.mp3" id="7_h4fw4"]
+[ext_resource type="AudioStream" uid="uid://ptgg2rkv6yj5" path="res://Assets/music/Spatial Entaglement - The Grey Room _ Density & Time.mp3" id="8_rku1e"]
+[ext_resource type="AudioStream" uid="uid://d10rxijkvs2a5" path="res://Assets/music/Claim To Fame - The Grey Room _ Clark Sims.mp3" id="9_rfjv2"]
+[ext_resource type="AudioStream" uid="uid://bt7suhna84lxf" path="res://Assets/music/Purple Desire - The Grey Room _ Clark Sims.mp3" id="10_1phco"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_wrm1d")
@@ -18,9 +21,12 @@ go_color = Color(1, 1, 1, 1)
 gold_medal_texture = ExtResource("2_i6g32")
 silver_medal_texture = ExtResource("3_1l0tm")
 bronze_medal_texture = ExtResource("4_v158k")
-button_click_sound = ExtResource("5_i6g32")
+button_click_sound = ExtResource("5_rku1e")
 results_thud_sound = ExtResource("6_v158k")
 go_sound = ExtResource("7_h4fw4")
+level_select_theme = ExtResource("8_rku1e")
+forest_theme = ExtResource("9_rfjv2")
+beach_theme = ExtResource("10_1phco")
 
 [node name="LevelSelectMenu" parent="." instance=ExtResource("1_81klo")]
 position = Vector2(-12, -88)

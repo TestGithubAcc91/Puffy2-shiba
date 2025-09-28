@@ -1,8 +1,5 @@
-[gd_scene load_steps=2 format=3 uid="uid://7mheaxgyd1u7"]
-
-[ext_resource type="AudioStream" uid="uid://d10rxijkvs2a5" path="res://Assets/music/Claim To Fame - The Grey Room _ Clark Sims.mp3" id="1_jmqbo"]
+[gd_scene format=3 uid="uid://7mheaxgyd1u7"]
 
 [node name="GlobalMusic" type="AudioStreamPlayer"]
-stream = ExtResource("1_jmqbo")
 autoplay = true
 bus = &"Music"

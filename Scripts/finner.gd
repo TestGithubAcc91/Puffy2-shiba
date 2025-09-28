@@ -6,7 +6,12 @@ extends Node2D
 @export var vertical_speed: float = 80.0  # Speed of vertical movement
 @export var vertical_chance: float = 0.3  # Chance (0.0 to 1.0) to trigger vertical movement at each horizontal end
 
-# Audio properties - NEW
+# Jump arc properties - NEW
+@export_group("Jump Arc")
+@export var jump_slowdown_factor: float = 0.2  # How much to slow down at peak (0.0 = full stop, 1.0 = no slowdown)
+@export var jump_arc_sharpness: float = 2.0  # Higher values create sharper slowdown curve at peak
+
+# Audio properties
 @export_group("Audio")
 @export var splash_sound: AudioStream  # Sound to play when starting vertical movement
 
@@ -20,19 +25,22 @@ var slowdown_timer: float = 0.0
 var slowdown_duration: float = 0.5
 var has_played_splash_sound: bool = false  # Flag to ensure sound plays only once per vertical cycle
 
+# Jump progress tracking - NEW
+var vertical_progress: float = 0.0  # 0.0 = start, 1.0 = peak
+
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
-# Audio system - NEW
+# Audio system
 var splash_audio_player: AudioStreamPlayer2D
 
 func _ready():
 	# Store the initial position
 	initial_position = position
 	
-	# Setup audio system - NEW
+	# Setup audio system
 	_setup_audio_system()
 
-# NEW: Setup the audio system
+# Setup the audio system
 func _setup_audio_system():
 	splash_audio_player = AudioStreamPlayer2D.new()
 	splash_audio_player.name = "SplashAudioPlayer2D"
@@ -44,11 +52,11 @@ func _setup_audio_system():
 	
 	print("Finner splash audio system initialized")
 
-# NEW: Function to play splash sound
+# Function to play splash sound
 func _play_splash_sound():
 	if splash_audio_player and splash_sound:
 		splash_audio_player.play()
-		print("Playing splash sound effect")
+
 
 func _process(delta: float):
 	match current_state:
@@ -94,10 +102,11 @@ func check_for_vertical_movement():
 		vertical_start_position = position
 		slowdown_timer = 0.0
 		has_played_splash_sound = false  # Reset flag for new vertical cycle
+		vertical_progress = 0.0  # Reset jump progress
 		current_state = MovementState.VERTICAL_SLOWDOWN
 
 func handle_vertical_slowdown(delta):
-	# NEW: Play splash sound at the start of slowdown (0.5s before vertical movement)
+	# Play splash sound at the start of slowdown (0.5s before vertical movement)
 	if not has_played_splash_sound:
 		_play_splash_sound()
 		has_played_splash_sound = true
@@ -120,8 +129,17 @@ func handle_vertical_slowdown(delta):
 		current_state = MovementState.VERTICAL_UP
 
 func handle_vertical_up_movement(delta):
+	# Calculate how far along the vertical journey we are (0.0 to 1.0)
+	var distance_traveled = vertical_start_position.y - position.y
+	vertical_progress = distance_traveled / vertical_distance
+	vertical_progress = clamp(vertical_progress, 0.0, 1.0)
 	
-	var movement = vertical_speed * delta
+	# Calculate speed multiplier based on jump arc
+	# More subtle slowdown - only slows down significantly near the very peak
+	var arc_factor = pow(vertical_progress, jump_arc_sharpness * 1.5)  # Steeper curve for more gradual slowdown
+	var speed_multiplier = lerp(1.0, jump_slowdown_factor, arc_factor)  # Start at full speed, slow to factor at peak
+	
+	var movement = vertical_speed * delta * speed_multiplier
 	position.y -= movement
 	
 	# Rotate sprite to look upward, accounting for horizontal flip
@@ -134,10 +152,22 @@ func handle_vertical_up_movement(delta):
 	# Check if we've reached the upper limit
 	if position.y <= vertical_start_position.y - vertical_distance:
 		position.y = vertical_start_position.y - vertical_distance
+		vertical_progress = 1.0  # At peak
 		current_state = MovementState.VERTICAL_DOWN
 
 func handle_vertical_down_movement(delta):
-	var movement = vertical_speed * delta
+	# Calculate how far along the downward journey we are (0.0 at peak to 1.0 at bottom)
+	var distance_from_peak = position.y - (vertical_start_position.y - vertical_distance)
+	var fall_progress = distance_from_peak / vertical_distance
+	fall_progress = clamp(fall_progress, 0.0, 1.0)
+	
+	# Calculate speed multiplier for downward movement (accelerating as we fall)
+	# Start slow at the peak, accelerate to faster than normal speed as we fall
+	var acceleration_factor = pow(fall_progress, 1.0 / jump_arc_sharpness)  # Inverse curve for acceleration
+	var max_fall_speed = 1.5  # Falls 50% faster than normal at bottom
+	var speed_multiplier = lerp(jump_slowdown_factor, max_fall_speed, acceleration_factor)
+	
+	var movement = vertical_speed * delta * speed_multiplier
 	position.y += movement
 	
 	# Rotate sprite to look downward, accounting for horizontal flip
@@ -158,6 +188,7 @@ func trigger_vertical_movement():
 		vertical_start_position = position
 		slowdown_timer = 0.0
 		has_played_splash_sound = false  # Reset flag for triggered vertical movement
+		vertical_progress = 0.0  # Reset jump progress
 		current_state = MovementState.VERTICAL_SLOWDOWN
 
 # Optional: Method to get current movement state (for debugging or external scripts)
@@ -173,3 +204,7 @@ func get_movement_state() -> String:
 			return "vertical_down"
 		_:
 			return "unknown"
+
+# NEW: Debug method to get jump progress (useful for testing)
+func get_jump_progress() -> float:
+	return vertical_progress

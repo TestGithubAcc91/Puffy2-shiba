@@ -1,0 +1,96 @@
+[gd_scene load_steps=12 format=3 uid="uid://b44a0nvstcyhe"]
+
+[ext_resource type="Texture2D" uid="uid://c47rgbf0qo141" path="res://Assets/sprites/EnemySprites/pincher.png" id="1_4g3x8"]
+[ext_resource type="Script" uid="uid://ivpu1mxhkx2h" path="res://Scripts/pincher.gd" id="1_nc3qt"]
+[ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="2_nc3qt"]
+[ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="3_ajb0p"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nc3qt"]
+atlas = ExtResource("1_4g3x8")
+region = Rect2(96, 0, 24, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ajb0p"]
+atlas = ExtResource("1_4g3x8")
+region = Rect2(48, 0, 24, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xvtwc"]
+atlas = ExtResource("1_4g3x8")
+region = Rect2(72, 0, 24, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vlug8"]
+atlas = ExtResource("1_4g3x8")
+region = Rect2(0, 0, 24, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u3g2j"]
+atlas = ExtResource("1_4g3x8")
+region = Rect2(24, 0, 24, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_xvtwc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nc3qt")
+}],
+"loop": true,
+"name": &"Dash",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ajb0p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xvtwc")
+}],
+"loop": true,
+"name": &"Detected",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vlug8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u3g2j")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_csnsr"]
+radius = 6.0
+
+[node name="Pincher" type="Node2D" node_paths=PackedStringArray("killzone", "unparryable_warning")]
+script = ExtResource("1_nc3qt")
+speed = 25.0
+movement_range = 30.0
+detection_range = 60.0
+dash_speed = 150.0
+recoil_distance = 30.0
+killzone = NodePath("KillzoneScript_Area")
+unparryable_warning = NodePath("UnparryableWarning")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_xvtwc")
+animation = &"Dash"
+autoplay = "default"
+
+[node name="UnparryableWarning" type="Label" parent="."]
+offset_left = -3.0
+offset_top = -12.0
+offset_right = 3.0
+offset_bottom = -4.0
+theme_override_colors/font_color = Color(0.231373, 0.796078, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_nc3qt")
+theme_override_font_sizes/font_size = 8
+text = "!"
+
+[node name="KillzoneScript_Area" parent="." instance=ExtResource("3_ajb0p")]
+position = Vector2(0, -6)
+unparryable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillzoneScript_Area"]
+position = Vector2(0, 6)
+shape = SubResource("CircleShape2D_csnsr")

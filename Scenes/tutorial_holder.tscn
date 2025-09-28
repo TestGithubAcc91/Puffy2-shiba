@@ -600,6 +600,20 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
+[node name="Label21" type="Label" parent="TutorialTextHolder"]
+offset_left = 4522.0
+offset_top = -94.0
+offset_right = 4649.0
+offset_bottom = -4.0
+theme_override_colors/font_color = Color(1, 0.8, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("23_8mws5")
+theme_override_font_sizes/font_size = 7
+text = "The faster you complete a level, the better medal you will receive at the end!"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
 [node name="Label14" type="Label" parent="TutorialTextHolder"]
 offset_left = 2713.0
 offset_top = -20.0

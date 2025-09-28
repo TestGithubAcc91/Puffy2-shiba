@@ -114,7 +114,7 @@ vertical_alignment = 1
 
 [node name="TimerBackground" type="Sprite2D" parent="."]
 self_modulate = Color(1, 1, 1, 0.6313726)
-position = Vector2(561.00006, 60.000004)
+position = Vector2(602, 60.000004)
 scale = Vector2(5, 5)
 texture = ExtResource("8_wc4t8")
 
@@ -137,7 +137,7 @@ vertical_alignment = 1
 
 [node name="GlitCounter" type="AnimatedSprite2D" parent="."]
 self_modulate = Color(1, 1, 1, 0.57254905)
-position = Vector2(786.0001, 66)
+position = Vector2(65.00006, 160)
 scale = Vector2(5, 5)
 sprite_frames = SubResource("SpriteFrames_4v6ch")
 autoplay = "default"
@@ -236,6 +236,25 @@ theme_override_font_sizes/font_size = 8
 text = "_____________
 "
 horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ControlsLabel" type="Label" parent="PauseButton/PauseScreen/PAUSED"]
+layout_mode = 0
+offset_left = 148.01698
+offset_top = 34.859447
+offset_right = 251.01698
+offset_bottom = 79.57498
+scale = Vector2(0.43177, 0.43177)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("7_3g2cg")
+theme_override_font_sizes/font_size = 8
+text = "X - Parry 
+Z - Dash
+A/S - High Jump"
 vertical_alignment = 1
 
 [node name="RetryButton" type="TextureButton" parent="PauseButton/PauseScreen"]

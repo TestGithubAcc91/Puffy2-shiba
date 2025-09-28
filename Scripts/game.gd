@@ -1,4 +1,4 @@
-# Game.gd - Enhanced with explicit Level 2 support
+# Game.gd - Enhanced with explicit Level 2 support and Music System with Fading
 extends Node
 
 @onready var level_select_menu = $LevelSelectMenu
@@ -24,18 +24,25 @@ var pause_screen = null
 var finish_results = null
 var is_tutorial_mode = false
 
-# Audio system - ENHANCED with results thud sound and go sound
+# Audio system - ENHANCED with music system and fading
 var audio_player: AudioStreamPlayer
-var results_audio_player: AudioStreamPlayer  # NEW: Separate audio player for results screen
-var go_audio_player: AudioStreamPlayer  # NEW: Separate audio player for "GO!!" sound
+var results_audio_player: AudioStreamPlayer  # Separate audio player for results screen
+var go_audio_player: AudioStreamPlayer  # Separate audio player for "GO!!" sound
+var music_player: AudioStreamPlayer  # NEW: Music player for background themes
 var connected_buttons = []
+
+# NEW: Current music tracking and fade control
+var current_music_theme = ""
+var music_fade_tween: Tween
+var default_music_volume = 0.0  # Will be set based on Music bus volume
+var is_music_fading = false
 
 # Signals - UNCHANGED
 signal movement_enabled
 signal movement_disabled
 signal player_died
 
-# Export settings - ENHANCED with thud sound
+# Export settings - ENHANCED with music themes and fade settings
 @export_group("Countdown Colors")
 @export var ready_color: Color = Color.RED
 @export var set_color: Color = Color.YELLOW
@@ -48,14 +55,23 @@ signal player_died
 
 @export_group("Audio")
 @export var button_click_sound: AudioStream
-@export var results_thud_sound: AudioStream  # NEW: Thud sound for results screen
-@export var go_sound: AudioStream  # NEW: Unique sound for "GO!!" countdown
+@export var results_thud_sound: AudioStream  # Thud sound for results screen
+@export var go_sound: AudioStream  # Unique sound for "GO!!" countdown
+
+@export_group("Music Themes")
+@export var level_select_theme: AudioStream  # NEW: Level select menu music
+@export var forest_theme: AudioStream  # NEW: Forest theme (tutorial, level 1)
+@export var beach_theme: AudioStream  # NEW: Beach theme (level 2)
+
+@export_group("Music Settings")
+@export var music_fade_duration: float = 1.5  # NEW: Duration for music fade transitions
+@export var music_volume_db: float = 0.0  # NEW: Music volume in decibels
 
 # Level medal requirements - ENHANCED with Level 2
 var level_medal_times = {
 	"tutorial": {"gold": 999999999.0, "silver": 9999999999999999999.0},
 	1: {"gold": 43.0, "silver": 50.0}, 
-	2: {"gold": 55.0, "silver": 70.0},  # Level 2 medal requirements
+	2: {"gold": 59.0, "silver": 70.0},  # Level 2 medal requirements
 	3: {"gold": 40.0, "silver": 55.0}, 
 	4: {"gold": 65.0, "silver": 80.0},
 	5: {"gold": 50.0, "silver": 65.0}
@@ -81,6 +97,9 @@ func _ready():
 	
 	_setup_root_curtain()
 	_connect_menu_buttons_sound()
+	
+	# NEW: Start level select music with fade in
+	_play_music("level_select", true)
 
 func _setup_root_curtain():
 	"""Initialize the root-level black curtain"""
@@ -105,7 +124,7 @@ func _reset_curtain_position():
 	curtain_transitioning = false
 	print("Curtain reset to position: ", black_curtain.position, " - Transition complete")
 
-# ENHANCED: Setup all three audio players
+# ENHANCED: Setup all audio players including music with fade support
 func _setup_audio_system():
 	# Original button audio player
 	audio_player = AudioStreamPlayer.new()
@@ -116,7 +135,7 @@ func _setup_audio_system():
 	if button_click_sound:
 		audio_player.stream = button_click_sound
 	
-	# NEW: Results screen thud audio player
+	# Results screen thud audio player
 	results_audio_player = AudioStreamPlayer.new()
 	results_audio_player.name = "ResultsAudioPlayer"
 	results_audio_player.bus = "SFX"
@@ -125,7 +144,7 @@ func _setup_audio_system():
 	if results_thud_sound:
 		results_audio_player.stream = results_thud_sound
 	
-	# NEW: "GO!!" sound audio player
+	# "GO!!" sound audio player
 	go_audio_player = AudioStreamPlayer.new()
 	go_audio_player.name = "GoAudioPlayer"
 	go_audio_player.bus = "SFX"
@@ -133,6 +152,113 @@ func _setup_audio_system():
 	
 	if go_sound:
 		go_audio_player.stream = go_sound
+	
+	# NEW: Music player for background themes with fade support
+	music_player = AudioStreamPlayer.new()
+	music_player.name = "MusicPlayer"
+	music_player.bus = "Music"  # Send to Music bus instead of SFX
+	music_player.autoplay = false
+	music_player.volume_db = music_volume_db  # Set initial volume
+	default_music_volume = music_volume_db  # Store default volume
+	add_child(music_player)
+	
+	print("Audio system setup complete with music player and fade support")
+
+# NEW: Enhanced music control functions with smooth fading
+func _play_music(theme_name: String, fade_in: bool = true):
+	"""Play the specified music theme with optional fade in"""
+	if current_music_theme == theme_name and music_player.playing and not is_music_fading:
+		print("Music theme '", theme_name, "' is already playing")
+		return
+	
+	var theme_stream: AudioStream = null
+	
+	match theme_name:
+		"level_select":
+			theme_stream = level_select_theme
+		"forest":
+			theme_stream = forest_theme
+		"beach":
+			theme_stream = beach_theme
+		_:
+			print("Unknown music theme: ", theme_name)
+			return
+	
+	if not theme_stream:
+		print("No audio stream found for theme: ", theme_name)
+		return
+	
+	# If music is currently playing, fade out first, then fade in new music
+	if music_player.playing and current_music_theme != theme_name:
+		await _fade_out_current_music()
+	
+	# Stop any existing fade tween
+	if music_fade_tween:
+		music_fade_tween.kill()
+	
+	# Set up new music
+	music_player.stream = theme_stream
+	current_music_theme = theme_name
+	
+	if fade_in:
+		# Start with volume at -80db (essentially silent) and fade in
+		music_player.volume_db = -80.0
+		music_player.play()
+		_fade_in_music()
+		print("Playing music theme with fade in: ", theme_name)
+	else:
+		# Play immediately at full volume
+		music_player.volume_db = default_music_volume
+		music_player.play()
+		print("Playing music theme immediately: ", theme_name)
+
+func _fade_in_music():
+	"""Fade in the currently loaded music"""
+	if not music_player.playing:
+		return
+	
+	is_music_fading = true
+	music_fade_tween = create_tween()
+	music_fade_tween.set_ease(Tween.EASE_OUT)
+	music_fade_tween.set_trans(Tween.TRANS_CUBIC)
+	
+	# Fade from -80db to default volume
+	music_fade_tween.tween_property(music_player, "volume_db", default_music_volume, music_fade_duration)
+	
+	await music_fade_tween.finished
+	is_music_fading = false
+	print("Music fade in complete")
+
+func _fade_out_current_music() -> void:
+	"""Fade out the currently playing music"""
+	if not music_player.playing:
+		return
+	
+	is_music_fading = true
+	music_fade_tween = create_tween()
+	music_fade_tween.set_ease(Tween.EASE_IN)
+	music_fade_tween.set_trans(Tween.TRANS_CUBIC)
+	
+	# Fade from current volume to -80db (essentially silent)
+	music_fade_tween.tween_property(music_player, "volume_db", -80.0, music_fade_duration)
+	
+	await music_fade_tween.finished
+	music_player.stop()
+	is_music_fading = false
+	print("Music fade out complete")
+
+func _stop_music(fade_out: bool = true):
+	"""Stop the currently playing music with optional fade out"""
+	if not music_player.playing:
+		return
+	
+	if fade_out:
+		await _fade_out_current_music()
+	else:
+		music_player.stop()
+	
+	current_music_theme = ""
+	print("Music stopped")
 
 func _connect_menu_buttons_sound():
 	var level_buttons = level_select_menu.find_children("*", "BaseButton", true, false)
@@ -150,13 +276,13 @@ func _play_button_sound():
 	if audio_player and button_click_sound:
 		audio_player.play()
 
-# NEW: Function to play thud sound for results screen
+# Function to play thud sound for results screen
 func _play_results_thud_sound():
 	if results_audio_player and results_thud_sound:
 		results_audio_player.play()
 		print("Playing thud sound for results element")
 
-# NEW: Function to play "GO!!" sound
+# Function to play "GO!!" sound
 func _play_go_sound():
 	if go_audio_player and go_sound:
 		go_audio_player.play()
@@ -170,7 +296,7 @@ func _process(delta):
 func _input(event):
 	if input_blocked: get_viewport().set_input_as_handled()
 
-# ENHANCED: Level selection with explicit level 2 support and validation
+# ENHANCED: Level selection with music theme switching
 func _on_level_selected(level_number):
 	# Block if curtain is transitioning
 	if curtain_transitioning:
@@ -268,9 +394,9 @@ func _reveal_scene_with_curtain():
 	await tween.finished
 	_reset_curtain_position()  # This will set curtain_transitioning = false
 
-# ENHANCED: Level change function with explicit Level 2 support
+# ENHANCED: Level change function with music theme switching
 func _change_to_level(level_identifier):
-	"""Enhanced level change logic with Level 2 support"""
+	"""Enhanced level change logic with Level 2 support and music themes"""
 	var level_id_str = str(level_identifier)
 	current_level_number = 0 if level_id_str == "tutorial" else int(level_identifier)
 	is_tutorial_mode = (level_id_str == "tutorial")
@@ -327,7 +453,28 @@ func _change_to_level(level_identifier):
 	_switch_to_player_camera()
 	_setup_connections()
 	
+	# NEW: Switch music theme based on level with smooth transitions
+	_switch_level_music(level_identifier)
+	
 	print("Successfully loaded and setup level: ", level_identifier)
+
+# NEW: Music theme switching based on level with smooth transitions
+func _switch_level_music(level_identifier):
+	"""Switch to appropriate music theme based on level with fade transition"""
+	var theme_name = ""
+	
+	if is_tutorial_mode or level_identifier == 1:
+		# Tutorial and Level 1 use forest theme
+		theme_name = "forest"
+	elif level_identifier == 2:
+		# Level 2 uses beach theme
+		theme_name = "beach"
+	else:
+		# Future levels can use forest theme by default (or add more themes later)
+		theme_name = "forest"
+	
+	# Play music with fade in for smooth transition
+	_play_music(theme_name, true)
 
 func _switch_to_player_camera():
 	"""ORIGINAL camera switch logic - UNCHANGED (no curtain management)"""
@@ -499,7 +646,7 @@ func _on_pause_home_button_pressed():
 	_unpause_game()
 	_start_curtain_transition_to_menu()
 
-# ORIGINAL return_to_menu function - COMPLETELY UNCHANGED
+# ENHANCED: return_to_menu function with music switching
 func return_to_menu():
 	timer_running = false
 	input_blocked = false
@@ -516,6 +663,9 @@ func return_to_menu():
 		level_select_menu.get_node("Camera2D").enabled = true
 	
 	level_select_menu.visible = true
+	
+	# NEW: Switch back to level select music with fade in
+	_play_music("level_select", true)
 
 # ALL OTHER EXISTING FUNCTIONS - COMPLETELY UNCHANGED
 func _setup_connections():

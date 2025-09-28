@@ -55,36 +55,22 @@ func deal_damage_to_player(player: Node2D):
 		# Store the player's health before damage attempt
 		var health_before = health_component.current_health
 		
-		# FIXED: If ignore_iframes is true, always ignore iframes regardless of other conditions
+		# Determine if we should force damage through
 		var force_ignore_iframes = ignore_iframes
 		
-		# Only apply parry logic if ignore_iframes is not already forcing damage through
-		if not ignore_iframes:
-			# Check if player was recently damaged by any unparryable attack
-			var was_recently_damaged = global_recently_damaged_players.has(player_id)
+		# If it's unparryable and player is parrying, we want to deal damage UNLESS player already has i-frames
+		if unparryable and is_player_parrying:
+			# Check if player currently has i-frames (is_invulnerable)
+			var player_has_iframes = health_component.is_invulnerable
 			
-			# For unparryable attacks: only ignore iframes if player is actively parrying AND hasn't been recently damaged
-			if unparryable and is_player_parrying and not was_recently_damaged:
-				# Check if player was already invulnerable before parrying
-				var was_invulnerable_before_parry = false
-				if "was_invulnerable_before_parry" in player:
-					was_invulnerable_before_parry = player.was_invulnerable_before_parry
-				
-				# Only ignore iframes if player wasn't already invulnerable
-				if not was_invulnerable_before_parry:
-					force_ignore_iframes = true
-					print("Forcing damage through parry for unparryable attack")
-				else:
-					print("Player had iframes before parrying, respecting existing iframes")
-			elif unparryable and (not is_player_parrying or was_recently_damaged):
-				# Player is not parrying OR was recently damaged - respect any existing iframes
+			if not player_has_iframes:
+				# Player is parrying but has no existing i-frames, so deal damage
+				force_ignore_iframes = true
+				print("Unparryable attack vs parrying player with no i-frames - forcing damage through")
+			else:
+				# Player has existing i-frames, respect them
 				force_ignore_iframes = false
-				if was_recently_damaged:
-					print("Player was recently damaged by unparryable, respecting iframes")
-				else:
-					print("Unparryable attack but player not parrying - respecting iframes")
-		else:
-			print("ignore_iframes is enabled - forcing damage through all defensive mechanics")
+				print("Unparryable attack vs parrying player with existing i-frames - respecting i-frames")
 		
 		# Attempt to deal damage
 		health_component.take_damage(damage_amount, force_ignore_iframes)
@@ -102,7 +88,11 @@ func deal_damage_to_player(player: Node2D):
 		else:
 			print("No damage dealt (player was invulnerable or parried successfully)")
 		
-		# Only trigger parry effects if the attack is parryable AND ignore_iframes is not enabled
+		# Only trigger parry effects if:
+		# 1. Player was parrying
+		# 2. No damage was dealt (successful defense)
+		# 3. Attack was parryable (not unparryable)
+		# 4. ignore_iframes is not enabled
 		if is_player_parrying and not damage_was_dealt and not unparryable and not ignore_iframes:
 			print("Successful parry! Triggering freeze effect")
 			# Notify the player that the parry was successful
