@@ -528,6 +528,32 @@ position = Vector2(1433, -121)
 [node name="Charge5" parent="LevelHolder/CoinHolder/ChargeHolder" instance=ExtResource("9_doc31")]
 position = Vector2(2841, -116)
 
+[node name="HeartHolder" type="Node2D" parent="LevelHolder/CoinHolder"]
+
+[node name="Heart" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("24_64n6m")]
+position = Vector2(309, -24)
+
+[node name="Heart2" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("24_64n6m")]
+position = Vector2(1016, -41)
+
+[node name="Heart3" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("24_64n6m")]
+position = Vector2(2768, -69)
+
+[node name="Heart4" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("24_64n6m")]
+position = Vector2(3275, -100)
+
+[node name="Heart7" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("24_64n6m")]
+position = Vector2(2573, -173)
+
+[node name="Heart8" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("24_64n6m")]
+position = Vector2(4171, -39)
+
+[node name="Heart5" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("24_64n6m")]
+position = Vector2(4563, 10)
+
+[node name="Heart6" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("24_64n6m")]
+position = Vector2(4587, -22)
+
 [node name="PlatformHolder" type="Node" parent="LevelHolder"]
 
 [node name="PlatformDock" parent="LevelHolder/PlatformHolder" instance=ExtResource("16_64n6m")]
@@ -1124,9 +1150,3 @@ text = "Parry when enemy is lunging toward you!!"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
-
-[node name="Heart" parent="." instance=ExtResource("24_64n6m")]
-position = Vector2(159, -23)
-
-[node name="Heart2" parent="." instance=ExtResource("24_64n6m")]
-position = Vector2(108, -23)
