@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=4 uid="uid://c0nq8ap7acdqu"]
+[gd_scene load_steps=35 format=4 uid="uid://c0nq8ap7acdqu"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_r0ulf"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_8mws5"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://dkp07rod7ho0" path="res://Assets/sprites/MapSprites/Parallax/Forest/3.png" id="5_puwjn"]
 [ext_resource type="Texture2D" uid="uid://c1oi1gq3iicpo" path="res://Assets/sprites/MapSprites/Parallax/Forest/4.png" id="6_g20xy"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="7_vd72t"]
+[ext_resource type="PackedScene" uid="uid://7uuiq57d3shr" path="res://Scenes/heart.tscn" id="8_8mws5"]
 [ext_resource type="PackedScene" uid="uid://beodtqr1g8lyc" path="res://Scenes/charge.tscn" id="9_fja5c"]
 [ext_resource type="Texture2D" uid="uid://cpb1vtttqxmn3" path="res://Assets/sprites/MapSprites/forestTilemap.png" id="10_f4ilv"]
 [ext_resource type="Texture2D" uid="uid://bi0j2fpvt17pk" path="res://Assets/sprites/MapSprites/darkerDirt.png" id="11_oahd5"]
@@ -203,6 +204,23 @@ position = Vector2(2106, -7)
 
 [node name="Charge7" parent="LevelHolder/CoinHolder/ChargeHolder" instance=ExtResource("9_fja5c")]
 position = Vector2(2123, -7)
+
+[node name="HeartHolder" type="Node2D" parent="LevelHolder/CoinHolder"]
+
+[node name="Heart" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("8_8mws5")]
+position = Vector2(1384, -54)
+
+[node name="Heart3" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("8_8mws5")]
+position = Vector2(1416, -54)
+
+[node name="Heart5" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("8_8mws5")]
+position = Vector2(1448, -54)
+
+[node name="Heart6" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("8_8mws5")]
+position = Vector2(2872, -6)
+
+[node name="Heart7" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("8_8mws5")]
+position = Vector2(2905, -6)
 
 [node name="PlatformHolder" type="Node" parent="LevelHolder"]
 
@@ -601,9 +619,9 @@ vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="Label21" type="Label" parent="TutorialTextHolder"]
-offset_left = 4522.0
+offset_left = 4480.0
 offset_top = -94.0
-offset_right = 4649.0
+offset_right = 4607.0
 offset_bottom = -4.0
 theme_override_colors/font_color = Color(1, 0.8, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
