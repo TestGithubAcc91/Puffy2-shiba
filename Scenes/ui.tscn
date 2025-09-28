@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://cb7bykcqm152b"]
+[gd_scene load_steps=29 format=3 uid="uid://cb7bykcqm152b"]
 
 [ext_resource type="Script" uid="uid://d0c6la3t6odq5" path="res://Scripts/HealthBoxContainer.gd" id="1_fe2sg"]
 [ext_resource type="Texture2D" uid="uid://clumim7dcnmxe" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHP3.png" id="2_jd57c"]
@@ -22,6 +22,7 @@
 [ext_resource type="Texture2D" uid="uid://lraq1ekjf1au" path="res://Assets/sprites/PlayerGUI/GeneralGUI/ContinueButton/continueButton.png" id="20_1xsrr"]
 [ext_resource type="Texture2D" uid="uid://bt4wfeneiimjb" path="res://Assets/sprites/PlayerGUI/GeneralGUI/ContinueButton/continueSelect.png" id="21_ivk8b"]
 [ext_resource type="Texture2D" uid="uid://co0ianbjrclpk" path="res://Assets/sprites/PlayerGUI/GeneralGUI/ContinueButton/continueHover.png" id="22_oywgw"]
+[ext_resource type="Texture2D" uid="uid://dwhtoodwvh35e" path="res://Assets/sprites/PlayerGUI/puffyHP/healthbarBackground.png" id="23_jd57c"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_uch74"]
 atlas = ExtResource("9_dx4fu")
@@ -62,10 +63,10 @@ animations = [{
 [node name="UI" type="CanvasLayer"]
 
 [node name="HealthBoxContainer" type="HBoxContainer" parent="." node_paths=PackedStringArray("hp_nodes")]
-offset_left = 31.0
-offset_top = 35.0
-offset_right = 203.0
-offset_bottom = 75.0
+offset_left = 139.0
+offset_top = 1.0
+offset_right = 311.0
+offset_bottom = 41.0
 scale = Vector2(2, 2)
 script = ExtResource("1_fe2sg")
 hp_nodes = [NodePath("HP1"), NodePath("HP2"), NodePath("HP3"), NodePath("HP4")]
@@ -114,7 +115,7 @@ vertical_alignment = 1
 
 [node name="TimerBackground" type="Sprite2D" parent="."]
 self_modulate = Color(1, 1, 1, 0.6313726)
-position = Vector2(602, 60.000004)
+position = Vector2(593, 599)
 scale = Vector2(5, 5)
 texture = ExtResource("8_wc4t8")
 
@@ -289,3 +290,10 @@ texture_normal = ExtResource("20_1xsrr")
 texture_pressed = ExtResource("21_ivk8b")
 texture_hover = ExtResource("22_oywgw")
 stretch_mode = 0
+
+[node name="HealthbarBackground" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.6313726)
+z_index = -1
+position = Vector2(300, 39.000008)
+scale = Vector2(5, 5)
+texture = ExtResource("23_jd57c")
