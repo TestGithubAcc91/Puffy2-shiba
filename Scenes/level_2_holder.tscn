@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=4 uid="uid://b4anf2rhxqq7j"]
+[gd_scene load_steps=36 format=4 uid="uid://b4anf2rhxqq7j"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_64n6m"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_brrp5"]
@@ -22,6 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://bt2naj8cqliq3" path="res://Scenes/balloon.tscn" id="19_jq3d1"]
 [ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="23_bc617"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="23_mihvx"]
+[ext_resource type="PackedScene" uid="uid://7uuiq57d3shr" path="res://Scenes/heart.tscn" id="24_64n6m"]
 [ext_resource type="PackedScene" uid="uid://cb7bykcqm152b" path="res://Scenes/ui.tscn" id="24_s55ko"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j8dfh"]
@@ -1123,3 +1124,9 @@ text = "Parry when enemy is lunging toward you!!"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="Heart" parent="." instance=ExtResource("24_64n6m")]
+position = Vector2(159, -23)
+
+[node name="Heart2" parent="." instance=ExtResource("24_64n6m")]
+position = Vector2(108, -23)

@@ -1,0 +1,208 @@
+[gd_scene load_steps=19 format=3 uid="uid://7uuiq57d3shr"]
+
+[ext_resource type="Script" uid="uid://bsne8exrwymk6" path="res://Scripts/heart.gd" id="1_jgxw8"]
+[ext_resource type="AudioStream" uid="uid://bicmaxjuwcbfd" path="res://Assets/sounds/heal-up-39285.mp3" id="2_rycqq"]
+[ext_resource type="Texture2D" uid="uid://l81hwyg5n1rh" path="res://Assets/sprites/InteractableSprites/balloon.png" id="3_rycqq"]
+[ext_resource type="Texture2D" uid="uid://c71nj2cn2hhpo" path="res://Assets/sprites/InteractableSprites/heart.png" id="4_4obt7"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_jb3vm"]
+radius = 5.0
+
+[sub_resource type="Animation" id="Animation_ffmqm"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape2D:disabled")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("AudioStreamPlayer2D:playing")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_h2p6v"]
+resource_name = "pickup"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape2D:disabled")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("AudioStreamPlayer2D:playing")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/3/type = "method"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath(".")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(1),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"queue_free"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_81h6x"]
+_data = {
+&"RESET": SubResource("Animation_ffmqm"),
+&"pickup": SubResource("Animation_h2p6v")
+}
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6wkup"]
+atlas = ExtResource("3_rycqq")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t623b"]
+atlas = ExtResource("3_rycqq")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_atbr1"]
+atlas = ExtResource("4_4obt7")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rhnby"]
+atlas = ExtResource("4_4obt7")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gdh3h"]
+atlas = ExtResource("4_4obt7")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hyv53"]
+atlas = ExtResource("4_4obt7")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3aedr"]
+atlas = ExtResource("4_4obt7")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eekui"]
+atlas = ExtResource("4_4obt7")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wuhaj"]
+atlas = ExtResource("4_4obt7")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_e2c30"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6wkup")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t623b")
+}],
+"loop": true,
+"name": &"collect",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 20.0,
+"texture": SubResource("AtlasTexture_atbr1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rhnby")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gdh3h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hyv53")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3aedr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eekui")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wuhaj")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[node name="Heart" type="Area2D"]
+collision_mask = 2
+script = ExtResource("1_jgxw8")
+pickup_sound = ExtResource("2_rycqq")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_jb3vm")
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_rycqq")
+bus = &"SFX"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_81h6x")
+}
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_e2c30")
+animation = &"collect"
+autoplay = "default"
+frame_progress = 0.26633734
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
