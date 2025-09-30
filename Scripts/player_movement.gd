@@ -21,14 +21,24 @@ var whoosh_audio_player: AudioStreamPlayer
 var parry_audio_player: AudioStreamPlayer
 var zipline_audio_player: AudioStreamPlayer
 var click_audio_player: AudioStreamPlayer
-var jump_audio_player: AudioStreamPlayer  # NEW: Jump audio player
+var jump_audio_player: AudioStreamPlayer
+var parry_activate_audio_player: AudioStreamPlayer
+var parry_available_audio_player: AudioStreamPlayer  # NEW: Parry available audio player
 
 @export_group("Audio")
 @export var whoosh_sound: AudioStream
 @export var parry_success_sound: AudioStream
 @export var zipline_sound: AudioStream
 @export var click_sound: AudioStream
-@export var jump_sound: AudioStream  # NEW: Jump sound export
+@export var jump_sound: AudioStream
+@export var parry_activate_sound: AudioStream
+@export var parry_available_sound: AudioStream  # NEW: Parry available sound export
+
+# NEW: Volume controls for quieter sounds
+@export_group("Sound Volumes")
+@export var jump_sound_volume_db: float = -10.0  # Quieter jump sound
+@export var parry_activate_sound_volume_db: float = -10.0  # Quieter parry activate sound
+@export var parry_available_sound_volume_db: float = 10.0 # Quieter parry available sound
 
 var last_attack_was_unparryable: bool = false
 signal parry_success
@@ -153,12 +163,29 @@ func _setup_audio_system():
 	if click_sound: click_audio_player.stream = click_sound
 	add_child(click_audio_player)
 	
-	# NEW: Jump audio player setup
+	# Jump audio player setup with quieter volume
 	jump_audio_player = AudioStreamPlayer.new()
 	jump_audio_player.name = "JumpAudioPlayer"
 	jump_audio_player.bus = "SFX"
+	jump_audio_player.volume_db = jump_sound_volume_db  # NEW: Set quieter volume
 	if jump_sound: jump_audio_player.stream = jump_sound
 	add_child(jump_audio_player)
+	
+	# Parry activation audio player setup with quieter volume
+	parry_activate_audio_player = AudioStreamPlayer.new()
+	parry_activate_audio_player.name = "ParryActivateAudioPlayer"
+	parry_activate_audio_player.bus = "SFX"
+	parry_activate_audio_player.volume_db = parry_activate_sound_volume_db  # NEW: Set quieter volume
+	if parry_activate_sound: parry_activate_audio_player.stream = parry_activate_sound
+	add_child(parry_activate_audio_player)
+	
+	# NEW: Parry available audio player setup with quieter volume
+	parry_available_audio_player = AudioStreamPlayer.new()
+	parry_available_audio_player.name = "ParryAvailableAudioPlayer"
+	parry_available_audio_player.bus = "SFX"
+	parry_available_audio_player.volume_db = parry_available_sound_volume_db  # NEW: Set quieter volume
+	if parry_available_sound: parry_available_audio_player.stream = parry_available_sound
+	add_child(parry_available_audio_player)
 
 func enable_movement_at_level_start():
 	movement_blocked_at_level_start = false
@@ -178,10 +205,18 @@ func _stop_zipline_sound():
 func _play_click_sound():
 	if click_audio_player and click_sound: click_audio_player.play()
 
-# NEW: Play jump sound effect
 func _play_jump_sound():
 	if jump_audio_player and jump_sound:
 		jump_audio_player.play()
+
+func _play_parry_activate_sound():
+	if parry_activate_audio_player and parry_activate_sound:
+		parry_activate_audio_player.play()
+
+# NEW: Play parry available sound effect
+func _play_parry_available_sound():
+	if parry_available_audio_player and parry_available_sound:
+		parry_available_audio_player.play()
 
 func setup_ui():
 	if glint_sprite: glint_sprite.visible = false
@@ -265,7 +300,7 @@ func handle_input():
 	
 	if Input.is_action_just_pressed("Jump") and can_jump() and not is_on_zipline_check:
 		velocity.y = JUMP_VELOCITY
-		_play_jump_sound()  # NEW: Play jump sound
+		_play_jump_sound()
 		if can_coyote_jump and not is_on_floor():
 			can_coyote_jump = false
 			coyote_time_timer.stop()
@@ -394,6 +429,9 @@ func activate_parry():
 	parry_was_successful = false
 	health_script.is_invulnerable = true
 	update_parry_ready_sprite()
+	
+	# Play parry activation sound
+	_play_parry_activate_sound()
 	
 	if glint_sprite:
 		glint_sprite.visible = true
@@ -583,6 +621,7 @@ func _on_parry_timeout():
 func _on_parry_cooldown_timeout():
 	can_parry = true
 	update_parry_ready_sprite()
+	_play_parry_available_sound()  # NEW: Play sound when parry becomes available again
 
 func _on_parry_pre_freeze_timeout():
 	is_in_pre_freeze_parry = false
@@ -601,6 +640,7 @@ func _on_parry_safety_timeout():
 	else: health_script.is_invulnerable = false
 	can_parry = true
 	update_parry_ready_sprite()
+	_play_parry_available_sound()  # NEW: Play sound when parry becomes available from safety timeout
 	last_attack_was_unparryable = false
 	was_invulnerable_before_parry = false
 
@@ -619,7 +659,9 @@ func _on_player_died():
 	reset_timescale()
 	_stop_zipline_sound()
 	if click_audio_player and click_audio_player.playing: click_audio_player.stop()
-	if jump_audio_player and jump_audio_player.playing: jump_audio_player.stop()  # NEW: Stop jump sound
+	if jump_audio_player and jump_audio_player.playing: jump_audio_player.stop()
+	if parry_activate_audio_player and parry_activate_audio_player.playing: parry_activate_audio_player.stop()
+	if parry_available_audio_player and parry_available_audio_player.playing: parry_available_audio_player.stop()  # NEW: Stop parry available sound
 	_reset_all_parry_states()
 	is_dashing = false
 	is_bouncing = false
@@ -760,8 +802,12 @@ func reset_player_state():
 	# Stop all audio
 	if click_audio_player and click_audio_player.playing:
 		click_audio_player.stop()
-	if jump_audio_player and jump_audio_player.playing:  # NEW: Stop jump sound
+	if jump_audio_player and jump_audio_player.playing:
 		jump_audio_player.stop()
+	if parry_activate_audio_player and parry_activate_audio_player.playing:
+		parry_activate_audio_player.stop()
+	if parry_available_audio_player and parry_available_audio_player.playing:  # NEW: Stop parry available sound
+		parry_available_audio_player.stop()
 	
 	# Reset parry stacks
 	reset_parry_stacks()
