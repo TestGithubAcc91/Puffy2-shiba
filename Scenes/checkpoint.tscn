@@ -1,0 +1,43 @@
+[gd_scene load_steps=7 format=3 uid="uid://c4lql1vw6g8kb"]
+
+[ext_resource type="Script" uid="uid://dja8x55iao0c0" path="res://Scripts/checkpoint.gd" id="1_2cwi7"]
+[ext_resource type="Texture2D" uid="uid://bvnb1jchu65e5" path="res://Assets/sprites/InteractableSprites/checkpoint.png" id="1_lbcco"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2cwi7"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e75gc"]
+atlas = ExtResource("1_lbcco")
+region = Rect2(21, 0, 21, 21)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i1pff"]
+atlas = ExtResource("1_lbcco")
+region = Rect2(0, 0, 21, 21)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_opoc8"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e75gc")
+}],
+"loop": true,
+"name": &"active",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i1pff")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Checkpoint" type="Area2D"]
+script = ExtResource("1_2cwi7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_2cwi7")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_opoc8")
+autoplay = "default"

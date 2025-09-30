@@ -1,17 +1,13 @@
-# Game.gd - Enhanced with explicit Level 2 support and Music System with Fading
 extends Node
 
 @onready var level_select_menu = $LevelSelectMenu
-# SIMPLIFIED: Single black curtain on the root Game node
-@onready var black_curtain = $CanvasLayer/BlackCurtain  # This should be a child of the Game node
+@onready var black_curtain = $CanvasLayer/BlackCurtain
 var current_level_scene = null
 var input_blocked = false
 var current_level_number = 0
-
-# NEW: Curtain transition state tracking
 var curtain_transitioning = false
 
-# Game state tracking - UNCHANGED
+# Game state
 var timer_running = false
 var elapsed_time = 0.0
 var timer_label = null
@@ -21,28 +17,27 @@ var glits_count = 0
 var is_paused = false
 var pause_button = null
 var pause_screen = null
+var settings_button = null
+var settings_screen = null
 var finish_results = null
 var is_tutorial_mode = false
 
-# Audio system - ENHANCED with music system and fading
+# Audio
 var audio_player: AudioStreamPlayer
-var results_audio_player: AudioStreamPlayer  # Separate audio player for results screen
-var go_audio_player: AudioStreamPlayer  # Separate audio player for "GO!!" sound
-var music_player: AudioStreamPlayer  # NEW: Music player for background themes
+var results_audio_player: AudioStreamPlayer
+var go_audio_player: AudioStreamPlayer
+var music_player: AudioStreamPlayer
 var connected_buttons = []
-
-# NEW: Current music tracking and fade control
 var current_music_theme = ""
 var music_fade_tween: Tween
-var default_music_volume = 0.0  # Will be set based on Music bus volume
+var default_music_volume = 0.0
 var is_music_fading = false
 
-# Signals - UNCHANGED
 signal movement_enabled
 signal movement_disabled
 signal player_died
 
-# Export settings - ENHANCED with music themes and fade settings
+# Exports
 @export_group("Countdown Colors")
 @export var ready_color: Color = Color.RED
 @export var set_color: Color = Color.YELLOW
@@ -55,23 +50,23 @@ signal player_died
 
 @export_group("Audio")
 @export var button_click_sound: AudioStream
-@export var results_thud_sound: AudioStream  # Thud sound for results screen
-@export var go_sound: AudioStream  # Unique sound for "GO!!" countdown
+@export var results_thud_sound: AudioStream
+@export var go_sound: AudioStream
 
 @export_group("Music Themes")
-@export var level_select_theme: AudioStream  # NEW: Level select menu music
-@export var forest_theme: AudioStream  # NEW: Forest theme (tutorial, level 1)
-@export var beach_theme: AudioStream  # NEW: Beach theme (level 2)
+@export var level_select_theme: AudioStream
+@export var forest_theme: AudioStream
+@export var beach_theme: AudioStream
 
 @export_group("Music Settings")
-@export var music_fade_duration: float = 1.5  # NEW: Duration for music fade transitions
-@export var music_volume_db: float = 0.0  # NEW: Music volume in decibels
+@export var music_fade_duration: float = 1.5
+@export var music_volume_db: float = 0.0
 
-# Level medal requirements - ENHANCED with Level 2
+# Medal requirements
 var level_medal_times = {
 	"tutorial": {"gold": 999999999.0, "silver": 9999999999999999999.0},
 	1: {"gold": 43.0, "silver": 50.0}, 
-	2: {"gold": 59.0, "silver": 70.0},  # Level 2 medal requirements
+	2: {"gold": 59.0, "silver": 70.0},
 	3: {"gold": 40.0, "silver": 55.0}, 
 	4: {"gold": 65.0, "silver": 80.0},
 	5: {"gold": 50.0, "silver": 65.0}
@@ -81,212 +76,110 @@ func _ready():
 	_setup_audio_system()
 	level_select_menu.level_selected.connect(_on_level_selected)
 	
-	# Connect tutorial button
-	if level_select_menu.has_node("TutorialButton"):
-		level_select_menu.get_node("TutorialButton").pressed.connect(_on_tutorial_button_pressed)
-		_connect_button_sound(level_select_menu.get_node("TutorialButton"))
-	
-	# Connect Level 1 button
-	if level_select_menu.has_node("Level1Button"):
-		_connect_button_sound(level_select_menu.get_node("Level1Button"))
-	
-	# ENHANCED: Connect Level 2 button explicitly
-	if level_select_menu.has_node("Level2Button"):
-		_connect_button_sound(level_select_menu.get_node("Level2Button"))
-		print("Level 2 button found and connected")
+	for button_name in ["TutorialButton", "Level1Button", "Level2Button"]:
+		if level_select_menu.has_node(button_name):
+			var btn = level_select_menu.get_node(button_name)
+			_connect_button_sound(btn)
+			if button_name == "TutorialButton":
+				btn.pressed.connect(_on_tutorial_button_pressed)
 	
 	_setup_root_curtain()
 	_connect_menu_buttons_sound()
-	
-	# NEW: Start level select music with fade in
 	_play_music("level_select", true)
 
 func _setup_root_curtain():
-	"""Initialize the root-level black curtain"""
 	if not black_curtain:
-		print("ERROR: BlackCurtain node not found! Please add a ColorRect named 'BlackCurtain' as child of Game node")
+		print("ERROR: BlackCurtain node not found!")
 		return
-	
 	_reset_curtain_position()
-	black_curtain.z_index = 1000  # Ensure it's always on top
-	
-	print("Root curtain initialized at position: ", black_curtain.position)
+	black_curtain.z_index = 1000
 
 func _reset_curtain_position():
-	"""Reset the curtain to its starting position (off-screen to the right)"""
-	if not black_curtain:
-		return
-	
-	var viewport_size = get_viewport().size
-	black_curtain.position.x = viewport_size.x + 300
+	if not black_curtain: return
+	black_curtain.position.x = get_viewport().size.x + 300
 	black_curtain.visible = false
-	# NEW: Mark curtain as ready when reset
 	curtain_transitioning = false
-	print("Curtain reset to position: ", black_curtain.position, " - Transition complete")
 
-# ENHANCED: Setup all audio players including music with fade support
 func _setup_audio_system():
-	# Original button audio player
-	audio_player = AudioStreamPlayer.new()
-	audio_player.name = "ButtonAudioPlayer"
-	audio_player.bus = "SFX"
-	add_child(audio_player)
+	var players = [
+		{"name": "ButtonAudioPlayer", "stream": button_click_sound, "var": "audio_player"},
+		{"name": "ResultsAudioPlayer", "stream": results_thud_sound, "var": "results_audio_player"},
+		{"name": "GoAudioPlayer", "stream": go_sound, "var": "go_audio_player"}
+	]
 	
-	if button_click_sound:
-		audio_player.stream = button_click_sound
+	for p in players:
+		var player = AudioStreamPlayer.new()
+		player.name = p.name
+		player.bus = "SFX"
+		if p.stream: player.stream = p.stream
+		add_child(player)
+		set(p.var, player)
 	
-	# Results screen thud audio player
-	results_audio_player = AudioStreamPlayer.new()
-	results_audio_player.name = "ResultsAudioPlayer"
-	results_audio_player.bus = "SFX"
-	add_child(results_audio_player)
-	
-	if results_thud_sound:
-		results_audio_player.stream = results_thud_sound
-	
-	# "GO!!" sound audio player
-	go_audio_player = AudioStreamPlayer.new()
-	go_audio_player.name = "GoAudioPlayer"
-	go_audio_player.bus = "SFX"
-	add_child(go_audio_player)
-	
-	if go_sound:
-		go_audio_player.stream = go_sound
-	
-	# NEW: Music player for background themes with fade support
 	music_player = AudioStreamPlayer.new()
 	music_player.name = "MusicPlayer"
-	music_player.bus = "Music"  # Send to Music bus instead of SFX
-	music_player.autoplay = false
-	music_player.volume_db = music_volume_db  # Set initial volume
-	default_music_volume = music_volume_db  # Store default volume
+	music_player.bus = "Music"
+	music_player.volume_db = music_volume_db
+	default_music_volume = music_volume_db
 	add_child(music_player)
-	
-	print("Audio system setup complete with music player and fade support")
 
-# NEW: Enhanced music control functions with smooth fading
 func _play_music(theme_name: String, fade_in: bool = true):
-	"""Play the specified music theme with optional fade in"""
 	if current_music_theme == theme_name and music_player.playing and not is_music_fading:
-		print("Music theme '", theme_name, "' is already playing")
 		return
 	
-	var theme_stream: AudioStream = null
+	var themes = {"level_select": level_select_theme, "forest": forest_theme, "beach": beach_theme}
+	var theme_stream = themes.get(theme_name)
 	
-	match theme_name:
-		"level_select":
-			theme_stream = level_select_theme
-		"forest":
-			theme_stream = forest_theme
-		"beach":
-			theme_stream = beach_theme
-		_:
-			print("Unknown music theme: ", theme_name)
-			return
-	
-	if not theme_stream:
-		print("No audio stream found for theme: ", theme_name)
-		return
-	
-	# If music is currently playing, fade out first, then fade in new music
+	if not theme_stream: return
 	if music_player.playing and current_music_theme != theme_name:
 		await _fade_out_current_music()
 	
-	# Stop any existing fade tween
-	if music_fade_tween:
-		music_fade_tween.kill()
+	if music_fade_tween: music_fade_tween.kill()
 	
-	# Set up new music
 	music_player.stream = theme_stream
 	current_music_theme = theme_name
 	
 	if fade_in:
-		# Start with volume at -80db (essentially silent) and fade in
 		music_player.volume_db = -80.0
 		music_player.play()
 		_fade_in_music()
-		print("Playing music theme with fade in: ", theme_name)
 	else:
-		# Play immediately at full volume
 		music_player.volume_db = default_music_volume
 		music_player.play()
-		print("Playing music theme immediately: ", theme_name)
 
 func _fade_in_music():
-	"""Fade in the currently loaded music"""
-	if not music_player.playing:
-		return
-	
+	if not music_player.playing: return
 	is_music_fading = true
-	music_fade_tween = create_tween()
-	music_fade_tween.set_ease(Tween.EASE_OUT)
-	music_fade_tween.set_trans(Tween.TRANS_CUBIC)
-	
-	# Fade from -80db to default volume
+	music_fade_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	music_fade_tween.tween_property(music_player, "volume_db", default_music_volume, music_fade_duration)
-	
 	await music_fade_tween.finished
 	is_music_fading = false
-	print("Music fade in complete")
 
 func _fade_out_current_music() -> void:
-	"""Fade out the currently playing music"""
-	if not music_player.playing:
-		return
-	
+	if not music_player.playing: return
 	is_music_fading = true
-	music_fade_tween = create_tween()
-	music_fade_tween.set_ease(Tween.EASE_IN)
-	music_fade_tween.set_trans(Tween.TRANS_CUBIC)
-	
-	# Fade from current volume to -80db (essentially silent)
+	music_fade_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
 	music_fade_tween.tween_property(music_player, "volume_db", -80.0, music_fade_duration)
-	
 	await music_fade_tween.finished
 	music_player.stop()
 	is_music_fading = false
-	print("Music fade out complete")
-
-func _stop_music(fade_out: bool = true):
-	"""Stop the currently playing music with optional fade out"""
-	if not music_player.playing:
-		return
-	
-	if fade_out:
-		await _fade_out_current_music()
-	else:
-		music_player.stop()
-	
-	current_music_theme = ""
-	print("Music stopped")
 
 func _connect_menu_buttons_sound():
-	var level_buttons = level_select_menu.find_children("*", "BaseButton", true, false)
-	for button in level_buttons:
+	for button in level_select_menu.find_children("*", "BaseButton", true, false):
 		_connect_button_sound(button)
 
 func _connect_button_sound(button: BaseButton):
-	if not button or button in connected_buttons:
-		return
-	
+	if not button or button in connected_buttons: return
 	button.pressed.connect(_play_button_sound)
 	connected_buttons.append(button)
 
 func _play_button_sound():
-	if audio_player and button_click_sound:
-		audio_player.play()
+	if audio_player and button_click_sound: audio_player.play()
 
-# Function to play thud sound for results screen
 func _play_results_thud_sound():
-	if results_audio_player and results_thud_sound:
-		results_audio_player.play()
-		print("Playing thud sound for results element")
+	if results_audio_player and results_thud_sound: results_audio_player.play()
 
-# Function to play "GO!!" sound
 func _play_go_sound():
-	if go_audio_player and go_sound:
-		go_audio_player.play()
-		print("Playing GO!! sound effect")
+	if go_audio_player and go_sound: go_audio_player.play()
 
 func _process(delta):
 	if timer_running and timer_label and not is_paused:
@@ -296,107 +189,55 @@ func _process(delta):
 func _input(event):
 	if input_blocked: get_viewport().set_input_as_handled()
 
-# ENHANCED: Level selection with music theme switching
 func _on_level_selected(level_number):
-	# Block if curtain is transitioning
-	if curtain_transitioning:
-		print("Level selection blocked - curtain transitioning")
-		return
-	
-	# ENHANCED: Validate level number and provide feedback
-	var valid_levels = [1, 2, 3, 4, 5]  # Add more levels as needed
-	if level_number not in valid_levels:
-		print("ERROR: Invalid level number: ", level_number)
-		return
-	
-	print("Starting level: ", level_number)
+	if curtain_transitioning or level_number not in [1, 2, 3, 4, 5]: return
 	is_tutorial_mode = false
 	_start_curtain_transition_to_level(level_number)
 
-# NEW: Protected tutorial button with curtain check
 func _on_tutorial_button_pressed():
-	# Block if curtain is transitioning
-	if curtain_transitioning:
-		print("Tutorial button blocked - curtain transitioning")
-		return
-	
+	if curtain_transitioning: return
 	is_tutorial_mode = true
 	_start_curtain_transition_to_level("tutorial")
 
-# SIMPLIFIED: Single curtain transition function for scene changes to levels
 func _start_curtain_transition_to_level(level_identifier):
-	"""Simplified curtain transition using root-level curtain"""
 	if not black_curtain:
 		_change_to_level(level_identifier)
 		return
 	
-	# NEW: Block if already transitioning
-	if curtain_transitioning:
-		print("Transition blocked - already in progress")
-		return
-	
-	print("Starting curtain transition to level: ", level_identifier)
-	
-	# NEW: Mark curtain as transitioning
+	if curtain_transitioning: return
 	curtain_transitioning = true
-	
-	# Block input during transition
 	input_blocked = true
 	movement_disabled.emit()
 	
-	# Ensure curtain is properly positioned and visible
 	black_curtain.visible = true
 	black_curtain.z_index = 1000
-	
-	# Reset curtain to starting position (right side)
 	_reset_curtain_position()
 	black_curtain.visible = true
-	curtain_transitioning = true  # Keep it true after reset for this transition
+	curtain_transitioning = true
 	
-	var viewport_size = get_viewport().size
-	
-	# Phase 1: Move curtain to cover screen
-	var tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	var tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	tween.tween_property(black_curtain, "position:x", 0, 1.2)
-	
-	# Wait for curtain to cover screen
 	await tween.finished
-	await get_tree().create_timer(0.5).timeout  # Brief pause in black
+	await get_tree().create_timer(0.5).timeout
 	
-	# Phase 2: Change scene while covered
 	_change_to_level(level_identifier)
-	
-	# Phase 3: Reveal new scene
 	await get_tree().create_timer(0.3).timeout
 	_reveal_scene_with_curtain()
 
 func _reveal_scene_with_curtain():
-	"""Move curtain to reveal the new scene"""
-	if not black_curtain:
-		return
+	if not black_curtain: return
 	
-	print("Revealing scene with curtain")
-	
-	var viewport_size = get_viewport().size
-	var tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	
-	# Move curtain off-screen to the left with 100px offset
+	var tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	tween.tween_property(black_curtain, "position:x", -1700, 1.3)
 	
-	# Start countdown while curtain is revealing (if in level)
 	if current_level_scene:
 		await get_tree().create_timer(0.5).timeout
 		_start_countdown()
 	
-	# Reset curtain position after animation is complete
 	await tween.finished
-	_reset_curtain_position()  # This will set curtain_transitioning = false
+	_reset_curtain_position()
 
-# ENHANCED: Level change function with music theme switching
 func _change_to_level(level_identifier):
-	"""Enhanced level change logic with Level 2 support and music themes"""
 	var level_id_str = str(level_identifier)
 	current_level_number = 0 if level_id_str == "tutorial" else int(level_identifier)
 	is_tutorial_mode = (level_id_str == "tutorial")
@@ -412,78 +253,43 @@ func _change_to_level(level_identifier):
 	
 	level_select_menu.visible = false
 	
-	# ENHANCED: Determine level path with explicit Level 2 support
-	var level_path: String
-	if is_tutorial_mode:
-		level_path = "res://Scenes/tutorial_holder.tscn"
-	else:
-		# ENHANCED: Support for level 2 and future levels
-		match int(level_identifier):
-			1:
-				level_path = "res://Scenes/level_1_holder.tscn"
-			2:
-				level_path = "res://Scenes/level_2_holder.tscn"  # Note: matching your naming convention
-			3:
-				level_path = "res://Scenes/level_3_holder.tscn"
-			4:
-				level_path = "res://Scenes/level_4_holder.tscn"
-			5:
-				level_path = "res://Scenes/level_5_holder.tscn"
-			_:
-				print("ERROR: No scene file defined for level ", level_identifier)
-				return
+	var level_paths = {
+		"tutorial": "res://Scenes/tutorial_holder.tscn",
+		1: "res://Scenes/level_1_holder.tscn",
+		2: "res://Scenes/level_2_holder.tscn",
+		3: "res://Scenes/level_3_holder.tscn",
+		4: "res://Scenes/level_4_holder.tscn",
+		5: "res://Scenes/level_5_holder.tscn"
+	}
 	
-	# ENHANCED: Verify scene file exists before loading
-	if not ResourceLoader.exists(level_path):
+	var level_path = level_paths.get(level_identifier if is_tutorial_mode else int(level_identifier))
+	if not level_path or not ResourceLoader.exists(level_path):
 		print("ERROR: Scene file not found: ", level_path)
-		print("Make sure level2holder.tscn exists in the Scenes folder")
 		return
 	
-	print("Loading level scene: ", level_path)
 	current_level_scene = load(level_path).instantiate()
 	add_child(current_level_scene)
 	await get_tree().process_frame
 	
-	# DISABLE any level-specific BlackCurtainTransition ColorRects
 	if current_level_scene and current_level_scene.has_node("UI/BlackCurtainTransition"):
-		var transition_rect = current_level_scene.get_node("UI/BlackCurtainTransition")
-		transition_rect.visible = false
-		print("Disabled level-specific BlackCurtainTransition ColorRect")
+		current_level_scene.get_node("UI/BlackCurtainTransition").visible = false
 	
 	_switch_to_player_camera()
 	_setup_connections()
-	
-	# NEW: Switch music theme based on level with smooth transitions
 	_switch_level_music(level_identifier)
-	
-	print("Successfully loaded and setup level: ", level_identifier)
 
-# NEW: Music theme switching based on level with smooth transitions
 func _switch_level_music(level_identifier):
-	"""Switch to appropriate music theme based on level with fade transition"""
-	var theme_name = ""
-	
-	if is_tutorial_mode or level_identifier == 1:
-		# Tutorial and Level 1 use forest theme
-		theme_name = "forest"
-	elif level_identifier == 2:
-		# Level 2 uses beach theme
-		theme_name = "beach"
-	else:
-		# Future levels can use forest theme by default (or add more themes later)
-		theme_name = "forest"
-	
-	# Play music with fade in for smooth transition
-	_play_music(theme_name, true)
+	var theme = "forest"
+	if level_identifier == 2:
+		theme = "beach"
+	_play_music(theme, true)
 
 func _switch_to_player_camera():
-	"""ORIGINAL camera switch logic - UNCHANGED (no curtain management)"""
 	var menu_camera = level_select_menu.get_node("Camera2D") if level_select_menu.has_node("Camera2D") else null
 	var player = find_player_in_scene()
 	var player_camera = _find_player_camera(player) if player else null
 	
-	if menu_camera: 
-		menu_camera.enabled = false
+	if menu_camera: menu_camera.enabled = false
 	if player_camera: 
 		player_camera.enabled = true
 		player_camera.make_current()
@@ -493,8 +299,6 @@ func _find_player_camera(player):
 	if player.has_node("Camera2D"): return player.get_node("Camera2D")
 	var cameras = player.find_children("*", "Camera2D", true, false)
 	return cameras[0] if cameras.size() > 0 else null
-
-# In Game.gd, modify the _start_countdown function:
 
 func _start_countdown():
 	input_blocked = true
@@ -508,24 +312,20 @@ func _start_countdown():
 	
 	countdown_label.visible = true
 	var countdown_data = [
-		{"text": "READY?", "color": ready_color, "time": 1.0},
-		{"text": "SET...", "color": set_color, "time": 1.0},
-		{"text": "GO!!", "color": go_color, "time": 0.5}
+		{"text": "READY?", "color": ready_color, "time": 1.0, "sound": "thud"},
+		{"text": "SET...", "color": set_color, "time": 1.0, "sound": "thud"},
+		{"text": "GO!!", "color": go_color, "time": 0.5, "sound": "go"}
 	]
 	
 	for data in countdown_data:
 		countdown_label.text = data.text
 		countdown_label.modulate = data.color
 		
-		# NEW: Play different sounds for different countdown text
-		if data.text == "GO!!":
-			_play_go_sound()  # Unique sound for "GO!!"
-		else:
-			_play_results_thud_sound()  # Thud sound for "READY?" and "SET..."
+		if data.sound == "go": _play_go_sound()
+		else: _play_results_thud_sound()
 		
 		await get_tree().create_timer(data.time).timeout
 		
-		# NEW: Enable player movement when "GO!!" is shown
 		if data.text == "GO!!":
 			var player = find_player_in_scene()
 			if player and player.has_method("enable_movement_at_level_start"):
@@ -536,117 +336,58 @@ func _start_countdown():
 	movement_enabled.emit()
 	_start_timer()
 
-# SIMPLIFIED: Retry function using root curtain with protection
 func _on_retry_button_pressed():
-	# NEW: Block if curtain is transitioning
-	if curtain_transitioning:
-		print("Retry button blocked - curtain transitioning")
-		return
-	
-	print("RETRY BUTTON PRESSED - Using simplified retry")
+	if curtain_transitioning: return
 	_hide_results_page()
-	
-	var level_identifier = "tutorial" if is_tutorial_mode else current_level_number
-	_start_curtain_transition_to_level(level_identifier)
+	_start_curtain_transition_to_level("tutorial" if is_tutorial_mode else current_level_number)
 
 func _on_pause_retry_button_pressed():
-	# NEW: Block if curtain is transitioning
-	if curtain_transitioning:
-		print("Pause retry button blocked - curtain transitioning")
-		return
-	
-	print("PAUSE RETRY BUTTON PRESSED - Using simplified retry")
+	if curtain_transitioning: return
 	_unpause_game()
-	
-	var level_identifier = "tutorial" if is_tutorial_mode else current_level_number
-	_start_curtain_transition_to_level(level_identifier)
+	_start_curtain_transition_to_level("tutorial" if is_tutorial_mode else current_level_number)
 
 func _on_home_button_pressed():
-	# NEW: Block if curtain is transitioning
-	if curtain_transitioning:
-		print("Home button blocked - curtain transitioning")
-		return
-	
-	print("HOME BUTTON PRESSED - Using simplified home transition")  
+	if curtain_transitioning: return
 	_hide_results_page()
 	_start_curtain_transition_to_menu()
 
 func _start_curtain_transition_to_menu():
-	"""Simplified curtain transition from level to menu"""
 	if not black_curtain:
 		return_to_menu()
 		return
 	
-	# NEW: Block if already transitioning
-	if curtain_transitioning:
-		print("Menu transition blocked - already in progress")
-		return
-	
-	print("Starting curtain transition to menu")
-	
-	# NEW: Mark curtain as transitioning
+	if curtain_transitioning: return
 	curtain_transitioning = true
-	
-	# Block input during transition
 	input_blocked = true
 	movement_disabled.emit()
 	
-	# Ensure curtain is properly positioned and visible
 	black_curtain.visible = true
 	black_curtain.z_index = 1000
-	
-	# Reset curtain to starting position (right side)
 	_reset_curtain_position()
 	black_curtain.visible = true
-	curtain_transitioning = true  # Keep it true after reset for this transition
+	curtain_transitioning = true
 	
-	var viewport_size = get_viewport().size
-	
-	# Phase 1: Move curtain to cover current scene
-	var tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	var tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	tween.tween_property(black_curtain, "position:x", 0, 1.2)
-	
-	# Wait for curtain to cover screen
 	await tween.finished
 	await get_tree().create_timer(0.5).timeout
 	
-	# Phase 2: Return to menu while covered
 	return_to_menu()
-	
-	# Phase 3: Reveal menu
 	await get_tree().create_timer(0.3).timeout
 	_reveal_menu_with_curtain()
 
 func _reveal_menu_with_curtain():
-	"""Move curtain to reveal the menu"""
-	if not black_curtain:
-		return
-	
-	print("Revealing menu with curtain")
-	
-	var viewport_size = get_viewport().size
-	var tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	
-	# Move curtain off-screen to the left with 100px offset to reveal menu
+	if not black_curtain: return
+	var tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	tween.tween_property(black_curtain, "position:x", -1700, 1.3)
-	
-	# Reset curtain position after animation is complete
 	await tween.finished
-	_reset_curtain_position()  # This will set curtain_transitioning = false
+	_reset_curtain_position()
 
-# UPDATE PAUSE SYSTEM HANDLERS with protection
 func _on_pause_home_button_pressed():
-	# NEW: Block if curtain is transitioning
-	if curtain_transitioning:
-		print("Pause home button blocked - curtain transitioning")
-		return
-	
+	if curtain_transitioning: return
 	_unpause_game()
 	_start_curtain_transition_to_menu()
 
-# ENHANCED: return_to_menu function with music switching
 func return_to_menu():
 	timer_running = false
 	input_blocked = false
@@ -663,11 +404,8 @@ func return_to_menu():
 		level_select_menu.get_node("Camera2D").enabled = true
 	
 	level_select_menu.visible = true
-	
-	# NEW: Switch back to level select music with fade in
 	_play_music("level_select", true)
 
-# ALL OTHER EXISTING FUNCTIONS - COMPLETELY UNCHANGED
 func _setup_connections():
 	var player = find_player_in_scene()
 	if player:
@@ -675,23 +413,16 @@ func _setup_connections():
 			movement_disabled.connect(player._on_movement_disabled)
 		if not movement_enabled.is_connected(player._on_movement_enabled):
 			movement_enabled.connect(player._on_movement_enabled)
-			
-		# Connect player's died signal to trigger retry
 		if not player.player_died_trigger_retry.is_connected(_on_player_died_trigger_retry):
 			player.player_died_trigger_retry.connect(_on_player_died_trigger_retry)
 		
-		# FIXED: Connect to the Health script's damage signals
 		if player.has_node("HealthScript"):
 			var health_script = player.get_node("HealthScript")
 			if not health_script.died.is_connected(_on_player_died):
 				health_script.died.connect(_on_player_died)
-			
-			# NEW: Connect to the health_decreased signal to track damage
 			if not health_script.health_decreased.is_connected(_on_player_damage_taken):
 				health_script.health_decreased.connect(_on_player_damage_taken)
-				print("Connected health_decreased signal to damage tracking")
 		
-		# Connect parry signal if it exists
 		if player.has_signal("parry_success") and not player.parry_success.is_connected(_on_player_parry_success):
 			player.parry_success.connect(_on_player_parry_success)
 	
@@ -701,49 +432,25 @@ func _setup_connections():
 			level_finish.body_entered.connect(_on_level_finish_entered)
 	
 	_setup_pause_button()
+	_setup_settings_button()
 	_connect_glits_tracking()
 	_setup_timer()
-	
+
 func _on_player_died_trigger_retry():
-	# NEW: Block if curtain is transitioning
-	if curtain_transitioning:
-		print("Player death retry blocked - curtain transitioning")
-		return
-	
-	print("PLAYER DIED - Triggering retry via curtain transition")
-	
-	# Stop timer and block input
+	if curtain_transitioning: return
 	_stop_timer()
 	input_blocked = true
 	movement_disabled.emit()
-	
-	# Trigger the same retry functionality as the retry button
-	var level_identifier = "tutorial" if is_tutorial_mode else current_level_number
-	_start_curtain_transition_to_level(level_identifier)
-	
-	
-	
+	_start_curtain_transition_to_level("tutorial" if is_tutorial_mode else current_level_number)
+
 func _on_player_died():
-	# NEW: Block if curtain is transitioning
-	if curtain_transitioning:
-		print("Player death blocked - curtain transitioning")
-		return
-	
-	print("PLAYER DIED - Triggering retry sequence")
-	
-	# Stop timer and block input
+	if curtain_transitioning: return
 	_stop_timer()
 	input_blocked = true
 	movement_disabled.emit()
-	
-	# Wait a moment for death animation to play
 	await get_tree().create_timer(1.5).timeout
-	
-	# Trigger the same retry functionality as the retry button
-	var level_identifier = "tutorial" if is_tutorial_mode else current_level_number
-	_start_curtain_transition_to_level(level_identifier)
-	
-	
+	_start_curtain_transition_to_level("tutorial" if is_tutorial_mode else current_level_number)
+
 func _setup_pause_button():
 	if not (current_level_scene and current_level_scene.has_node("UI/PauseButton")): return
 	
@@ -766,9 +473,24 @@ func _setup_pause_button():
 				button.pressed.connect(Callable(self, btn.method))
 				_connect_button_sound(button)
 
+func _setup_settings_button():
+	if not (current_level_scene and current_level_scene.has_node("UI/SettingsButton")): return
+	
+	settings_button = current_level_scene.get_node("UI/SettingsButton")
+	settings_screen = settings_button.get_node("SettingsScreen") if settings_button.has_node("SettingsScreen") else null
+	settings_button.pressed.connect(_on_settings_button_pressed)
+	_connect_button_sound(settings_button)
+	
+	if settings_screen:
+		settings_screen.visible = false
+		# Only connect Continue button for settings
+		if settings_screen.has_node("ContinueButton"):
+			var button = settings_screen.get_node("ContinueButton")
+			button.pressed.connect(_on_settings_continue_button_pressed)
+			_connect_button_sound(button)
+
 func _connect_glits_tracking():
-	var paths = ["CoinCounter", "ScoreManager", "UI/CoinCounter", "UI/ScoreManager"]
-	for path in paths:
+	for path in ["CoinCounter", "ScoreManager", "UI/CoinCounter", "UI/ScoreManager"]:
 		if current_level_scene and current_level_scene.has_node(path):
 			var coin_node = current_level_scene.get_node(path)
 			var signal_name = "coin_collected" if coin_node.has_signal("coin_collected") else "point_added"
@@ -801,13 +523,11 @@ func _on_level_finish_entered(body):
 		movement_disabled.emit()
 		_show_finish_results()
 
-# ENHANCED: Results screen with thud sounds
 func _show_finish_results():
 	if not (current_level_scene and current_level_scene.has_node("UI/FinishResults")): return
 	
 	finish_results = current_level_scene.get_node("UI/FinishResults")
 	finish_results.visible = true
-	
 	_ensure_result_buttons_connected()
 	
 	var results_data = [
@@ -823,61 +543,40 @@ func _show_finish_results():
 		if finish_results.has_node(data.path):
 			var label = finish_results.get_node(data.path)
 			label.visible = true
-			if data.text: 
-				label.text = data.text
-			
-			# NEW: Play thud sound for each text element (except FinalResult)
-			if data.play_sound:
-				_play_results_thud_sound()
+			if data.text: label.text = data.text
+			if data.play_sound: _play_results_thud_sound()
 	
 	await get_tree().create_timer(1.0).timeout
 	_show_medal(finish_results)
-	
 	await get_tree().create_timer(1.0).timeout
 	
-	# NOTE: Home and Retry buttons do NOT play thud sounds - they keep their original click sounds
 	for button_name in ["RetryButton", "HomeButton"]:
 		if finish_results.has_node(button_name):
 			var button = finish_results.get_node(button_name)
 			button.visible = true
 			button.disabled = false
 			button.mouse_filter = Control.MOUSE_FILTER_PASS
-			print("Made button visible and clickable: ", button_name)
 	
 	input_blocked = false
-	print("Input unblocked, buttons should be clickable now")
-	
+
 func _ensure_result_buttons_connected():
 	if not finish_results: return
 	
-	if finish_results.has_node("RetryButton"):
-		var retry_button = finish_results.get_node("RetryButton")
-		if retry_button.pressed.is_connected(_on_retry_button_pressed):
-			retry_button.pressed.disconnect(_on_retry_button_pressed)
-		retry_button.pressed.connect(_on_retry_button_pressed)
-		retry_button.disabled = false
-		retry_button.mouse_filter = Control.MOUSE_FILTER_PASS
-		# Connect regular button click sound (not thud)
-		_connect_button_sound(retry_button)
-		print("Connected RetryButton")
-	
-	if finish_results.has_node("HomeButton"):
-		var home_button = finish_results.get_node("HomeButton")
-		if home_button.pressed.is_connected(_on_home_button_pressed):
-			home_button.pressed.disconnect(_on_home_button_pressed)
-		home_button.pressed.connect(_on_home_button_pressed)
-		home_button.disabled = false
-		home_button.mouse_filter = Control.MOUSE_FILTER_PASS
-		# Connect regular button click sound (not thud)
-		_connect_button_sound(home_button)
-		print("Connected HomeButton")
+	for btn_data in [{"name": "RetryButton", "func": _on_retry_button_pressed}, {"name": "HomeButton", "func": _on_home_button_pressed}]:
+		if finish_results.has_node(btn_data.name):
+			var button = finish_results.get_node(btn_data.name)
+			if button.pressed.is_connected(btn_data.func):
+				button.pressed.disconnect(btn_data.func)
+			button.pressed.connect(btn_data.func)
+			button.disabled = false
+			button.mouse_filter = Control.MOUSE_FILTER_PASS
+			_connect_button_sound(button)
 
 func _hide_results_page():
 	if finish_results:
 		finish_results.visible = false
 		finish_results.process_mode = Node.PROCESS_MODE_INHERIT
 
-# ENHANCED: Medal display with thud sound
 func _show_medal(finish_results):
 	if finish_results.has_node("Results/Medal"):
 		var medal_node = finish_results.get_node("Results/Medal")
@@ -885,8 +584,6 @@ func _show_medal(finish_results):
 		if medal_texture and medal_node is Sprite2D:
 			medal_node.texture = medal_texture
 		medal_node.visible = true
-		
-		# NEW: Play thud sound when medal appears
 		_play_results_thud_sound()
 
 func _get_medal_texture_by_time(time: float) -> Texture2D:
@@ -898,15 +595,13 @@ func _get_medal_texture_by_time(time: float) -> Texture2D:
 	else: return bronze_medal_texture
 
 func _get_current_coin_score() -> int:
-	var paths = ["CoinCounter", "ScoreManager", "UI/CoinCounter", "UI/ScoreManager"]
-	for path in paths:
+	for path in ["CoinCounter", "ScoreManager", "UI/CoinCounter", "UI/ScoreManager"]:
 		if current_level_scene and current_level_scene.has_node(path):
 			var node = current_level_scene.get_node(path)
 			if node.has_method("add_point") and "score" in node:
 				return node.score
 	
-	var nodes = current_level_scene.find_children("*", "", true, false)
-	for node in nodes:
+	for node in current_level_scene.find_children("*", "", true, false):
 		if node.has_method("add_point") and "score" in node:
 			return node.score
 	
@@ -923,10 +618,8 @@ func find_player_in_scene() -> Node:
 	return nodes[0] if nodes.size() > 0 else null
 
 func _on_pause_button_pressed():
-	if not is_paused:
-		_pause_game()
-	else:
-		_unpause_game()
+	if not is_paused: _pause_game()
+	else: _unpause_game()
 
 func _pause_game():
 	is_paused = true
@@ -944,7 +637,6 @@ func _pause_game():
 func _unpause_game():
 	is_paused = false
 	get_tree().paused = false
-	
 	if pause_screen: pause_screen.visible = false
 	if pause_button: pause_button.process_mode = Node.PROCESS_MODE_INHERIT
 	if not input_blocked: movement_enabled.emit()
@@ -957,7 +649,33 @@ func _set_ui_process_mode_recursive(node: Node, process_mode: int):
 func _on_continue_button_pressed():
 	_unpause_game()
 
-# Signal handlers - UNCHANGED
+func _on_settings_button_pressed():
+	if not is_paused: _pause_game_for_settings()
+	else: _unpause_game_from_settings()
+
+func _pause_game_for_settings():
+	is_paused = true
+	get_tree().paused = true
+	movement_disabled.emit()
+	
+	if settings_screen:
+		settings_screen.visible = true
+		settings_screen.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+		_set_ui_process_mode_recursive(settings_screen, Node.PROCESS_MODE_WHEN_PAUSED)
+	
+	if settings_button:
+		settings_button.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+
+func _on_settings_continue_button_pressed():
+	_unpause_game_from_settings()
+
+func _unpause_game_from_settings():
+	is_paused = false
+	get_tree().paused = false
+	if settings_screen: settings_screen.visible = false
+	if settings_button: settings_button.process_mode = Node.PROCESS_MODE_INHERIT
+	if not input_blocked: movement_enabled.emit()
+
 func _on_player_damage_taken(): damage_count += 1
 func _on_player_parry_success(): parry_count += 1
 func _on_glit_collected(): glits_count += 1
