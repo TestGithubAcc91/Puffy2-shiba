@@ -436,20 +436,96 @@ func _setup_connections():
 	_connect_glits_tracking()
 	_setup_timer()
 
+# Replace _on_player_died_trigger_retry() in your game manager with:
 func _on_player_died_trigger_retry():
 	if curtain_transitioning: return
 	_stop_timer()
 	input_blocked = true
 	movement_disabled.emit()
-	_start_curtain_transition_to_level("tutorial" if is_tutorial_mode else current_level_number)
+	
+	# Check if player has an active checkpoint
+	var player = find_player_in_scene()
+	if player and player.has_method("respawn_at_checkpoint") and player.has_active_checkpoint:
+		# Respawn at checkpoint instead of restarting level
+		await get_tree().create_timer(0.5).timeout
+		await _respawn_player_at_checkpoint(player)
+	else:
+		# No checkpoint - restart level as before
+		_start_curtain_transition_to_level("tutorial" if is_tutorial_mode else current_level_number)
 
+# Replace _on_player_died() in your game manager with:
 func _on_player_died():
 	if curtain_transitioning: return
 	_stop_timer()
 	input_blocked = true
 	movement_disabled.emit()
+	
 	await get_tree().create_timer(1.5).timeout
-	_start_curtain_transition_to_level("tutorial" if is_tutorial_mode else current_level_number)
+	
+	# Check if player has an active checkpoint
+	var player = find_player_in_scene()
+	if player and player.has_method("respawn_at_checkpoint") and player.has_active_checkpoint:
+		# Respawn at checkpoint instead of restarting level
+		await _respawn_player_at_checkpoint(player)
+	else:
+		# No checkpoint - restart level as before
+		_start_curtain_transition_to_level("tutorial" if is_tutorial_mode else current_level_number)
+
+func _respawn_player_at_checkpoint(player):
+	# Reset timescale FIRST
+	Engine.time_scale = 1.0
+	
+	# Disable collision temporarily
+	if player.has_node("CollisionShape2D"):
+		player.get_node("CollisionShape2D").disabled = true
+	
+	# Move player to checkpoint position
+	player.respawn_at_checkpoint()
+	
+	# Reset player state
+	if player.has_method("reset_player_state"):
+		player.reset_player_state()
+	
+	# Wait for physics to settle
+	await get_tree().process_frame
+	await get_tree().process_frame
+	
+	# Reset health with FULL invulnerability
+	if player.has_node("HealthScript"):
+		var health_script = player.get_node("HealthScript")
+		health_script.current_health = health_script.max_health
+		health_script.health_changed.emit(health_script.current_health)
+		health_script.is_invulnerable = true  # Grant invulnerability
+		health_script.is_flickering = false
+		
+		# Stop any timers
+		if health_script.iframe_timer:
+			health_script.iframe_timer.stop()
+		if health_script.flicker_timer:
+			health_script.flicker_timer.stop()
+		
+		# Force reset transparency
+		if health_script.has_method("force_reset_transparency"):
+			health_script.force_reset_transparency()
+		
+		# Start a respawn invulnerability period (2 seconds)
+		health_script.iframe_timer.wait_time = 2.0
+		health_script.iframe_timer.start()
+	
+	# Re-enable collision
+	if player.has_node("CollisionShape2D"):
+		player.get_node("CollisionShape2D").disabled = false
+	
+	# Wait one more frame
+	await get_tree().process_frame
+	
+	# Re-enable movement
+	input_blocked = false
+	movement_enabled.emit()
+	_start_timer()  # Resume timer from where it was
+	
+	print("Player respawned at checkpoint with 2s invulnerability")
+
 
 func _setup_pause_button():
 	if not (current_level_scene and current_level_scene.has_node("UI/PauseButton")): return

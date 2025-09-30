@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=4 uid="uid://b4anf2rhxqq7j"]
+[gd_scene load_steps=37 format=4 uid="uid://b4anf2rhxqq7j"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_64n6m"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_brrp5"]
@@ -24,6 +24,7 @@
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="23_mihvx"]
 [ext_resource type="PackedScene" uid="uid://7uuiq57d3shr" path="res://Scenes/heart.tscn" id="24_64n6m"]
 [ext_resource type="PackedScene" uid="uid://cb7bykcqm152b" path="res://Scenes/ui.tscn" id="24_s55ko"]
+[ext_resource type="PackedScene" uid="uid://c4lql1vw6g8kb" path="res://Scenes/checkpoint.tscn" id="25_brrp5"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j8dfh"]
 texture = ExtResource("15_mihvx")
@@ -1150,3 +1151,6 @@ text = "Parry when enemy is lunging toward you!!"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="Checkpoint" parent="." instance=ExtResource("25_brrp5")]
+position = Vector2(512, -48)

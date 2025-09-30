@@ -111,6 +111,10 @@ var was_on_floor_last_frame: bool = false
 
 var movement_blocked_at_level_start: bool = true
 
+
+var active_checkpoint_position: Vector2 = Vector2.ZERO
+var has_active_checkpoint: bool = false
+
 func _ready():
 	original_time_scale = Engine.time_scale
 	movement_blocked_at_level_start = true
@@ -670,3 +674,82 @@ func release_zipline():
 
 func _on_movement_disabled(): movement_blocked_by_game = true
 func _on_movement_enabled(): movement_blocked_by_game = false
+
+func set_active_checkpoint(checkpoint_pos: Vector2):
+	active_checkpoint_position = checkpoint_pos
+	has_active_checkpoint = true
+	print("Player checkpoint set to: ", checkpoint_pos)
+
+func respawn_at_checkpoint():
+	if has_active_checkpoint:
+		global_position = active_checkpoint_position
+		velocity = Vector2.ZERO  # Reset velocity
+		print("Respawning at checkpoint: ", active_checkpoint_position)
+		return true
+	return false
+
+func clear_checkpoint():
+	has_active_checkpoint = false
+	active_checkpoint_position = Vector2.ZERO
+	print("Checkpoint cleared")
+
+# Replace your reset_player_state() function in Player script with this:
+func reset_player_state():
+	# Reset movement
+	velocity = Vector2.ZERO
+	
+	# Reset dash/bounce states
+	is_dashing = false
+	is_bouncing = false
+	is_vine_release_dash = false
+	can_dash = true
+	dash_direction = Vector2.ZERO
+	bounce_direction_vector = Vector2.ZERO
+	
+	# Reset jump states
+	can_coyote_jump = false
+	was_on_floor_last_frame = false
+	can_high_jump = true
+	
+	# Reset parry states
+	_reset_all_parry_states()
+	can_parry = true
+	update_parry_ready_sprite()
+	
+	# Reset zipline states
+	if is_on_zipline and current_zipline:
+		current_zipline.release_player()
+	is_on_zipline = false
+	current_zipline = null
+	zipline_in_range = null
+	_stop_zipline_sound()
+	
+	# Reset vine states
+	if vine_component and vine_component.is_swinging:
+		vine_component.release_vine()
+	
+	# Reset sprite visibility
+	animated_sprite.modulate.a = 1.0
+	if glint_sprite:
+		glint_sprite.visible = false
+		glint_sprite.stop()
+	if zipline_friction:
+		zipline_friction.visible = false
+		zipline_friction.stop()
+	if parry_spark:
+		parry_spark.visible = false
+	
+	# Reset timescale
+	Engine.time_scale = 1.0
+	
+	# Stop all audio
+	if click_audio_player and click_audio_player.playing:
+		click_audio_player.stop()
+	
+	# Reset parry stacks
+	reset_parry_stacks()
+	
+	# Note: Collision is now handled by game manager
+	# to ensure proper sequencing
+	
+	print("Player state fully reset for respawn")

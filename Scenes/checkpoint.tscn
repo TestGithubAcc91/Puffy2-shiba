@@ -33,6 +33,7 @@ animations = [{
 }]
 
 [node name="Checkpoint" type="Area2D"]
+collision_mask = 2
 script = ExtResource("1_2cwi7")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

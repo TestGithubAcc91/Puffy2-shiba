@@ -21,6 +21,9 @@ var is_flickering: bool = false
 # Reference to the animated sprite for flickering
 var animated_sprite: AnimatedSprite2D
 
+
+
+
 # NEW: Audio system for damage sounds
 var damage_audio_player: AudioStreamPlayer
 @export_group("Audio")
@@ -192,3 +195,4 @@ func force_reset_transparency():
 			flicker_timer.stop()
 		_reset_sprite_transparency()
 		print("Transparency forcibly reset")
+		
