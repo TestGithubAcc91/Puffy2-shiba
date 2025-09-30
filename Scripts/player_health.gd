@@ -21,9 +21,6 @@ var is_flickering: bool = false
 # Reference to the animated sprite for flickering
 var animated_sprite: AnimatedSprite2D
 
-
-
-
 # NEW: Audio system for damage sounds
 var damage_audio_player: AudioStreamPlayer
 @export_group("Audio")
@@ -31,6 +28,10 @@ var damage_audio_player: AudioStreamPlayer
 
 # NEW: Track if player should remain invisible (for lifesaver compatibility)
 var force_invisible: bool = false
+
+# NEW: Safety mechanism to prevent permanent iframes
+var iframe_safety_timer: Timer
+@export var iframe_safety_duration: float = 3.0  # Longer than normal iframes
 
 func _ready():
 	current_health = max_health
@@ -55,6 +56,13 @@ func _ready():
 	flicker_timer.wait_time = flicker_interval
 	flicker_timer.timeout.connect(_on_flicker_timeout)
 	add_child(flicker_timer)
+	
+	# NEW: Create safety timer to prevent permanent iframes
+	iframe_safety_timer = Timer.new()
+	iframe_safety_timer.wait_time = iframe_safety_duration
+	iframe_safety_timer.one_shot = true
+	iframe_safety_timer.timeout.connect(_on_iframe_safety_timeout)
+	add_child(iframe_safety_timer)
 
 # NEW: Setup audio system (following the same pattern as Player.gd)
 func _setup_audio_system():
@@ -133,16 +141,16 @@ func take_damage(amount: int, ignore_iframes: bool = false):
 	# NEW: Play damage sound effect when damage is actually taken
 	_play_damage_sound()
 	
-	# Stop any current flickering before starting new iframes
-	if is_flickering:
-		is_flickering = false
-		flicker_timer.stop()
-		_reset_sprite_transparency()
+	# NEW: Stop ALL timers and reset states before starting new iframes
+	_reset_all_iframe_states()
 	
 	# ALWAYS grant invulnerability and start visual iframes after taking damage
 	# This ensures the player gets iframes even when parrying unparryable attacks
 	is_invulnerable = true
 	iframe_timer.start()
+	
+	# NEW: Start safety timer to prevent permanent iframes
+	iframe_safety_timer.start()
 	
 	# Start flickering effect (but only if not forced invisible)
 	if not force_invisible:
@@ -156,10 +164,52 @@ func take_damage(amount: int, ignore_iframes: bool = false):
 		print("Player died!")
 		died.emit()
 
+# NEW: Reset all iframe-related states and timers
+func _reset_all_iframe_states():
+	is_flickering = false
+	if flicker_timer:
+		flicker_timer.stop()
+	
+	if iframe_timer:
+		iframe_timer.stop()
+	
+	# Don't reset is_invulnerable here - let the normal flow handle it
+	# But ensure sprite transparency is reset
+	_reset_sprite_transparency()
+
+# NEW: Safety mechanism to forcibly end iframes if they persist too long
+func _on_iframe_safety_timeout():
+	if is_invulnerable:
+		print("WARNING: I-frames safety timeout triggered - forcing iframes to end!")
+		_force_end_iframes()
+
+# NEW: Forcefully end all iframe states
+func _force_end_iframes():
+	is_invulnerable = false
+	is_flickering = false
+	
+	# Stop all timers
+	if iframe_timer:
+		iframe_timer.stop()
+	if flicker_timer:
+		flicker_timer.stop()
+	if iframe_safety_timer:
+		iframe_safety_timer.stop()
+	
+	# Reset sprite transparency
+	_reset_sprite_transparency()
+	
+	iframe_ended.emit()
+	print("I-frames forcibly ended by safety mechanism")
+
 func _on_iframe_timeout():
 	is_invulnerable = false
 	is_flickering = false
 	flicker_timer.stop()
+	
+	# NEW: Stop safety timer when iframes end normally
+	if iframe_safety_timer:
+		iframe_safety_timer.stop()
 	
 	# Always reset sprite transparency when iframes end (unless forced invisible)
 	_reset_sprite_transparency()
@@ -195,4 +245,8 @@ func force_reset_transparency():
 			flicker_timer.stop()
 		_reset_sprite_transparency()
 		print("Transparency forcibly reset")
-		
+
+# NEW: Public method to forcibly end all iframes (for respawn, level transitions, etc.)
+func force_end_all_iframes():
+	print("Forcing all iframes to end")
+	_force_end_iframes()

@@ -61,13 +61,13 @@ func _setup_audio_system():
 	if shoot_sound:
 		shoot_audio_player.stream = shoot_sound
 	
-	print("Helicopter shoot audio system initialized")
+
 
 # NEW: Function to play shoot sound
 func _play_shoot_sound():
 	if shoot_audio_player and shoot_sound:
 		shoot_audio_player.play()
-		print("Playing helicopter shoot sound effect")
+
 
 func connect_to_player_signals():
 	# Try to find the player and connect to its death signal

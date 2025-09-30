@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=4 uid="uid://xpuocal0bde6"]
+[gd_scene load_steps=38 format=4 uid="uid://xpuocal0bde6"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_0g1xm"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="2_aqorp"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://dcdvbgcpw0scp" path="res://Scenes/platform.tscn" id="6_qkcyj"]
 [ext_resource type="Texture2D" uid="uid://cpb1vtttqxmn3" path="res://Assets/sprites/MapSprites/forestTilemap.png" id="8_76v66"]
 [ext_resource type="Texture2D" uid="uid://bi0j2fpvt17pk" path="res://Assets/sprites/MapSprites/darkerDirt.png" id="9_4v6ch"]
+[ext_resource type="PackedScene" uid="uid://c4lql1vw6g8kb" path="res://Scenes/checkpoint.tscn" id="10_0g1xm"]
 [ext_resource type="PackedScene" uid="uid://7uuiq57d3shr" path="res://Scenes/heart.tscn" id="10_cqxhk"]
 [ext_resource type="Texture2D" uid="uid://ddkifmw5q0gri" path="res://Assets/sprites/MapSprites/darkerDirt2.png" id="10_doybq"]
 [ext_resource type="Texture2D" uid="uid://c0487nslkvewu" path="res://Assets/sprites/MapSprites/dirtDecor.png" id="11_poof5"]
@@ -937,6 +938,14 @@ shape = SubResource("WorldBoundaryShape2D_i6g32")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LevelHolder/BarrierHolder/LeftWorldBorder"]
 rotation = 1.5708
 shape = SubResource("WorldBoundaryShape2D_vm72l")
+
+[node name="CheckpointHolder" type="Node2D" parent="LevelHolder"]
+
+[node name="Checkpoint" parent="LevelHolder/CheckpointHolder" instance=ExtResource("10_0g1xm")]
+position = Vector2(1164, -39)
+
+[node name="Checkpoint2" parent="LevelHolder/CheckpointHolder" instance=ExtResource("10_0g1xm")]
+position = Vector2(3484, -151)
 
 [node name="UI" parent="." instance=ExtResource("26_0g1xm")]
 

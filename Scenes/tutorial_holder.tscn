@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=4 uid="uid://c0nq8ap7acdqu"]
+[gd_scene load_steps=36 format=4 uid="uid://c0nq8ap7acdqu"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_r0ulf"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_8mws5"]
@@ -23,6 +23,7 @@
 [ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="21_ewmmb"]
 [ext_resource type="PackedScene" uid="uid://cb7bykcqm152b" path="res://Scenes/ui.tscn" id="22_c7u3i"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="23_8mws5"]
+[ext_resource type="PackedScene" uid="uid://c4lql1vw6g8kb" path="res://Scenes/checkpoint.tscn" id="24_rhaqj"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_exi56"]
 texture = ExtResource("10_f4ilv")
@@ -344,6 +345,14 @@ shape = SubResource("WorldBoundaryShape2D_i6g32")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LevelHolder/BarrierHolder/LeftWorldBorder"]
 rotation = 1.5708
 shape = SubResource("WorldBoundaryShape2D_vm72l")
+
+[node name="CheckpointHolder" type="Node2D" parent="LevelHolder"]
+
+[node name="Checkpoint" parent="LevelHolder/CheckpointHolder" instance=ExtResource("24_rhaqj")]
+position = Vector2(1196, 41)
+
+[node name="Checkpoint2" parent="LevelHolder/CheckpointHolder" instance=ExtResource("24_rhaqj")]
+position = Vector2(2588, -23)
 
 [node name="UI" parent="." instance=ExtResource("22_c7u3i")]
 

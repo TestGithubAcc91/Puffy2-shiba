@@ -33,6 +33,10 @@ var music_fade_tween: Tween
 var default_music_volume = 0.0
 var is_music_fading = false
 
+# Track checkpoint respawn state
+var is_respawning_at_checkpoint = false
+var pre_respawn_time = 0.0
+
 signal movement_enabled
 signal movement_disabled
 signal player_died
@@ -280,8 +284,11 @@ func _change_to_level(level_identifier):
 
 func _switch_level_music(level_identifier):
 	var theme = "forest"
-	if level_identifier == 2:
+	
+	# Only level 2 uses beach theme, everything else uses forest
+	if str(level_identifier) == "2":
 		theme = "beach"
+	
 	_play_music(theme, true)
 
 func _switch_to_player_camera():
@@ -436,7 +443,6 @@ func _setup_connections():
 	_connect_glits_tracking()
 	_setup_timer()
 
-# Replace _on_player_died_trigger_retry() in your game manager with:
 func _on_player_died_trigger_retry():
 	if curtain_transitioning: return
 	_stop_timer()
@@ -453,7 +459,6 @@ func _on_player_died_trigger_retry():
 		# No checkpoint - restart level as before
 		_start_curtain_transition_to_level("tutorial" if is_tutorial_mode else current_level_number)
 
-# Replace _on_player_died() in your game manager with:
 func _on_player_died():
 	if curtain_transitioning: return
 	_stop_timer()
@@ -472,6 +477,10 @@ func _on_player_died():
 		_start_curtain_transition_to_level("tutorial" if is_tutorial_mode else current_level_number)
 
 func _respawn_player_at_checkpoint(player):
+	# Save current time before respawn
+	pre_respawn_time = elapsed_time
+	is_respawning_at_checkpoint = true
+	
 	# Reset timescale FIRST
 	Engine.time_scale = 1.0
 	
@@ -522,10 +531,17 @@ func _respawn_player_at_checkpoint(player):
 	# Re-enable movement
 	input_blocked = false
 	movement_enabled.emit()
-	_start_timer()  # Resume timer from where it was
+	
+	# Resume timer from where it was (don't reset)
+	_resume_timer_after_respawn()
 	
 	print("Player respawned at checkpoint with 2s invulnerability")
 
+func _resume_timer_after_respawn():
+	# Restore the time from before respawn
+	elapsed_time = pre_respawn_time
+	timer_running = true
+	is_respawning_at_checkpoint = false
 
 func _setup_pause_button():
 	if not (current_level_scene and current_level_scene.has_node("UI/PauseButton")): return

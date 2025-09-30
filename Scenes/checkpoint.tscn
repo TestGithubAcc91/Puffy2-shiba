@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://c4lql1vw6g8kb"]
+[gd_scene load_steps=8 format=3 uid="uid://c4lql1vw6g8kb"]
 
 [ext_resource type="Script" uid="uid://dja8x55iao0c0" path="res://Scripts/checkpoint.gd" id="1_2cwi7"]
 [ext_resource type="Texture2D" uid="uid://bvnb1jchu65e5" path="res://Assets/sprites/InteractableSprites/checkpoint.png" id="1_lbcco"]
+[ext_resource type="AudioStream" uid="uid://cmabaoy2ujvrc" path="res://Assets/sounds/dog-bark-382732.mp3" id="2_e75gc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2cwi7"]
 
@@ -35,6 +36,7 @@ animations = [{
 [node name="Checkpoint" type="Area2D"]
 collision_mask = 2
 script = ExtResource("1_2cwi7")
+activation_sound = ExtResource("2_e75gc")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_2cwi7")

@@ -55,19 +55,19 @@ func _setup_audio_system():
 	if beam_sound:
 		beam_audio_player.stream = beam_sound
 	
-	print("Beam shooter audio system initialized")
+
 
 # NEW: Function to start looping beam sound
 func _start_beam_sound():
 	if beam_audio_player and beam_sound:
 		beam_audio_player.play()
-		print("Starting beam loop sound")
+
 
 # NEW: Function to stop looping beam sound
 func _stop_beam_sound():
 	if beam_audio_player:
 		beam_audio_player.stop()
-		print("Stopping beam loop sound")
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:

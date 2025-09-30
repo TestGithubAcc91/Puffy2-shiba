@@ -179,7 +179,6 @@ texture_hover = ExtResource("13_mirbq")
 stretch_mode = 0
 
 [node name="PauseScreen" type="Node2D" parent="PauseButton"]
-visible = false
 position = Vector2(-81.126625, 65.14714)
 scale = Vector2(0.7404885, 0.7404885)
 
@@ -194,17 +193,17 @@ scale = Vector2(29.861029, 17.400326)
 [node name="PauseBackground2" type="ColorRect" parent="PauseButton/PauseScreen/PauseBackground"]
 self_modulate = Color(0, 0, 0, 0.64705884)
 layout_mode = 0
-offset_top = 28.432907
+offset_top = 27.09732
 offset_right = 40.0
-offset_bottom = 68.43291
+offset_bottom = 67.09732
 scale = Vector2(29.861029, 17.400326)
 
 [node name="PauseBackground3" type="ColorRect" parent="PauseButton/PauseScreen/PauseBackground"]
 self_modulate = Color(0, 0, 0, 0.64705884)
 layout_mode = 0
-offset_top = 31.581074
+offset_top = 30.245487
 offset_right = 40.0
-offset_bottom = 71.58107
+offset_bottom = 70.24548
 scale = Vector2(29.861029, 17.400326)
 
 [node name="PAUSED" type="Label" parent="PauseButton/PauseScreen"]
@@ -321,17 +320,17 @@ scale = Vector2(29.861029, 17.400326)
 [node name="PauseBackground2" type="ColorRect" parent="SettingsButton/SettingsScreen/PauseBackground"]
 self_modulate = Color(0, 0, 0, 0.64705884)
 layout_mode = 0
-offset_top = 28.432907
+offset_top = 26.477228
 offset_right = 40.0
-offset_bottom = 68.43291
+offset_bottom = 66.47723
 scale = Vector2(29.861029, 17.400326)
 
 [node name="PauseBackground3" type="ColorRect" parent="SettingsButton/SettingsScreen/PauseBackground"]
 self_modulate = Color(0, 0, 0, 0.64705884)
 layout_mode = 0
-offset_top = 31.581074
+offset_top = 29.625395
 offset_right = 40.0
-offset_bottom = 71.58107
+offset_bottom = 69.62539
 scale = Vector2(29.861029, 17.400326)
 
 [node name="SETTINGS" type="Label" parent="SettingsButton/SettingsScreen"]

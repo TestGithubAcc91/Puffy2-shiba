@@ -21,11 +21,14 @@ var whoosh_audio_player: AudioStreamPlayer
 var parry_audio_player: AudioStreamPlayer
 var zipline_audio_player: AudioStreamPlayer
 var click_audio_player: AudioStreamPlayer
+var jump_audio_player: AudioStreamPlayer  # NEW: Jump audio player
+
 @export_group("Audio")
 @export var whoosh_sound: AudioStream
 @export var parry_success_sound: AudioStream
 @export var zipline_sound: AudioStream
 @export var click_sound: AudioStream
+@export var jump_sound: AudioStream  # NEW: Jump sound export
 
 var last_attack_was_unparryable: bool = false
 signal parry_success
@@ -111,7 +114,6 @@ var was_on_floor_last_frame: bool = false
 
 var movement_blocked_at_level_start: bool = true
 
-
 var active_checkpoint_position: Vector2 = Vector2.ZERO
 var has_active_checkpoint: bool = false
 
@@ -150,6 +152,13 @@ func _setup_audio_system():
 	click_audio_player.bus = "SFX"
 	if click_sound: click_audio_player.stream = click_sound
 	add_child(click_audio_player)
+	
+	# NEW: Jump audio player setup
+	jump_audio_player = AudioStreamPlayer.new()
+	jump_audio_player.name = "JumpAudioPlayer"
+	jump_audio_player.bus = "SFX"
+	if jump_sound: jump_audio_player.stream = jump_sound
+	add_child(jump_audio_player)
 
 func enable_movement_at_level_start():
 	movement_blocked_at_level_start = false
@@ -168,6 +177,11 @@ func _stop_zipline_sound():
 
 func _play_click_sound():
 	if click_audio_player and click_sound: click_audio_player.play()
+
+# NEW: Play jump sound effect
+func _play_jump_sound():
+	if jump_audio_player and jump_sound:
+		jump_audio_player.play()
 
 func setup_ui():
 	if glint_sprite: glint_sprite.visible = false
@@ -251,6 +265,7 @@ func handle_input():
 	
 	if Input.is_action_just_pressed("Jump") and can_jump() and not is_on_zipline_check:
 		velocity.y = JUMP_VELOCITY
+		_play_jump_sound()  # NEW: Play jump sound
 		if can_coyote_jump and not is_on_floor():
 			can_coyote_jump = false
 			coyote_time_timer.stop()
@@ -604,6 +619,7 @@ func _on_player_died():
 	reset_timescale()
 	_stop_zipline_sound()
 	if click_audio_player and click_audio_player.playing: click_audio_player.stop()
+	if jump_audio_player and jump_audio_player.playing: jump_audio_player.stop()  # NEW: Stop jump sound
 	_reset_all_parry_states()
 	is_dashing = false
 	is_bouncing = false
@@ -693,7 +709,6 @@ func clear_checkpoint():
 	active_checkpoint_position = Vector2.ZERO
 	print("Checkpoint cleared")
 
-# Replace your reset_player_state() function in Player script with this:
 func reset_player_state():
 	# Reset movement
 	velocity = Vector2.ZERO
@@ -745,6 +760,8 @@ func reset_player_state():
 	# Stop all audio
 	if click_audio_player and click_audio_player.playing:
 		click_audio_player.stop()
+	if jump_audio_player and jump_audio_player.playing:  # NEW: Stop jump sound
+		jump_audio_player.stop()
 	
 	# Reset parry stacks
 	reset_parry_stacks()
