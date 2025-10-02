@@ -260,9 +260,9 @@ stretch_mode = 0
 
 [node name="InputSettings" parent="SettingsButton/SettingsScreen" instance=ExtResource("17_nbcfj")]
 offset_left = -228.24635
-offset_top = 265.59573
+offset_top = 224.09642
 offset_right = -228.24635
-offset_bottom = 265.59573
+offset_bottom = 224.09642
 scale = Vector2(0.78442335, 0.78442335)
 
 [node name="PauseButton" type="TextureButton" parent="."]
