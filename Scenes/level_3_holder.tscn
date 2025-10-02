@@ -1,0 +1,248 @@
+[gd_scene load_steps=27 format=4 uid="uid://t8fs2g3m2cip"]
+
+[ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_smbiq"]
+[ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_uqgtt"]
+[ext_resource type="Texture2D" uid="uid://fo7i7w6nllq6" path="res://Assets/sprites/MapSprites/Parallax/Beach/beach1.png" id="3_yqxjv"]
+[ext_resource type="Texture2D" uid="uid://dsulcgp1nmcl0" path="res://Assets/sprites/MapSprites/Parallax/Beach/beach2.png" id="4_3xin0"]
+[ext_resource type="Texture2D" uid="uid://cjc5g6rqqkndk" path="res://Assets/sprites/MapSprites/Parallax/Beach/beach3.png" id="5_etnfs"]
+[ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="6_kk3p3"]
+[ext_resource type="PackedScene" uid="uid://bp1jjjj6d1sce" path="res://Scenes/coin.tscn" id="7_ayobu"]
+[ext_resource type="PackedScene" uid="uid://beodtqr1g8lyc" path="res://Scenes/charge.tscn" id="8_m2hwn"]
+[ext_resource type="PackedScene" uid="uid://7uuiq57d3shr" path="res://Scenes/heart.tscn" id="9_tl4l5"]
+[ext_resource type="Texture2D" uid="uid://ccrdvk3ljp3xr" path="res://Assets/sprites/MapSprites/beachTilemap.png" id="11_ur83p"]
+[ext_resource type="Texture2D" uid="uid://c1l1cx4r1w27a" path="res://Assets/sprites/MapSprites/beachTilemap2.png" id="12_pn7sh"]
+[ext_resource type="Texture2D" uid="uid://cpb1vtttqxmn3" path="res://Assets/sprites/MapSprites/forestTilemap.png" id="13_dxymy"]
+[ext_resource type="Texture2D" uid="uid://c0487nslkvewu" path="res://Assets/sprites/MapSprites/dirtDecor.png" id="14_gjdj8"]
+[ext_resource type="PackedScene" uid="uid://bej301f82t1dg" path="res://Scenes/spikes.tscn" id="16_tcqgt"]
+[ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="23_2a7d0"]
+[ext_resource type="PackedScene" uid="uid://cb7bykcqm152b" path="res://Scenes/ui.tscn" id="25_48kkd"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j8dfh"]
+texture = ExtResource("11_ur83p")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+2:0/0 = 0
+2:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:0/0 = 0
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+7:0/0 = 0
+8:0/0 = 0
+9:0/0 = 0
+10:0/0 = 0
+11:0/0 = 0
+12:0/0 = 0
+13:0/0 = 0
+14:0/0 = 0
+15:0/0 = 0
+16:0/0 = 0
+17:0/0 = 0
+17:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+18:0/0 = 0
+19:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_7t8sx"]
+physics_layer_0/collision_layer = 1
+sources/3 = SubResource("TileSetAtlasSource_j8dfh")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_aqsiq"]
+texture = ExtResource("11_ur83p")
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+7:0/0 = 0
+8:0/0 = 0
+9:0/0 = 0
+10:0/0 = 0
+11:0/0 = 0
+12:0/0 = 0
+13:0/0 = 0
+14:0/0 = 0
+15:0/0 = 0
+16:0/0 = 0
+17:0/0 = 0
+18:0/0 = 0
+19:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jq3d1"]
+texture = ExtResource("12_pn7sh")
+10:2/0 = 0
+0:0/size_in_atlas = Vector2i(3, 3)
+0:0/0 = 0
+3:0/size_in_atlas = Vector2i(3, 3)
+3:0/0 = 0
+9:1/size_in_atlas = Vector2i(3, 1)
+9:1/0 = 0
+6:1/0 = 0
+7:1/0 = 0
+8:1/0 = 0
+8:2/0 = 0
+7:2/0 = 0
+6:2/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_mihvx"]
+texture = ExtResource("13_dxymy")
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+7:0/0 = 0
+8:0/0 = 0
+9:0/0 = 0
+10:0/0 = 0
+11:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_64n6m"]
+texture = ExtResource("14_gjdj8")
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_exi56"]
+sources/2 = SubResource("TileSetAtlasSource_aqsiq")
+sources/4 = SubResource("TileSetAtlasSource_jq3d1")
+sources/5 = SubResource("TileSetAtlasSource_mihvx")
+sources/6 = SubResource("TileSetAtlasSource_64n6m")
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_i6g32"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_vm72l"]
+distance = -57.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_py7y2"]
+size = Vector2(20, 132)
+
+[node name="Level2Holder" type="Node2D"]
+
+[node name="GameManager" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("1_smbiq")
+
+[node name="ParallaxBackgroundHolder" type="Node2D" parent="." node_paths=PackedStringArray("camera")]
+z_index = -5
+position = Vector2(1739.0001, -35)
+scale = Vector2(2.9470277, 2.9470277)
+script = ExtResource("2_uqgtt")
+camera = NodePath("../Player/Camera2D")
+
+[node name="Beach1" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-603.34955, -36.676247)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_yqxjv")
+
+[node name="Beach2" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-603.13696, -36.73024)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_3xin0")
+
+[node name="Beach3" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-603.13696, -36.333412)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("5_etnfs")
+
+[node name="Player" parent="." instance=ExtResource("6_kk3p3")]
+z_index = 1
+position = Vector2(-2, 3)
+collision_layer = 2
+dash_distance = 90.0
+dash_speed = 300.0
+wall_bounce_force = Vector2(700, -300)
+bounce_delay = 0.07
+bounce_distance = 35.0
+bounce_speed = 100.0
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position = Vector2(0, -6)
+zoom = Vector2(4, 4)
+limit_bottom = 60
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
+
+[node name="LevelHolder" type="Node" parent="."]
+
+[node name="CoinHolder" type="Node" parent="LevelHolder"]
+
+[node name="Coin" parent="LevelHolder/CoinHolder" instance=ExtResource("7_ayobu")]
+position = Vector2(-284, 60)
+
+[node name="ChargeHolder" type="Node" parent="LevelHolder/CoinHolder"]
+
+[node name="Charge" parent="LevelHolder/CoinHolder/ChargeHolder" instance=ExtResource("8_m2hwn")]
+position = Vector2(-327, 61)
+
+[node name="HeartHolder" type="Node2D" parent="LevelHolder/CoinHolder"]
+
+[node name="Heart" parent="LevelHolder/CoinHolder/HeartHolder" instance=ExtResource("9_tl4l5")]
+position = Vector2(309, -24)
+
+[node name="PlatformHolder" type="Node" parent="LevelHolder"]
+
+[node name="TileMapHolder" type="Node" parent="LevelHolder"]
+
+[node name="NewMap" type="Node" parent="LevelHolder/TileMapHolder"]
+
+[node name="MID" type="TileMapLayer" parent="LevelHolder/TileMapHolder/NewMap"]
+z_index = -3
+position = Vector2(3, -109)
+tile_map_data = PackedByteArray("AAD9/wcAAwAAAAAAAAD+/wcAAwAAAAAAAAD//wcAAwAAAAAAAAAAAAcAAwAAAAAAAAABAAcAAwAAAAAAAAACAAcAAwAAAAAAAAADAAcAAwAAAAAAAAAEAAcAAwAAAAAAAAAFAAcAAwAAAAAAAAAGAAcAAwAAAAAAAAAHAAcAAwAAAAAAAAAIAAcAAwAAAAAAAAAJAAcAAwAAAAAAAAAIAAgAAwABAAAAAAAJAAgAAwAAAAAAAAD9/wkAAwACAAAAAAD+/wkAAwACAAAAAAD//wkAAwACAAAAAAAAAAkAAwACAAAAAAABAAkAAwACAAAAAAACAAkAAwADAAAAAAADAAkAAwACAAAAAAAEAAkAAwACAAAAAAAFAAkAAwACAAAAAAAGAAkAAwACAAAAAAAHAAkAAwACAAAAAAAIAAkAAwACAAAAAAAJAAkAAwACAAAAAAD9/woAAwACAAAAAAD+/woAAwACAAAAAAD//woAAwACAAAAAAAAAAoAAwACAAAAAAABAAoAAwACAAAAAAACAAoAAwACAAAAAAADAAoAAwACAAAAAAAEAAoAAwACAAAAAAAFAAoAAwACAAAAAAAGAAoAAwACAAAAAAAHAAoAAwADAAAAAAAIAAoAAwACAAAAAAAJAAoAAwACAAAAAAD9/wgAAwAAAAAAAAD+/wgAAwAAAAAAAAD//wgAAwAAAAAAAAAAAAgAAwABAAAAAAABAAgAAwAAAAAAAAACAAgAAwAAAAAAAAADAAgAAwAAAAAAAAAEAAgAAwAAAAAAAAAFAAgAAwABAAAAAAAGAAgAAwAAAAAAAAAHAAgAAwAAAAAAAAD8/wcAAwAAAAAAAAD7/wcAAwAAAAAAAAD6/wcAAwAAAAAAAAD5/wcAAwAAAAAAAAD4/wcAAwAAAAAAAAD3/wcAAwAAAAAAAAD2/wcAAwAAAAAAAAD1/wcAAwAAAAAAAAD0/wcAAwAAAAAAAADz/wcAAwAAAAAAAAD8/wgAAwAAAAAAAAD7/wgAAwAAAAAAAAD6/wgAAwABAAAAAAD5/wgAAwAAAAAAAAD4/wgAAwAAAAAAAAD3/wgAAwAAAAAAAAD2/wgAAwABAAAAAAD1/wgAAwAAAAAAAAD0/wgAAwAAAAAAAADz/wgAAwAAAAAAAADz/wkAAwACAAAAAADz/woAAwACAAAAAAD0/wkAAwACAAAAAAD0/woAAwACAAAAAAD1/wkAAwACAAAAAAD1/woAAwADAAAAAAD2/wkAAwACAAAAAAD2/woAAwACAAAAAAD3/wkAAwACAAAAAAD3/woAAwACAAAAAAD4/wkAAwACAAAAAAD4/woAAwACAAAAAAD5/wkAAwACAAAAAAD5/woAAwACAAAAAAD6/wkAAwACAAAAAAD6/woAAwACAAAAAAD7/wkAAwACAAAAAAD7/woAAwACAAAAAAD8/wkAAwADAAAAAAD8/woAAwACAAAAAAAKAAcAAwAAAAAAAAAKAAgAAwAAAAAAAAALAAcAAwAAAAAAAAALAAgAAwAAAAAAAAAMAAcAAwAAAAAAAAAMAAgAAwAAAAAAAAANAAcAAwAAAAAAAAANAAgAAwAAAAAAAAAOAAcAAwAAAAAAAAAOAAgAAwAAAAAAAAAPAAcAAwAAAAAAAAAPAAgAAwAAAAAAAAAQAAcAAwAAAAAAAAAQAAgAAwAAAAAAAAARAAcAAwAAAAAAAAARAAgAAwAAAAAAAAASAAcAAwAAAAAAAAASAAgAAwAAAAAAAAATAAcAAwAAAAAAAAATAAgAAwAAAAAAAAAUAAcAAwAAAAAAAAAUAAgAAwAAAAAAAAAVAAcAAwAAAAAAAAAVAAgAAwAAAAAAAAAWAAcAAwAAAAAAAAAWAAgAAwAAAAAAAAAXAAcAAwAAAAAAAAAXAAgAAwAAAAAAAAAYAAcAAwAAAAAAAAAYAAgAAwAAAAAAAAAZAAcAAwAAAAAAAAAZAAgAAwAAAAAAAAAaAAcAAwAAAAAAAAAaAAgAAwAAAAAAAAAbAAcAAwAAAAAAAAAbAAgAAwAAAAAAAAAcAAcAAwAAAAAAAAAcAAgAAwAAAAAAAAAdAAcAAwAAAAAAAAAdAAgAAwAAAAAAAAAeAAcAAwAAAAAAAAAeAAgAAwAAAAAAAAAfAAcAAwABAAAAAAAfAAgAAwAAAAAAAAAKAAkAAwACAAAAAAAKAAoAAwACAAAAAAALAAkAAwACAAAAAAALAAoAAwACAAAAAAAMAAkAAwACAAAAAAAMAAoAAwACAAAAAAANAAkAAwACAAAAAAANAAoAAwACAAAAAAAOAAkAAwACAAAAAAAOAAoAAwACAAAAAAAPAAkAAwACAAAAAAAPAAoAAwACAAAAAAAQAAkAAwACAAAAAAAQAAoAAwACAAAAAAARAAkAAwACAAAAAAARAAoAAwACAAAAAAASAAkAAwACAAAAAAASAAoAAwACAAAAAAATAAkAAwACAAAAAAATAAoAAwACAAAAAAAUAAkAAwACAAAAAAAUAAoAAwACAAAAAAAVAAkAAwACAAAAAAAVAAoAAwACAAAAAAAWAAkAAwACAAAAAAAWAAoAAwACAAAAAAAXAAkAAwACAAAAAAAXAAoAAwACAAAAAAAYAAkAAwACAAAAAAAYAAoAAwACAAAAAAAZAAkAAwACAAAAAAAZAAoAAwACAAAAAAAaAAkAAwACAAAAAAAaAAoAAwACAAAAAAAbAAkAAwADAAAAAAAbAAoAAwACAAAAAAAcAAkAAwACAAAAAAAcAAoAAwACAAAAAAAdAAkAAwACAAAAAAAdAAoAAwACAAAAAAAeAAkAAwACAAAAAAAeAAoAAwACAAAAAAAfAAkAAwACAAAAAAAfAAoAAwACAAAAAAALAAYAAwAAAAAAAAALAAUAAwAAAAAAAAAMAAYAAwAAAAAAAAAMAAUAAwAAAAAAAAAMAAQAAwAAAAAAAAAMAAMAAwAAAAAAAAAMAAIAAwAAAAAAAAANAAIAAwAAAAAAAAANAAEAAwAAAAAAAAAOAAEAAwAAAAAAAAAPAAEAAwAAAAAAAAAPAAIAAwAAAAAAAAAPAAMAAwAAAAAAAAAQAAMAAwAAAAAAAAAQAAQAAwAAAAAAAAARAAUAAwAAAAAAAAARAAYAAwAAAAAAAAAQAAYAAwABAAAAAAAPAAYAAwAAAAAAAAAOAAYAAwAAAAAAAAANAAYAAwAAAAAAAAANAAUAAwAAAAAAAAANAAQAAwAAAAAAAAANAAMAAwABAAAAAAAOAAIAAwAAAAAAAAAOAAQAAwAAAAAAAAAPAAQAAwAAAAAAAAAOAAMAAwAAAAAAAAAOAAUAAwAAAAAAAAAPAAUAAwAAAAAAAAAQAAUAAwAAAAAAAAAbAAYAAwAAAAAAAAAbAAUAAwAAAAAAAAAcAAQAAwAAAAAAAAAcAAUAAwAAAAAAAAAcAAYAAwABAAAAAAAdAAQAAwAAAAAAAAAdAAUAAwAAAAAAAAAeAAUAAwAAAAAAAAAfAAUAAwAAAAAAAAAgAAUAAwAAAAAAAAAgAAYAAwAAAAAAAAAhAAYAAwAAAAAAAAAfAAYAAwAAAAAAAAAeAAYAAwAAAAAAAAAdAAYAAwAAAAAAAAAgAAcAAwAAAAAAAAAhAAcAAwAAAAAAAAAhAAgAAwAAAAAAAAAhAAkAAwACAAAAAAAgAAgAAwAAAAAAAAAgAAkAAwACAAAAAAAhAAoAAwACAAAAAAAgAAoAAwACAAAAAAAaAAUAAwAAAAAAAAAaAAYAAwAAAAAAAAAeAAQAAwAAAAAAAAAjAAoAAwACAAAAAAAiAAoAAwACAAAAAAAkAAoAAwACAAAAAAAlAAoAAwACAAAAAAAmAAoAAwADAAAAAAAnAAoAAwACAAAAAAAoAAoAAwACAAAAAAApAAoAAwACAAAAAAAqAAoAAwACAAAAAAArAAoAAwADAAAAAAA=")
+tile_set = SubResource("TileSet_7t8sx")
+
+[node name="MIDB" type="TileMapLayer" parent="LevelHolder/TileMapHolder/NewMap"]
+z_index = -4
+position = Vector2(3, -108)
+tile_set = SubResource("TileSet_exi56")
+
+[node name="MIDB2" type="TileMapLayer" parent="LevelHolder/TileMapHolder/NewMap"]
+z_index = -1
+position = Vector2(-21, -69)
+tile_set = SubResource("TileSet_exi56")
+
+[node name="EnemyHolder" type="Node" parent="LevelHolder"]
+
+[node name="SpikeHolder" type="Node" parent="LevelHolder/EnemyHolder"]
+
+[node name="Spikes" parent="LevelHolder/EnemyHolder/SpikeHolder" instance=ExtResource("16_tcqgt")]
+z_index = -1
+position = Vector2(-376, 121)
+
+[node name="MovementHolder" type="Node" parent="LevelHolder"]
+
+[node name="BarrierHolder" type="Node" parent="LevelHolder"]
+
+[node name="Void" parent="LevelHolder/BarrierHolder" instance=ExtResource("23_2a7d0")]
+position = Vector2(95, 68)
+damage_amount = 100
+ignore_iframes = true
+unparryable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LevelHolder/BarrierHolder/Void"]
+shape = SubResource("WorldBoundaryShape2D_i6g32")
+
+[node name="LeftWorldBorder" type="StaticBody2D" parent="LevelHolder/BarrierHolder"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LevelHolder/BarrierHolder/LeftWorldBorder"]
+rotation = 1.5708
+shape = SubResource("WorldBoundaryShape2D_vm72l")
+
+[node name="CheckpointHolder" type="Node2D" parent="LevelHolder"]
+
+[node name="UI" parent="." instance=ExtResource("25_48kkd")]
+
+[node name="LevelFinish" type="Area2D" parent="."]
+position = Vector2(4820, -152)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LevelFinish"]
+position = Vector2(0, -36)
+shape = SubResource("RectangleShape2D_py7y2")

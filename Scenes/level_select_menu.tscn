@@ -2,13 +2,10 @@
 
 [ext_resource type="Script" uid="uid://cojgak2pyu7c6" path="res://Scripts/level_select_menu.gd" id="1_52mtt"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="1_271b8"]
-[ext_resource type="Texture2D" uid="uid://baw6j43r5bsqr" path="res://Assets/sprites/PlayerGUI/GeneralGUI/LockedLevel/lockedLevel.png" id="3_aljgx"]
 [ext_resource type="Texture2D" uid="uid://c2mf3hsay4usg" path="res://Assets/sprites/PlayerGUI/GeneralGUI/BlueLevel/beachBackground.png" id="4_f18ie"]
 [ext_resource type="Texture2D" uid="uid://dhcd06bylb8j3" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/forestBackground.png" id="4_ube50"]
 [ext_resource type="Texture2D" uid="uid://bpbqfl4qhtu3t" path="res://Assets/sprites/PlayerGUI/GeneralGUI/puffyLogo.png" id="4_vowso"]
-[ext_resource type="Texture2D" uid="uid://0emvtq61p7x0" path="res://Assets/sprites/PlayerGUI/GeneralGUI/LockedLevel/lockedLevelSelect.png" id="5_hstaq"]
 [ext_resource type="Texture2D" uid="uid://d0f1tqptvfdvm" path="res://Assets/sprites/PlayerGUI/GeneralGUI/TutorialLevel/tutorialBackground.png" id="5_swa0l"]
-[ext_resource type="Texture2D" uid="uid://cqkm2s6d4nm6" path="res://Assets/sprites/PlayerGUI/GeneralGUI/LockedLevel/lockedLevelHover.png" id="6_16w6l"]
 [ext_resource type="Texture2D" uid="uid://c4iwwwklkbaer" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/greenButton.png" id="8_461nm"]
 [ext_resource type="Texture2D" uid="uid://fxag7o0s0xak" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/greenButtonSelect.png" id="9_ube50"]
 [ext_resource type="Texture2D" uid="uid://doimbbqaho4ln" path="res://Assets/sprites/PlayerGUI/GeneralGUI/TutorialLevel/tutorialButton.png" id="10_2pb1k"]
@@ -21,6 +18,9 @@
 [ext_resource type="Texture2D" uid="uid://efo7thejcqdk" path="res://Assets/sprites/PlayerGUI/GeneralGUI/BlueLevel/blueButtonSelect.png" id="13_swa0l"]
 [ext_resource type="Texture2D" uid="uid://ouqmuvrrxeqd" path="res://Assets/sprites/PlayerGUI/GeneralGUI/tiles.png" id="14_1ekpb"]
 [ext_resource type="Texture2D" uid="uid://cnrc3flrthw07" path="res://Assets/sprites/PlayerGUI/GeneralGUI/BlueLevel/blueButtonHover.png" id="14_wa85o"]
+[ext_resource type="Texture2D" uid="uid://jvx8a0nij8bk" path="res://Assets/sprites/PlayerGUI/GeneralGUI/YellowLevel/yellowButton.png" id="16_swa0l"]
+[ext_resource type="Texture2D" uid="uid://bm4171yjb6nwv" path="res://Assets/sprites/PlayerGUI/GeneralGUI/YellowLevel/yellowSelect.png" id="17_wa85o"]
+[ext_resource type="Texture2D" uid="uid://byrh4gd015h72" path="res://Assets/sprites/PlayerGUI/GeneralGUI/YellowLevel/yellowHover.png" id="18_nx7ni"]
 
 [node name="LevelSelectMenu" type="Node2D" node_paths=PackedStringArray("curtains", "tiles", "label1", "label2", "label3", "label4")]
 script = ExtResource("1_52mtt")
@@ -125,15 +125,15 @@ texture_pressed = ExtResource("11_g6sov")
 texture_hover = ExtResource("12_26lpr")
 texture_click_mask = ExtResource("11_ube50")
 
-[node name="LockedButton" type="TextureButton" parent="."]
+[node name="Level3Button" type="TextureButton" parent="."]
 offset_left = -36.0
 offset_top = 1.0
 offset_right = 12.0
 offset_bottom = 49.0
 scale = Vector2(1.5, 1.5)
-texture_normal = ExtResource("3_aljgx")
-texture_pressed = ExtResource("5_hstaq")
-texture_hover = ExtResource("6_16w6l")
+texture_normal = ExtResource("16_swa0l")
+texture_pressed = ExtResource("17_wa85o")
+texture_hover = ExtResource("18_nx7ni")
 texture_click_mask = ExtResource("11_ube50")
 
 [node name="Background" type="Node2D" parent="."]

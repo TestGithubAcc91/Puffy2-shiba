@@ -52,8 +52,12 @@ func _ready():
 	$TutorialButton.mouse_entered.connect(_on_tutorial_button_hover_start)
 	$TutorialButton.mouse_exited.connect(_on_tutorial_button_hover_end)
 	
+	# Connect Level 3 button signals
+	$Level3Button.pressed.connect(_on_level_3_button_pressed)
+	$Level3Button.mouse_entered.connect(_on_level_3_button_hover_start)
+	$Level3Button.mouse_exited.connect(_on_level_3_button_hover_end)
+	
 	# You can also connect additional level buttons here:
-	# $Level3Button.pressed.connect(_on_level_3_button_pressed)
 	# $Level4Button.pressed.connect(_on_level_4_button_pressed)
 
 func _process(delta):
@@ -114,6 +118,16 @@ func _on_tutorial_button_hover_start():
 	_fade_in_background(tutorial_background)
 
 func _on_tutorial_button_hover_end():
+	_fade_out_all_backgrounds()
+
+# Level 3 button handlers
+func _on_level_3_button_pressed():
+	level_selected.emit(3)
+
+func _on_level_3_button_hover_start():
+	_fade_in_background(forest_background)
+
+func _on_level_3_button_hover_end():
 	_fade_out_all_backgrounds()
 
 # Animation functions
@@ -197,19 +211,3 @@ func _animate_labels(delta):
 			
 			var original_pos = label.get_meta("original_pos")
 			label.position.y = original_pos.y + offset_y_24
-
-# Template functions for additional levels (uncomment and modify as needed)
-# func _on_level_3_button_pressed():
-# 	level_selected.emit(3)
-# 
-# func _on_level_3_button_hover_start():
-# 	_fade_in_background(some_other_background)
-# 
-# func _on_level_3_button_hover_end():
-# 	_fade_out_all_backgrounds()
-# 
-# func _on_level_4_button_pressed():
-# 	level_selected.emit(4)
-# 
-# func _on_level_5_button_pressed():
-# 	level_selected.emit(5)
