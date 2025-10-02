@@ -185,6 +185,7 @@ stretch_mode = 0
 script = SubResource("GDScript_3g2cg")
 
 [node name="SettingsScreen" type="Node2D" parent="SettingsButton"]
+visible = false
 position = Vector2(-81.126625, 65.14714)
 scale = Vector2(0.7404885, 0.7404885)
 
@@ -338,25 +339,6 @@ theme_override_font_sizes/font_size = 8
 text = "_____________
 "
 horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ControlsLabel" type="Label" parent="PauseButton/PauseScreen/PAUSED"]
-layout_mode = 0
-offset_left = 148.01698
-offset_top = 34.859447
-offset_right = 251.01698
-offset_bottom = 79.57498
-scale = Vector2(0.43177, 0.43177)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_constants/shadow_outline_size = 1
-theme_override_fonts/font = ExtResource("7_3g2cg")
-theme_override_font_sizes/font_size = 8
-text = "X - Parry 
-Z - Dash
-A/S - High Jump"
 vertical_alignment = 1
 
 [node name="RetryButton" type="TextureButton" parent="PauseButton/PauseScreen"]
