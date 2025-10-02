@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://cb7bykcqm152b"]
+[gd_scene load_steps=34 format=3 uid="uid://cb7bykcqm152b"]
 
 [ext_resource type="Script" uid="uid://d0c6la3t6odq5" path="res://Scripts/HealthBoxContainer.gd" id="1_fe2sg"]
 [ext_resource type="Texture2D" uid="uid://clumim7dcnmxe" path="res://Assets/sprites/PlayerGUI/puffyHP/puffyHP3.png" id="2_jd57c"]
@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" uid="uid://ntjgysygh7qn" path="res://Assets/sprites/PlayerGUI/ResultsGUI/RetryButton/retrySelect.png" id="15_al6qt"]
 [ext_resource type="Texture2D" uid="uid://vg1uq2ejhuwa" path="res://Assets/sprites/PlayerGUI/ResultsGUI/RetryButton/retryHover.png" id="16_mdsrb"]
 [ext_resource type="Texture2D" uid="uid://4ehlqd7ck6mu" path="res://Assets/sprites/PlayerGUI/ResultsGUI/HomeButton/homeButton.png" id="17_bsvcc"]
+[ext_resource type="PackedScene" uid="uid://c1ogeqt53vwyc" path="res://Scenes/input_settings.tscn" id="17_nbcfj"]
 [ext_resource type="Texture2D" uid="uid://bo15bqlwkbwkf" path="res://Assets/sprites/PlayerGUI/ResultsGUI/HomeButton/homeSelect.png" id="18_u8gt4"]
 [ext_resource type="Texture2D" uid="uid://567fpi6ou5i" path="res://Assets/sprites/PlayerGUI/ResultsGUI/HomeButton/homeHover.png" id="19_r6b04"]
 [ext_resource type="Texture2D" uid="uid://lraq1ekjf1au" path="res://Assets/sprites/PlayerGUI/GeneralGUI/ContinueButton/continueButton.png" id="20_1xsrr"]
@@ -62,6 +63,10 @@ animations = [{
 "name": &"default",
 "speed": 10.0
 }]
+
+[sub_resource type="GDScript" id="GDScript_3g2cg"]
+script/source = "extends TextureButton
+"
 
 [node name="UI" type="CanvasLayer"]
 
@@ -167,6 +172,99 @@ vertical_alignment = 1
 [node name="FinishResults" parent="." instance=ExtResource("10_kjfio")]
 visible = false
 
+[node name="SettingsButton" type="TextureButton" parent="."]
+offset_left = 1012.0
+offset_top = 3.0
+offset_right = 1052.0
+offset_bottom = 43.0
+scale = Vector2(1.627086, 1.627086)
+texture_normal = ExtResource("23_pmm21")
+texture_pressed = ExtResource("24_nbcfj")
+texture_hover = ExtResource("25_3g2cg")
+stretch_mode = 0
+script = SubResource("GDScript_3g2cg")
+
+[node name="SettingsScreen" type="Node2D" parent="SettingsButton"]
+position = Vector2(-81.126625, 65.14714)
+scale = Vector2(0.7404885, 0.7404885)
+
+[node name="SettingsBackground" type="ColorRect" parent="SettingsButton/SettingsScreen"]
+self_modulate = Color(0, 0, 0, 0.64705884)
+offset_left = -907.75775
+offset_top = -156.10727
+offset_right = -867.75775
+offset_bottom = -116.10727
+scale = Vector2(29.861029, 17.400326)
+
+[node name="SettingsBackground2" type="ColorRect" parent="SettingsButton/SettingsScreen/SettingsBackground"]
+self_modulate = Color(0, 0, 0, 0.64705884)
+layout_mode = 0
+offset_top = 26.477228
+offset_right = 40.0
+offset_bottom = 66.47723
+scale = Vector2(29.861029, 17.400326)
+
+[node name="SettingsBackground3" type="ColorRect" parent="SettingsButton/SettingsScreen/SettingsBackground"]
+self_modulate = Color(0, 0, 0, 0.64705884)
+layout_mode = 0
+offset_top = 29.625395
+offset_right = 40.0
+offset_bottom = 69.62539
+scale = Vector2(29.861029, 17.400326)
+
+[node name="SETTINGS" type="Label" parent="SettingsButton/SettingsScreen"]
+offset_left = -1576.9749
+offset_top = -226.5864
+offset_right = -1240.9749
+offset_bottom = -170.5864
+scale = Vector2(8, 8)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("7_3g2cg")
+theme_override_font_sizes/font_size = 8
+text = "SETTINGS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SETTINGSUnderline" type="Label" parent="SettingsButton/SettingsScreen/SETTINGS"]
+layout_mode = 0
+offset_left = 0.20000988
+offset_top = 8.900001
+offset_right = 336.2
+offset_bottom = 64.9
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("7_3g2cg")
+theme_override_font_sizes/font_size = 8
+text = "_____________
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContinueButton" type="TextureButton" parent="SettingsButton/SettingsScreen"]
+offset_left = -13.2798
+offset_top = 220.77647
+offset_right = 34.7202
+offset_bottom = 268.7765
+scale = Vector2(7.231222, 7.231222)
+texture_normal = ExtResource("20_1xsrr")
+texture_pressed = ExtResource("21_ivk8b")
+texture_hover = ExtResource("22_oywgw")
+stretch_mode = 0
+
+[node name="InputSettings" parent="SettingsButton/SettingsScreen" instance=ExtResource("17_nbcfj")]
+offset_left = -228.24635
+offset_top = 265.59573
+offset_right = -228.24635
+offset_bottom = 265.59573
+scale = Vector2(0.78442335, 0.78442335)
+
 [node name="PauseButton" type="TextureButton" parent="."]
 offset_left = 1085.0
 offset_top = 3.0
@@ -179,6 +277,7 @@ texture_hover = ExtResource("13_mirbq")
 stretch_mode = 0
 
 [node name="PauseScreen" type="Node2D" parent="PauseButton"]
+visible = false
 position = Vector2(-81.126625, 65.14714)
 scale = Vector2(0.7404885, 0.7404885)
 
@@ -288,92 +387,6 @@ offset_top = 23.239609
 offset_right = -528.0108
 offset_bottom = 71.23961
 scale = Vector2(11.22257, 11.22257)
-texture_normal = ExtResource("20_1xsrr")
-texture_pressed = ExtResource("21_ivk8b")
-texture_hover = ExtResource("22_oywgw")
-stretch_mode = 0
-
-[node name="SettingsButton" type="TextureButton" parent="."]
-offset_left = 1012.0
-offset_top = 3.0
-offset_right = 1052.0
-offset_bottom = 43.0
-scale = Vector2(1.627086, 1.627086)
-texture_normal = ExtResource("23_pmm21")
-texture_pressed = ExtResource("24_nbcfj")
-texture_hover = ExtResource("25_3g2cg")
-stretch_mode = 0
-
-[node name="SettingsScreen" type="Node2D" parent="SettingsButton"]
-visible = false
-position = Vector2(-81.126625, 65.14714)
-scale = Vector2(0.7404885, 0.7404885)
-
-[node name="PauseBackground" type="ColorRect" parent="SettingsButton/SettingsScreen"]
-self_modulate = Color(0, 0, 0, 0.64705884)
-offset_left = -907.75775
-offset_top = -156.10727
-offset_right = -867.75775
-offset_bottom = -116.10727
-scale = Vector2(29.861029, 17.400326)
-
-[node name="PauseBackground2" type="ColorRect" parent="SettingsButton/SettingsScreen/PauseBackground"]
-self_modulate = Color(0, 0, 0, 0.64705884)
-layout_mode = 0
-offset_top = 26.477228
-offset_right = 40.0
-offset_bottom = 66.47723
-scale = Vector2(29.861029, 17.400326)
-
-[node name="PauseBackground3" type="ColorRect" parent="SettingsButton/SettingsScreen/PauseBackground"]
-self_modulate = Color(0, 0, 0, 0.64705884)
-layout_mode = 0
-offset_top = 29.625395
-offset_right = 40.0
-offset_bottom = 69.62539
-scale = Vector2(29.861029, 17.400326)
-
-[node name="SETTINGS" type="Label" parent="SettingsButton/SettingsScreen"]
-offset_left = -1576.9749
-offset_top = -226.5864
-offset_right = -1240.9749
-offset_bottom = -170.5864
-scale = Vector2(8, 8)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_constants/shadow_outline_size = 1
-theme_override_fonts/font = ExtResource("7_3g2cg")
-theme_override_font_sizes/font_size = 8
-text = "SETTINGS"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="SETTINGSUnderline" type="Label" parent="SettingsButton/SettingsScreen/SETTINGS"]
-layout_mode = 0
-offset_left = 0.20000988
-offset_top = 8.900001
-offset_right = 336.2
-offset_bottom = 64.9
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_constants/shadow_outline_size = 1
-theme_override_fonts/font = ExtResource("7_3g2cg")
-theme_override_font_sizes/font_size = 8
-text = "_____________
-"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ContinueButton" type="TextureButton" parent="SettingsButton/SettingsScreen"]
-offset_left = -13.2798
-offset_top = 220.77647
-offset_right = 34.7202
-offset_bottom = 268.7765
-scale = Vector2(7.231222, 7.231222)
 texture_normal = ExtResource("20_1xsrr")
 texture_pressed = ExtResource("21_ivk8b")
 texture_hover = ExtResource("22_oywgw")
