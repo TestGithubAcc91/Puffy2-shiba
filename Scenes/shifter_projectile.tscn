@@ -9,7 +9,7 @@
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="6_8wxrk"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_xaf6l"]
-radius = 8.062258
+radius = 7.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8wxrk"]
 atlas = ExtResource("2_se4vv")

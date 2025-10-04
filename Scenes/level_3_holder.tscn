@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=4 uid="uid://t8fs2g3m2cip"]
+[gd_scene load_steps=33 format=4 uid="uid://t8fs2g3m2cip"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_smbiq"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_uqgtt"]
@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://bloi41bbmgio3" path="res://Scenes/shifter.tscn" id="15_vrry8"]
 [ext_resource type="PackedScene" uid="uid://bej301f82t1dg" path="res://Scenes/spikes.tscn" id="16_tcqgt"]
 [ext_resource type="PackedScene" uid="uid://d60pm805gp6b" path="res://Scenes/driller.tscn" id="17_redkb"]
+[ext_resource type="PackedScene" uid="uid://c8tfpaacpljp2" path="res://Scenes/crusher.tscn" id="17_rr4s2"]
 [ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="23_2a7d0"]
 [ext_resource type="PackedScene" uid="uid://cb7bykcqm152b" path="res://Scenes/ui.tscn" id="25_48kkd"]
 
@@ -266,6 +267,9 @@ random_jump_variance = 100.0
 
 [node name="Shifter" parent="LevelHolder/EnemyHolder" instance=ExtResource("15_vrry8")]
 position = Vector2(140, -8)
+
+[node name="Crusher" parent="LevelHolder/EnemyHolder" instance=ExtResource("17_rr4s2")]
+position = Vector2(334, -12)
 
 [node name="MovementHolder" type="Node" parent="LevelHolder"]
 
