@@ -33,9 +33,21 @@ var next_shot_unparryable: bool = false  # Track what type of shot is next
 # Audio system
 var shoot_audio_player: AudioStreamPlayer2D
 
+# Unparryable warning label
+@onready var unparryable_warning: Label = $UnparryableWarning
+
 func _ready():
+	# DEBUGGING: Check if projectile scene is assigned
+	if not projectile_scene:
+		push_error("ERROR: projectile_scene is not assigned in the Inspector!")
+	
 	# Get the AnimatedSprite2D node (assumes it's a child of this node)
-	animated_sprite = get_node("AnimatedSprite2D")
+	animated_sprite = get_node_or_null("AnimatedSprite2D")
+	if not animated_sprite:
+		push_error("ERROR: AnimatedSprite2D node not found as child!")
+		return
+	
+	print("Enemy shooter initialized successfully")
 	
 	# Set initial facing direction
 	update_facing_direction()
@@ -47,11 +59,18 @@ func _ready():
 	fire_timer.timeout.connect(_on_fire_timer_timeout)
 	add_child(fire_timer)
 	
+	print("Fire timer started with rate: ", fire_rate, " seconds")
+	
 	# Connect to player's death signal if available
 	connect_to_player_signals()
 	
 	# Setup audio system
 	_setup_audio_system()
+	
+	# Hide the warning label initially
+	unparryable_warning = get_node_or_null("UnparryableWarning")
+	if unparryable_warning:
+		unparryable_warning.visible = false
 	
 	# Decide first shot type
 	decide_next_shot_type()
@@ -102,6 +121,10 @@ func _on_player_died():
 	is_active = false
 	fire_timer.stop()
 	
+	# Hide warning label
+	if unparryable_warning:
+		unparryable_warning.visible = false
+	
 	# Stop any ongoing shooting sequences
 	if animated_sprite:
 		animated_sprite.stop()
@@ -136,6 +159,10 @@ func start_shooting_sequence():
 	
 	# Determine which animation to play based on shot type
 	var anim_name = "canParry" if not next_shot_unparryable else "unparryable"
+	
+	# Show unparryable warning if this is an unparryable attack
+	if next_shot_unparryable and unparryable_warning:
+		unparryable_warning.visible = true
 	
 	# Check if the animation exists
 	if animated_sprite.sprite_frames.has_animation(anim_name):
@@ -172,6 +199,10 @@ func start_shooting_sequence():
 	# Check if still active after shrink
 	if not is_active:
 		return
+	
+	# Hide unparryable warning after shrinking
+	if unparryable_warning:
+		unparryable_warning.visible = false
 	
 	# Wait 1 second before growing
 	await tree.create_timer(1.0).timeout
@@ -235,6 +266,11 @@ func spawn_projectile():
 func stop_enemy():
 	is_active = false
 	fire_timer.stop()
+	
+	# Hide warning label
+	if unparryable_warning:
+		unparryable_warning.visible = false
+	
 	if animated_sprite:
 		animated_sprite.stop()
 

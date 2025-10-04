@@ -295,3 +295,6 @@ shape = SubResource("RectangleShape2D_py7y2")
 
 [node name="Driller" parent="." instance=ExtResource("17_redkb")]
 position = Vector2(226, -23)
+movement_range = 200.0
+jump_force = 300.0
+random_jump_variance = 100.0

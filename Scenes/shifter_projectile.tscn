@@ -1,10 +1,11 @@
-[gd_scene load_steps=16 format=3 uid="uid://bpa0j0xv5xlc2"]
+[gd_scene load_steps=17 format=3 uid="uid://bpa0j0xv5xlc2"]
 
 [ext_resource type="Script" uid="uid://b2u7r7j63so27" path="res://Scripts/shifter_projectile.gd" id="1_fvneq"]
 [ext_resource type="Texture2D" uid="uid://b5ro8sinimot7" path="res://Assets/sprites/VFXSprites/smokePuff.png" id="2_se4vv"]
 [ext_resource type="Texture2D" uid="uid://muasflm5t61f" path="res://Assets/sprites/MapSprites/desertTilemap.png" id="2_xm327"]
 [ext_resource type="Texture2D" uid="uid://dx8vemx1wfghg" path="res://Assets/sprites/EnemySprites/shifterProjectile.png" id="3_2t7da"]
 [ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="3_dlf1q"]
+[ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="6_8wxrk"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_xaf6l"]
 radius = 8.062258
@@ -87,12 +88,21 @@ shape = SubResource("CircleShape2D_xaf6l")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_2t7da")
-animation = &"Disappear"
-frame = 4
-frame_progress = 1.0
+animation = &"unparryable"
 
 [node name="KillzoneScript_Area" parent="." instance=ExtResource("3_dlf1q")]
 scale = Vector2(2.1999984, 2.1999984)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="KillzoneScript_Area"]
 shape = SubResource("CircleShape2D_2t7da")
+
+[node name="UnparryableWarning" type="Label" parent="."]
+offset_left = -3.0
+offset_top = -18.0
+offset_right = 37.0
+offset_bottom = 5.0
+theme_override_colors/font_color = Color(0.231373, 0.796078, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("6_8wxrk")
+theme_override_font_sizes/font_size = 8
+text = "!"

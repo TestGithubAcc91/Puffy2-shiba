@@ -8,6 +8,7 @@ var is_initialized: bool = false
 var is_unparryable: bool = false  # Track if this projectile is unparryable
 var is_disappearing: bool = false
 var lifetime_timer: Timer
+var sprite_rotation: float = 0.0  # Track sprite rotation manually
 
 @export var damage_amount: int = 25
 @export var disappear_vfx: PackedScene  # VFX scene to spawn when disappearing
@@ -16,11 +17,12 @@ var lifetime_timer: Timer
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var damage_zone: Area2D = $KillzoneScript_Area
+@onready var unparryable_warning: Label = $UnparryableWarning
 
 func _ready():
 	# Configure RigidBody2D properties for rolling
 	gravity_scale = 1.0
-	lock_rotation = false
+	lock_rotation = true  # Keep the RigidBody2D rotation locked
 	continuous_cd = CCD_MODE_CAST_RAY
 	contact_monitor = true
 	max_contacts_reported = 4
@@ -35,6 +37,10 @@ func _ready():
 	# Setup damage zone if it exists
 	if damage_zone:
 		damage_zone.body_entered.connect(_on_damage_zone_body_entered)
+	
+	# Hide the warning label initially
+	if unparryable_warning:
+		unparryable_warning.visible = false
 	
 	# Set up lifetime timer
 	lifetime_timer = Timer.new()
@@ -51,6 +57,10 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 	detect_ground = ground_detect
 	is_unparryable = unparryable
 	is_initialized = true
+	
+	# Show/hide warning based on unparryable status
+	if unparryable_warning:
+		unparryable_warning.visible = is_unparryable
 	
 	# Set the animation based on parryable status
 	if animated_sprite:
@@ -77,9 +87,6 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 	var direction = -1 if facing_left else 1
 	linear_velocity = Vector2(direction * roll_speed, 0)
 	
-	# Set initial angular velocity for rolling effect
-	angular_velocity = (direction * roll_speed) / projectile_radius
-	
 	print("Initialized rolling projectile: unparryable = ", is_unparryable)
 
 func _physics_process(delta):
@@ -92,11 +99,18 @@ func _physics_process(delta):
 	
 	if current_speed < roll_speed * 0.8:
 		linear_velocity.x = direction * roll_speed
-		angular_velocity = (direction * roll_speed) / projectile_radius
 	
-	# Check if projectile is on ground for realistic rolling
-	if detect_ground and is_on_floor():
-		angular_velocity = (linear_velocity.x) / projectile_radius
+	# Calculate sprite rotation based on movement
+	var rotation_speed = (direction * roll_speed) / projectile_radius
+	sprite_rotation += rotation_speed * delta
+	
+	# Apply rotation to sprite only
+	if animated_sprite:
+		animated_sprite.rotation = sprite_rotation
+	
+	# Keep the label upright (counter-rotate to cancel out any rotation)
+	if unparryable_warning:
+		unparryable_warning.rotation = 0
 
 func is_on_floor() -> bool:
 	var space_state = get_world_2d().direct_space_state
@@ -129,13 +143,16 @@ func start_disappear_sequence():
 	
 	is_disappearing = true
 	
+	# Hide warning label
+	if unparryable_warning:
+		unparryable_warning.visible = false
+	
 	# Stop the lifetime timer
 	if lifetime_timer and is_instance_valid(lifetime_timer):
 		lifetime_timer.stop()
 	
 	# Stop movement
 	linear_velocity = Vector2.ZERO
-	angular_velocity = 0
 	freeze = true
 	
 	# Disable damage zone

@@ -1,9 +1,10 @@
-[gd_scene load_steps=18 format=3 uid="uid://bloi41bbmgio3"]
+[gd_scene load_steps=19 format=3 uid="uid://bloi41bbmgio3"]
 
 [ext_resource type="Script" uid="uid://cs5n1dsf8mgen" path="res://Scripts/shifter.gd" id="1_3yqvl"]
 [ext_resource type="Texture2D" uid="uid://dfes66c0wpr4i" path="res://Assets/sprites/EnemySprites/shifter.png" id="1_sucdy"]
 [ext_resource type="PackedScene" uid="uid://bpa0j0xv5xlc2" path="res://Scenes/shifter_projectile.tscn" id="2_2dl13"]
 [ext_resource type="AudioStream" uid="uid://dxfnajygii3q3" path="res://Assets/sounds/steel-blade-slice-2-188214.mp3" id="3_e7hx6"]
+[ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="5_ioihu"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2dl13"]
 atlas = ExtResource("1_sucdy")
@@ -125,6 +126,7 @@ animations = [{
 [node name="Shifter" type="Node2D"]
 script = ExtResource("1_3yqvl")
 projectile_scene = ExtResource("2_2dl13")
+facing_left = true
 shoot_sound = ExtResource("3_e7hx6")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
@@ -132,3 +134,14 @@ position = Vector2(0, -4)
 sprite_frames = SubResource("SpriteFrames_0c8uw")
 animation = &"unparryable"
 autoplay = "unparryable"
+
+[node name="UnparryableWarning" type="Label" parent="."]
+offset_left = -3.0
+offset_top = -26.0
+offset_right = 37.0
+offset_bottom = -3.0
+theme_override_colors/font_color = Color(0.231373, 0.796078, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("5_ioihu")
+theme_override_font_sizes/font_size = 8
+text = "!"
