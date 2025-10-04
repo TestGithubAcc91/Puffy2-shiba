@@ -1,0 +1,57 @@
+[gd_scene load_steps=9 format=3 uid="uid://bloi41bbmgio3"]
+
+[ext_resource type="Script" uid="uid://cs5n1dsf8mgen" path="res://Scripts/shifter.gd" id="1_3yqvl"]
+[ext_resource type="Texture2D" uid="uid://dfes66c0wpr4i" path="res://Assets/sprites/EnemySprites/shifter.png" id="1_sucdy"]
+[ext_resource type="PackedScene" uid="uid://bpa0j0xv5xlc2" path="res://Scenes/shifter_projectile.tscn" id="2_2dl13"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3yqvl"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(36, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2dl13"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(54, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e7hx6"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(0, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ioihu"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(18, 0, 18, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_0c8uw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3yqvl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2dl13")
+}],
+"loop": true,
+"name": &"canParry",
+"speed": 2.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e7hx6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ioihu")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[node name="Shifter" type="Node2D"]
+script = ExtResource("1_3yqvl")
+projectile_scene = ExtResource("2_2dl13")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -4)
+sprite_frames = SubResource("SpriteFrames_0c8uw")
+animation = &"canParry"
+autoplay = "default"
+frame_progress = 0.1405515
