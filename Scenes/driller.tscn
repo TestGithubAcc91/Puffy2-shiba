@@ -1,0 +1,51 @@
+[gd_scene load_steps=8 format=3 uid="uid://d60pm805gp6b"]
+
+[ext_resource type="Texture2D" uid="uid://d4bev6a7wbm5e" path="res://Assets/sprites/EnemySprites/driller.png" id="1_ad78c"]
+[ext_resource type="Script" uid="uid://ddnb84gjhl576" path="res://Scripts/driller.gd" id="1_gdy1u"]
+[ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="2_timsg"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_timsg"]
+atlas = ExtResource("1_ad78c")
+region = Rect2(0, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gdy1u"]
+atlas = ExtResource("1_ad78c")
+region = Rect2(18, 0, 18, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_28icl"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_timsg")
+}, {
+"duration": 0.5,
+"texture": SubResource("AtlasTexture_gdy1u")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_gdy1u"]
+radius = 3.0
+height = 24.0
+
+[node name="Driller" type="Node2D"]
+script = ExtResource("1_gdy1u")
+horizontal_speed = 60.0
+movement_range = 100.0
+jump_force = 200.0
+gravity = 500.0
+random_jump_variance = 50.0
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_28icl")
+autoplay = "default"
+frame_progress = 0.090526775
+
+[node name="KillzoneScript_Area" parent="." instance=ExtResource("2_timsg")]
+position = Vector2(0, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillzoneScript_Area"]
+position = Vector2(0, 6)
+shape = SubResource("CapsuleShape2D_gdy1u")

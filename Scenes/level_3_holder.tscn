@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=4 uid="uid://t8fs2g3m2cip"]
+[gd_scene load_steps=31 format=4 uid="uid://t8fs2g3m2cip"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_smbiq"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_uqgtt"]
@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://cpb1vtttqxmn3" path="res://Assets/sprites/MapSprites/forestTilemap.png" id="13_dxymy"]
 [ext_resource type="Texture2D" uid="uid://c0487nslkvewu" path="res://Assets/sprites/MapSprites/dirtDecor.png" id="14_gjdj8"]
 [ext_resource type="PackedScene" uid="uid://bej301f82t1dg" path="res://Scenes/spikes.tscn" id="16_tcqgt"]
+[ext_resource type="PackedScene" uid="uid://d60pm805gp6b" path="res://Scenes/driller.tscn" id="17_redkb"]
 [ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="23_2a7d0"]
 [ext_resource type="PackedScene" uid="uid://cb7bykcqm152b" path="res://Scenes/ui.tscn" id="25_48kkd"]
 
@@ -287,3 +288,6 @@ collision_mask = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LevelFinish"]
 position = Vector2(0, -36)
 shape = SubResource("RectangleShape2D_py7y2")
+
+[node name="Driller" parent="." instance=ExtResource("17_redkb")]
+position = Vector2(226, -23)

@@ -38,7 +38,7 @@ var parry_available_audio_player: AudioStreamPlayer  # NEW: Parry available audi
 @export_group("Sound Volumes")
 @export var jump_sound_volume_db: float = -10.0  # Quieter jump sound
 @export var parry_activate_sound_volume_db: float = -10.0  # Quieter parry activate sound
-@export var parry_available_sound_volume_db: float = 10.0 # Quieter parry available sound
+@export var parry_available_sound_volume_db: float = 4.0 # Quieter parry available sound
 
 var last_attack_was_unparryable: bool = false
 signal parry_success
