@@ -259,8 +259,13 @@ tile_set = SubResource("TileSet_exi56")
 z_index = -1
 position = Vector2(-376, 121)
 
+[node name="Driller" parent="LevelHolder/EnemyHolder" instance=ExtResource("17_redkb")]
+position = Vector2(226, -23)
+jump_force = 300.0
+random_jump_variance = 100.0
+
 [node name="Shifter" parent="LevelHolder/EnemyHolder" instance=ExtResource("15_vrry8")]
-position = Vector2(78, -8)
+position = Vector2(140, -8)
 
 [node name="MovementHolder" type="Node" parent="LevelHolder"]
 
@@ -292,9 +297,3 @@ collision_mask = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LevelFinish"]
 position = Vector2(0, -36)
 shape = SubResource("RectangleShape2D_py7y2")
-
-[node name="Driller" parent="." instance=ExtResource("17_redkb")]
-position = Vector2(226, -23)
-movement_range = 200.0
-jump_force = 300.0
-random_jump_variance = 100.0
