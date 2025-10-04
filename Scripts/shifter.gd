@@ -13,7 +13,13 @@ extends Node2D
 
 # Projectile appearance
 @export_group("Projectile Visuals")
-@export var projectile_sprite: Texture2D  # Sprite texture for the projectile
+@export var projectile_sprite_parryable: Texture2D  # Sprite for parryable projectile
+@export var projectile_sprite_unparryable: Texture2D  # Sprite for unparryable projectile
+
+# Parry/Unparryable system
+@export_group("Attack Pattern")
+@export var random_parry_pattern: bool = true  # Randomly choose between parryable/unparryable
+@export var unparryable_chance: float = 0.5  # Chance of shooting unparryable (0.0 to 1.0)
 
 # Audio properties
 @export_group("Audio")
@@ -22,6 +28,7 @@ extends Node2D
 var fire_timer: Timer
 var animated_sprite: AnimatedSprite2D
 var is_active: bool = true  # Flag to control enemy activity
+var next_shot_unparryable: bool = false  # Track what type of shot is next
 
 # Audio system
 var shoot_audio_player: AudioStreamPlayer2D
@@ -45,6 +52,9 @@ func _ready():
 	
 	# Setup audio system
 	_setup_audio_system()
+	
+	# Decide first shot type
+	decide_next_shot_type()
 
 # Setup the audio system
 func _setup_audio_system():
@@ -67,6 +77,14 @@ func _setup_audio_system():
 func _play_shoot_sound():
 	if shoot_audio_player and shoot_sound:
 		shoot_audio_player.play()
+
+# Decide whether next shot will be parryable or unparryable
+func decide_next_shot_type():
+	if random_parry_pattern:
+		next_shot_unparryable = randf() < unparryable_chance
+		print("Next shot type decided: ", "UNPARRYABLE" if next_shot_unparryable else "PARRYABLE")
+	else:
+		next_shot_unparryable = false
 
 func connect_to_player_signals():
 	# Try to find the player and connect to its death signal
@@ -115,32 +133,26 @@ func start_shooting_sequence():
 	# Additional safety checks
 	if not is_active or not is_instance_valid(animated_sprite):
 		return
-		
-	# Play the "Shoot" animation
-	animated_sprite.play("Shoot")
+	
+	# Determine which animation to play based on shot type
+	var anim_name = "canParry" if not next_shot_unparryable else "unparryable"
+	
+	# Check if the animation exists
+	if animated_sprite.sprite_frames.has_animation(anim_name):
+		animated_sprite.play(anim_name)
+		print("Playing animation: ", anim_name)
+	else:
+		# Fallback warning
+		print("Warning: Animation '", anim_name, "' not found!")
+		return
 	
 	# Check if tree exists before creating timer
 	var tree = get_tree()
 	if not tree or not is_active:
 		return
 	
-	# Wait 0.9 seconds then end shoot animation (0.1s before projectile spawn)
-	await tree.create_timer(0.95).timeout
-	
-	# Check if still active after await
-	if not is_active or not is_instance_valid(animated_sprite):
-		return
-		
-	# Return to idle animation (0.1s before projectile spawn)
-	animated_sprite.play("Idle")
-	
-	# Check tree again
-	tree = get_tree()
-	if not tree or not is_active:
-		return
-	
-	# Wait the final 0.1 seconds before spawning projectile
-	await tree.create_timer(0.1).timeout
+	# Wait for the animation to complete (adjust timing as needed for your animation length)
+	await tree.create_timer(1.0).timeout
 	
 	# Check if still active after await
 	if not is_active:
@@ -150,6 +162,9 @@ func start_shooting_sequence():
 	_play_shoot_sound()
 	
 	spawn_projectile()
+	
+	# Decide next shot type for the following attack
+	decide_next_shot_type()
 
 func spawn_projectile():
 	# Safety checks
@@ -180,8 +195,10 @@ func spawn_projectile():
 				facing_left,
 				projectile_radius,
 				detect_ground,
-				projectile_sprite
+				next_shot_unparryable  # Pass unparryable status
 			)
+		
+		print("Spawned ", "UNPARRYABLE" if next_shot_unparryable else "PARRYABLE", " projectile")
 
 # Method to manually stop enemy (can be called from other scripts)
 func stop_enemy():

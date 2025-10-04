@@ -5,9 +5,13 @@ var facing_left: bool = false
 var projectile_radius: float = 8.0
 var detect_ground: bool = true
 var is_initialized: bool = false
+var is_unparryable: bool = false  # Track if this projectile is unparryable
 
-@onready var sprite: Sprite2D = $Sprite2D
+@export var damage_amount: int = 25
+
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D  # Changed to AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
+@onready var damage_zone: Area2D = $KillzoneScript_Area  # Fixed: Use correct node name
 
 func _ready():
 	# Configure RigidBody2D properties for rolling
@@ -25,17 +29,40 @@ func _ready():
 	
 	# Add to projectile group for easy identification
 	add_to_group("projectiles")
+	
+	# Setup damage zone if it exists
+	if damage_zone:
+		damage_zone.body_entered.connect(_on_damage_zone_body_entered)
 
-func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_detect: bool, texture: Texture2D):
+func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_detect: bool, unparryable: bool = false):
 	roll_speed = speed
 	facing_left = left
 	projectile_radius = radius
 	detect_ground = ground_detect
+	is_unparryable = unparryable
 	is_initialized = true
 	
-	# Set sprite texture if provided
-	if texture and sprite:
-		sprite.texture = texture
+	# Set the animation based on parryable status
+	if animated_sprite:
+		var anim_name = "unparryable" if is_unparryable else "canParry"
+		if animated_sprite.sprite_frames.has_animation(anim_name):
+			animated_sprite.play(anim_name)
+			print("Projectile playing animation: ", anim_name)
+		else:
+			print("Warning: Animation '", anim_name, "' not found in projectile!")
+	
+	# Configure damage zone based on parryable status
+	if damage_zone:
+		if damage_zone.has_method("set_unparryable"):
+			damage_zone.set_unparryable(is_unparryable)
+		if damage_zone.has_method("set_damage_amount"):
+			damage_zone.set_damage_amount(damage_amount)
+		# Alternative: Set as properties if they exist
+		if "unparryable" in damage_zone:
+			damage_zone.unparryable = is_unparryable
+		if "damage_amount" in damage_zone:
+			damage_zone.damage_amount = damage_amount
+		print("Projectile damage zone configured: unparryable = ", is_unparryable)
 	
 	# Apply initial horizontal velocity
 	var direction = -1 if facing_left else 1
@@ -44,6 +71,8 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 	# Set initial angular velocity for rolling effect
 	# Angular velocity = linear velocity / radius (for realistic rolling)
 	angular_velocity = (direction * roll_speed) / projectile_radius
+	
+	print("Initialized rolling projectile: unparryable = ", is_unparryable)
 
 func _physics_process(delta):
 	if not is_initialized:
@@ -76,21 +105,18 @@ func is_on_floor() -> bool:
 	var result = space_state.intersect_ray(query)
 	return result.size() > 0
 
-func _on_body_entered(body):
-	# Handle collision with player
+func _on_damage_zone_body_entered(body: Node2D):
+	# The damage zone will handle damage dealing
+	# Just destroy the projectile after hitting player
 	if body.is_in_group("player"):
-		damage_player(body)
+		print("Projectile hit player, destroying projectile")
 		queue_free()
-	
-	# Optionally destroy on wall collision
-	# if body is TileMap or body.is_in_group("walls"):
-	#     queue_free()
 
-func damage_player(player):
-	# Try to find and call damage on player's health component
-	var health = player.get_node_or_null("Health")
-	if health and health.has_method("take_damage"):
-		health.take_damage(1)  # Adjust damage value as needed
+func _on_body_entered(body):
+	# Optional: Destroy on wall collision
+	if body is TileMap or (body.has_method("is_in_group") and body.is_in_group("walls")):
+		print("Projectile hit wall, destroying")
+		queue_free()
 
 # Optional: Destroy projectile after timeout
 func _on_timer_timeout():

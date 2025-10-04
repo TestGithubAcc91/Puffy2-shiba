@@ -41,7 +41,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_ioihu")
 }],
 "loop": true,
-"name": &"default",
+"name": &"unparryable",
 "speed": 2.0
 }]
 
@@ -53,5 +53,5 @@ projectile_scene = ExtResource("2_2dl13")
 position = Vector2(0, -4)
 sprite_frames = SubResource("SpriteFrames_0c8uw")
 animation = &"canParry"
-autoplay = "default"
-frame_progress = 0.1405515
+autoplay = "unparryable"
+frame_progress = 0.4998678
