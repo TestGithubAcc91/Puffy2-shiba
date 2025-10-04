@@ -1,16 +1,33 @@
-[gd_scene load_steps=9 format=3 uid="uid://bloi41bbmgio3"]
+[gd_scene load_steps=18 format=3 uid="uid://bloi41bbmgio3"]
 
 [ext_resource type="Script" uid="uid://cs5n1dsf8mgen" path="res://Scripts/shifter.gd" id="1_3yqvl"]
 [ext_resource type="Texture2D" uid="uid://dfes66c0wpr4i" path="res://Assets/sprites/EnemySprites/shifter.png" id="1_sucdy"]
 [ext_resource type="PackedScene" uid="uid://bpa0j0xv5xlc2" path="res://Scenes/shifter_projectile.tscn" id="2_2dl13"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_3yqvl"]
-atlas = ExtResource("1_sucdy")
-region = Rect2(36, 0, 18, 32)
+[ext_resource type="AudioStream" uid="uid://dxfnajygii3q3" path="res://Assets/sounds/steel-blade-slice-2-188214.mp3" id="3_e7hx6"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2dl13"]
 atlas = ExtResource("1_sucdy")
-region = Rect2(54, 0, 18, 32)
+region = Rect2(72, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0c8uw"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(90, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bqt67"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(126, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ckky2"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(108, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qbedo"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(108, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tjetg"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(126, 0, 18, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_e7hx6"]
 atlas = ExtResource("1_sucdy")
@@ -20,18 +37,56 @@ region = Rect2(0, 0, 18, 32)
 atlas = ExtResource("1_sucdy")
 region = Rect2(18, 0, 18, 32)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_3jspn"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(54, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kxp51"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(36, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_csdy5"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(36, 0, 18, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e2jw5"]
+atlas = ExtResource("1_sucdy")
+region = Rect2(54, 0, 18, 32)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_0c8uw"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_3yqvl")
+"texture": SubResource("AtlasTexture_2dl13")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_2dl13")
+"texture": SubResource("AtlasTexture_0c8uw")
 }],
 "loop": true,
 "name": &"canParry",
 "speed": 2.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bqt67")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ckky2")
+}],
+"loop": false,
+"name": &"canParryGrow",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qbedo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tjetg")
+}],
+"loop": false,
+"name": &"canParryShrink",
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -43,15 +98,37 @@ animations = [{
 "loop": true,
 "name": &"unparryable",
 "speed": 2.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3jspn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kxp51")
+}],
+"loop": false,
+"name": &"unparryableGrow",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_csdy5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e2jw5")
+}],
+"loop": false,
+"name": &"unparryableShrink",
+"speed": 10.0
 }]
 
 [node name="Shifter" type="Node2D"]
 script = ExtResource("1_3yqvl")
 projectile_scene = ExtResource("2_2dl13")
+shoot_sound = ExtResource("3_e7hx6")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -4)
 sprite_frames = SubResource("SpriteFrames_0c8uw")
-animation = &"canParry"
+animation = &"unparryable"
 autoplay = "unparryable"
-frame_progress = 0.4998678

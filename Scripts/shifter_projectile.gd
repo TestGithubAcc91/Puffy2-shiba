@@ -6,26 +6,28 @@ var projectile_radius: float = 8.0
 var detect_ground: bool = true
 var is_initialized: bool = false
 var is_unparryable: bool = false  # Track if this projectile is unparryable
+var is_disappearing: bool = false
+var lifetime_timer: Timer
 
 @export var damage_amount: int = 25
+@export var disappear_vfx: PackedScene  # VFX scene to spawn when disappearing
+@export var lifetime: float = 3.0  # Time before projectile disappears
 
-@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D  # Changed to AnimatedSprite2D
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
-@onready var damage_zone: Area2D = $KillzoneScript_Area  # Fixed: Use correct node name
+@onready var damage_zone: Area2D = $KillzoneScript_Area
 
 func _ready():
 	# Configure RigidBody2D properties for rolling
-	gravity_scale = 1.0  # Normal gravity
-	lock_rotation = false  # Allow rotation for rolling effect
-	continuous_cd = CCD_MODE_CAST_RAY  # Better collision detection
+	gravity_scale = 1.0
+	lock_rotation = false
+	continuous_cd = CCD_MODE_CAST_RAY
 	contact_monitor = true
 	max_contacts_reported = 4
 	
 	# Set collision layers
-	# Layer 2: Projectiles
-	# Mask 0 (tilemap) and 1 (player)
 	collision_layer = 2
-	collision_mask = 1 | 1  # Detects physics layer 0 (tilemap) and layer 1 (player)
+	collision_mask = 1 | 1
 	
 	# Add to projectile group for easy identification
 	add_to_group("projectiles")
@@ -33,6 +35,14 @@ func _ready():
 	# Setup damage zone if it exists
 	if damage_zone:
 		damage_zone.body_entered.connect(_on_damage_zone_body_entered)
+	
+	# Set up lifetime timer
+	lifetime_timer = Timer.new()
+	lifetime_timer.wait_time = lifetime
+	lifetime_timer.one_shot = true
+	lifetime_timer.timeout.connect(_on_lifetime_timeout)
+	add_child(lifetime_timer)
+	lifetime_timer.start()
 
 func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_detect: bool, unparryable: bool = false):
 	roll_speed = speed
@@ -57,7 +67,6 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 			damage_zone.set_unparryable(is_unparryable)
 		if damage_zone.has_method("set_damage_amount"):
 			damage_zone.set_damage_amount(damage_amount)
-		# Alternative: Set as properties if they exist
 		if "unparryable" in damage_zone:
 			damage_zone.unparryable = is_unparryable
 		if "damage_amount" in damage_zone:
@@ -69,55 +78,88 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 	linear_velocity = Vector2(direction * roll_speed, 0)
 	
 	# Set initial angular velocity for rolling effect
-	# Angular velocity = linear velocity / radius (for realistic rolling)
 	angular_velocity = (direction * roll_speed) / projectile_radius
 	
 	print("Initialized rolling projectile: unparryable = ", is_unparryable)
 
 func _physics_process(delta):
-	if not is_initialized:
+	if not is_initialized or is_disappearing:
 		return
 	
-	# Maintain constant horizontal speed (compensate for friction)
+	# Maintain constant horizontal speed
 	var direction = -1 if facing_left else 1
 	var current_speed = abs(linear_velocity.x)
 	
-	# If speed drops below threshold, reapply velocity
 	if current_speed < roll_speed * 0.8:
 		linear_velocity.x = direction * roll_speed
 		angular_velocity = (direction * roll_speed) / projectile_radius
 	
 	# Check if projectile is on ground for realistic rolling
 	if detect_ground and is_on_floor():
-		# Ensure rolling motion matches ground movement
 		angular_velocity = (linear_velocity.x) / projectile_radius
 
 func is_on_floor() -> bool:
-	# Raycast downward to detect ground
 	var space_state = get_world_2d().direct_space_state
 	var query = PhysicsRayQueryParameters2D.create(
 		global_position,
 		global_position + Vector2(0, projectile_radius + 2)
 	)
-	query.collision_mask = 1  # Physics layer 0 (tilemap)
+	query.collision_mask = 1
 	query.exclude = [self]
 	
 	var result = space_state.intersect_ray(query)
 	return result.size() > 0
 
 func _on_damage_zone_body_entered(body: Node2D):
-	# The damage zone will handle damage dealing
-	# Just destroy the projectile after hitting player
 	if body.is_in_group("player"):
 		print("Projectile hit player, destroying projectile")
-		queue_free()
+		start_disappear_sequence()
 
 func _on_body_entered(body):
-	# Optional: Destroy on wall collision
 	if body is TileMap or (body.has_method("is_in_group") and body.is_in_group("walls")):
 		print("Projectile hit wall, destroying")
-		queue_free()
+		start_disappear_sequence()
 
-# Optional: Destroy projectile after timeout
-func _on_timer_timeout():
-	queue_free()
+func _on_lifetime_timeout():
+	start_disappear_sequence()
+
+func start_disappear_sequence():
+	if is_disappearing:
+		return
+	
+	is_disappearing = true
+	
+	# Stop the lifetime timer
+	if lifetime_timer and is_instance_valid(lifetime_timer):
+		lifetime_timer.stop()
+	
+	# Stop movement
+	linear_velocity = Vector2.ZERO
+	angular_velocity = 0
+	freeze = true
+	
+	# Disable damage zone
+	if damage_zone:
+		damage_zone.set_deferred("monitoring", false)
+		damage_zone.set_deferred("monitorable", false)
+	
+	# Disable collision
+	if collision_shape:
+		collision_shape.set_deferred("disabled", true)
+	
+	# Spawn VFX if available
+	if disappear_vfx:
+		var vfx_instance = disappear_vfx.instantiate()
+		get_parent().add_child(vfx_instance)
+		vfx_instance.global_position = global_position
+	
+	# Play disappear animation
+	if animated_sprite and animated_sprite.sprite_frames.has_animation("Disappear"):
+		animated_sprite.play("Disappear")
+		# Wait for animation to finish
+		await animated_sprite.animation_finished
+		queue_free()
+	else:
+		# If no disappear animation, just destroy after a short delay
+		await get_tree().create_timer(0.1).timeout
+		queue_free()

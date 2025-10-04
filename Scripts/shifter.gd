@@ -63,7 +63,7 @@ func _setup_audio_system():
 	shoot_audio_player.bus = "SFX"  # Use SFX bus like the main game
 	
 	# Configure sound range and attenuation
-	shoot_audio_player.max_distance = 300.0  # Sound becomes inaudible beyond this distance
+	shoot_audio_player.max_distance = 500.0  # Sound becomes inaudible beyond this distance
 	shoot_audio_player.attenuation = 1.0  # How quickly sound fades (higher = faster fade)
 	
 	add_child(shoot_audio_player)
@@ -162,6 +162,37 @@ func start_shooting_sequence():
 	_play_shoot_sound()
 	
 	spawn_projectile()
+	
+	# Play shrink animation after shooting
+	var shrink_anim = "canParryShrink" if not next_shot_unparryable else "unparryableShrink"
+	if animated_sprite.sprite_frames.has_animation(shrink_anim):
+		animated_sprite.play(shrink_anim)
+		await tree.create_timer(0.2).timeout
+	
+	# Check if still active after shrink
+	if not is_active:
+		return
+	
+	# Wait 1 second before growing
+	await tree.create_timer(1.0).timeout
+	
+	# Check if still active after wait
+	if not is_active:
+		return
+	
+	# Play grow animation
+	var grow_anim = "canParryGrow" if not next_shot_unparryable else "unparryableGrow"
+	if animated_sprite.sprite_frames.has_animation(grow_anim):
+		animated_sprite.play(grow_anim)
+		await tree.create_timer(0.2).timeout
+	
+	# Check if still active after grow
+	if not is_active:
+		return
+	
+	# Return to idle animation
+	if animated_sprite.sprite_frames.has_animation(anim_name):
+		animated_sprite.play(anim_name)
 	
 	# Decide next shot type for the following attack
 	decide_next_shot_type()

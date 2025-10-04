@@ -7,6 +7,10 @@ extends Node2D
 @export var ground_check_distance: float = 20.0
 @export var random_jump_variance: float = 100.0  # How much to vary jump force randomly
 
+# Audio properties
+@export_group("Audio")
+@export var jump_sound: AudioStream  # Sound to play when jumping
+
 var start_position: Vector2
 var direction: int = 1  # 1 for right, -1 for left
 var velocity: Vector2 = Vector2.ZERO
@@ -15,10 +19,36 @@ var is_grounded: bool = false
 @onready var ground_raycast: RayCast2D = $GroundRayCast2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
+# Audio system
+var jump_audio_player: AudioStreamPlayer2D
+
 func _ready():
 	start_position = global_position
 	setup_raycasts()
+	_setup_audio_system()
 	randomize()  # Initialize random number generator
+
+# Setup the audio system
+func _setup_audio_system():
+	jump_audio_player = AudioStreamPlayer2D.new()
+	jump_audio_player.name = "JumpAudioPlayer2D"
+	jump_audio_player.bus = "SFX"  # Use SFX bus like the main game
+	
+	# Configure sound range and attenuation
+	jump_audio_player.max_distance = 500.0  # Sound becomes inaudible beyond this distance
+	jump_audio_player.attenuation = 1.0  # How quickly sound fades (higher = faster fade)
+	
+	add_child(jump_audio_player)
+	
+	if jump_sound:
+		jump_audio_player.stream = jump_sound
+	
+	print("Hopping enemy audio system initialized")
+
+# Function to play jump sound
+func _play_jump_sound():
+	if jump_audio_player and jump_sound:
+		jump_audio_player.play()
 
 func setup_raycasts():
 	# Create ground detection raycast
@@ -55,6 +85,9 @@ func _process(delta):
 	
 	# Check if we've landed on ground
 	if is_grounded and velocity.y > 0:
+		# Play jump sound when jumping
+		_play_jump_sound()
+		
 		# Jump again with random variation
 		var random_force = jump_force + randf_range(-random_jump_variance, random_jump_variance)
 		velocity.y = -random_force
@@ -62,4 +95,3 @@ func _process(delta):
 		# Randomly change direction sometimes
 		if randf() < 0.3:  # 30% chance to change direction on landing
 			direction *= -1
-		
