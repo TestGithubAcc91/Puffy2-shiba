@@ -11,6 +11,7 @@ const HIGH_JUMP_VELOCITY = -350.0
 @onready var parry_ready_sprite: Sprite2D = $ParryReady
 @onready var health_script = $HealthScript
 @onready var vine_component = $VineComponent
+@onready var jetpack_component = $JetpackComponent 
 
 @export var air_puff_scene: PackedScene
 @export var air_puffV_scene: PackedScene
@@ -127,6 +128,9 @@ var movement_blocked_at_level_start: bool = true
 var active_checkpoint_position: Vector2 = Vector2.ZERO
 var has_active_checkpoint: bool = false
 
+var has_jetpack: bool = false
+
+
 func _ready():
 	original_time_scale = Engine.time_scale
 	movement_blocked_at_level_start = true
@@ -137,6 +141,11 @@ func _ready():
 	setup_durations()
 	setup_timers()
 	update_parry_ready_sprite()
+	
+	if jetpack_component:
+		jetpack_component.jetpack_activated.connect(_on_jetpack_activated)
+		jetpack_component.jetpack_deactivated.connect(_on_jetpack_deactivated)
+		jetpack_component.fuel_changed.connect(_on_jetpack_fuel_changed)
 
 func _setup_audio_system():
 	whoosh_audio_player = AudioStreamPlayer.new()
@@ -288,36 +297,55 @@ func can_jump() -> bool:
 	return is_on_floor() or can_coyote_jump
 
 func handle_input():
-	if movement_blocked_by_game or movement_blocked_at_level_start: return
+	if movement_blocked_by_game or movement_blocked_at_level_start:
+		return
 	
 	var is_on_vine = vine_component && vine_component.is_swinging
 	var is_on_zipline_check = is_on_zipline
+	var jetpack_active = has_jetpack and jetpack_component and jetpack_component.is_active
 	
-	if Input.is_action_just_pressed("Jump") and zipline_in_range and not is_on_vine and not is_on_zipline_check: grab_zipline()
-	elif Input.is_action_just_pressed("Jump") and is_on_zipline_check: release_zipline()
+	# Disable zipline when jetpack is active
+	if not jetpack_active:
+		if Input.is_action_just_pressed("Jump") and zipline_in_range and not is_on_vine and not is_on_zipline_check:
+			grab_zipline()
+		elif Input.is_action_just_pressed("Jump") and is_on_zipline_check:
+			release_zipline()
 	
-	if Input.is_action_just_pressed("Dash") and can_dash and current_parry_stacks >= 1 and not is_on_vine and not is_on_zipline_check: activate_dash()
+	# Disable dash and high jump when jetpack is active
+	if not jetpack_active:
+		if Input.is_action_just_pressed("Dash") and can_dash and current_parry_stacks >= 1 and not is_on_vine and not is_on_zipline_check:
+			activate_dash()
+		
+		if Input.is_action_just_pressed("Jump") and can_jump() and not is_on_zipline_check:
+			velocity.y = JUMP_VELOCITY
+			_play_jump_sound()
+			if can_coyote_jump and not is_on_floor():
+				can_coyote_jump = false
+				coyote_time_timer.stop()
+		
+		if Input.is_action_just_pressed("HighJump") and can_jump() and can_high_jump and current_parry_stacks >= 2 and not is_on_vine and not is_on_zipline_check:
+			activate_high_jump()
+			if can_coyote_jump and not is_on_floor():
+				can_coyote_jump = false
+				coyote_time_timer.stop()
 	
-	if Input.is_action_just_pressed("Jump") and can_jump() and not is_on_zipline_check:
-		velocity.y = JUMP_VELOCITY
-		_play_jump_sound()
-		if can_coyote_jump and not is_on_floor():
-			can_coyote_jump = false
-			coyote_time_timer.stop()
-	
-	if Input.is_action_just_pressed("HighJump") and can_jump() and can_high_jump and current_parry_stacks >= 2 and not is_on_vine and not is_on_zipline_check:
-		activate_high_jump()
-		if can_coyote_jump and not is_on_floor():
-			can_coyote_jump = false
-			coyote_time_timer.stop()
-	
-	if Input.is_action_just_pressed("Parry") and can_parry and not is_on_vine: activate_parry()
+	# Parry still works with jetpack
+	if Input.is_action_just_pressed("Parry") and can_parry and not is_on_vine:
+		activate_parry()
 
 func handle_movement(delta: float):
-	if is_on_zipline: handle_zipline_movement(delta)
-	elif is_dashing: handle_dash_movement(delta)
-	elif is_bouncing: handle_bounce_movement(delta)
-	else: handle_normal_movement(delta)
+	# Check if jetpack is active - use jetpack movement instead
+	if has_jetpack and jetpack_component and jetpack_component.is_active:
+		handle_jetpack_movement(delta)
+	elif is_on_zipline:
+		handle_zipline_movement(delta)
+	elif is_dashing:
+		handle_dash_movement(delta)
+	elif is_bouncing:
+		handle_bounce_movement(delta)
+	else:
+		handle_normal_movement(delta)
+
 
 func handle_dash_movement(delta: float):
 	velocity.x = dash_direction.x * (dash_distance / dash_duration)
@@ -814,5 +842,45 @@ func reset_player_state():
 	
 	# Note: Collision is now handled by game manager
 	# to ensure proper sequencing
+	if has_jetpack and jetpack_component and jetpack_component.is_active:
+		jetpack_component.deactivate()
+		has_jetpack = false
+	
 	
 	print("Player state fully reset for respawn")
+	
+func activate_jetpack(duration: float):
+	if jetpack_component:
+		has_jetpack = true
+		jetpack_component.activate(duration)
+		
+func handle_jetpack_movement(delta: float):
+	"""Handles player movement when jetpack is active"""
+	# The jetpack component handles velocity changes in its _physics_process
+	# We just need to handle sprite direction and animations
+	
+	var direction := get_effective_horizontal_input()
+	update_sprite_direction(direction)
+	
+	# Play jetpack animation (create "Jetpack" animation or use "Jump")
+	if jetpack_component.is_active:
+		animated_sprite.play("Jump")  # Change to "Jetpack" if you create that animation
+	
+	# Move the player
+	move_and_slide()
+
+func _on_jetpack_activated():
+	"""Called when jetpack becomes active"""
+	print("Jetpack system online!")
+	# You can add visual/audio feedback here
+
+func _on_jetpack_deactivated():
+	"""Called when jetpack runs out of fuel or expires"""
+	has_jetpack = false
+	print("Jetpack depleted!")
+	# You can add visual/audio feedback here
+
+func _on_jetpack_fuel_changed(current_fuel: float, max_fuel: float):
+	"""Called every frame while jetpack is active to track fuel"""
+	# Update UI fuel bar here if you have one
+	var fuel_percentage = (current_fuel / max_fuel) * 100.0

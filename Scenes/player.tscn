@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=3 uid="uid://bkfnr4qat1ah0"]
+[gd_scene load_steps=50 format=3 uid="uid://bkfnr4qat1ah0"]
 
 [ext_resource type="Script" uid="uid://dbdi6y3t2arwa" path="res://Scripts/player_movement.gd" id="1_cvnsp"]
 [ext_resource type="PackedScene" uid="uid://cw3hs2qsg2k4t" path="res://Scenes/air_puff_H.tscn" id="2_pu2lt"]
@@ -26,6 +26,7 @@
 [ext_resource type="Texture2D" uid="uid://nxsnbivw3ij4" path="res://Assets/sprites/PlayerSprites/ziplineFriction.png" id="15_h4iuc"]
 [ext_resource type="Texture2D" uid="uid://ckd3ojrt5t8sj" path="res://Assets/sprites/PlayerGUI/parryCharges/parryNotReady.png" id="16_fd4e3"]
 [ext_resource type="AudioStream" uid="uid://ox4yxonnsifn" path="res://Assets/sounds/pixelHurt.mp3" id="16_olqyp"]
+[ext_resource type="Script" uid="uid://cjw0p2gahmq73" path="res://Scripts/jetpack_component.gd" id="27_vfarp"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_igrcy"]
 atlas = ExtResource("7_gymyn")
@@ -309,3 +310,6 @@ frame_progress = 0.692867
 self_modulate = Color(1, 1, 1, 0.78431374)
 position = Vector2(9, -6)
 texture = ExtResource("16_fd4e3")
+
+[node name="JetpackComponent" type="Node" parent="."]
+script = ExtResource("27_vfarp")

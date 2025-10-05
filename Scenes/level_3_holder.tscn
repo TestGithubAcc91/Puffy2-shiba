@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=4 uid="uid://t8fs2g3m2cip"]
+[gd_scene load_steps=34 format=4 uid="uid://t8fs2g3m2cip"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_smbiq"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_uqgtt"]
@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://bej301f82t1dg" path="res://Scenes/spikes.tscn" id="16_tcqgt"]
 [ext_resource type="PackedScene" uid="uid://d60pm805gp6b" path="res://Scenes/driller.tscn" id="17_redkb"]
 [ext_resource type="PackedScene" uid="uid://c8tfpaacpljp2" path="res://Scenes/crusher.tscn" id="17_rr4s2"]
+[ext_resource type="PackedScene" uid="uid://6ejgsp2snscl" path="res://Scenes/jetpack.tscn" id="19_r0dbs"]
 [ext_resource type="PackedScene" uid="uid://bxmjgaqbmcpmf" path="res://Scenes/killzone.tscn" id="23_2a7d0"]
 [ext_resource type="PackedScene" uid="uid://cb7bykcqm152b" path="res://Scenes/ui.tscn" id="25_48kkd"]
 
@@ -189,8 +190,8 @@ script = ExtResource("2_uqgtt")
 camera = NodePath("../Player/Camera2D")
 
 [node name="Desert1" type="Sprite2D" parent="ParallaxBackgroundHolder"]
-position = Vector2(-590.7648, 1.0179749)
-scale = Vector2(0.1, 0.107)
+position = Vector2(-590.4254, -9.501097)
+scale = Vector2(0.108167864, 0.115739614)
 texture = ExtResource("3_8o6j0")
 
 [node name="Player" parent="." instance=ExtResource("6_kk3p3")]
@@ -277,9 +278,6 @@ position = Vector2(334, -12)
 
 [node name="Void" parent="LevelHolder/BarrierHolder" instance=ExtResource("23_2a7d0")]
 position = Vector2(95, 68)
-damage_amount = 100
-ignore_iframes = true
-unparryable = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LevelHolder/BarrierHolder/Void"]
 shape = SubResource("WorldBoundaryShape2D_i6g32")
@@ -291,6 +289,9 @@ rotation = 1.5708
 shape = SubResource("WorldBoundaryShape2D_vm72l")
 
 [node name="CheckpointHolder" type="Node2D" parent="LevelHolder"]
+
+[node name="Jetpack" parent="LevelHolder" instance=ExtResource("19_r0dbs")]
+position = Vector2(-37, -35)
 
 [node name="UI" parent="." instance=ExtResource("25_48kkd")]
 
