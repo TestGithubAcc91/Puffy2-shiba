@@ -2,8 +2,7 @@ extends Area2D
 
 @export var jetpack_duration: float = 10.0  # How long the jetpack lasts
 @export var pickup_sound: AudioStream
-@export var can_respawn: bool = false
-@export var respawn_time: float = 30.0
+@export var fade_in_duration: float = 0.5  # How long the fade-in takes
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision: CollisionShape2D = $CollisionShape2D
@@ -19,17 +18,17 @@ func _ready():
 	# Setup audio
 	audio_player = AudioStreamPlayer.new()
 	audio_player.bus = "SFX"
+	audio_player.volume_db = 5.0  # Make pickup sound louder
 	if pickup_sound:
 		audio_player.stream = pickup_sound
 	add_child(audio_player)
 	
-	# Setup respawn timer if needed
-	if can_respawn:
-		respawn_timer = Timer.new()
-		respawn_timer.wait_time = respawn_time
-		respawn_timer.one_shot = true
-		respawn_timer.timeout.connect(_on_respawn_timer_timeout)
-		add_child(respawn_timer)
+	# Setup respawn timer
+	respawn_timer = Timer.new()
+	respawn_timer.wait_time = 5.0
+	respawn_timer.one_shot = true
+	respawn_timer.timeout.connect(_on_respawn_timer_timeout)
+	add_child(respawn_timer)
 
 func _on_body_entered(body: Node2D):
 	if is_collected:
@@ -50,27 +49,33 @@ func collect_jetpack(player: Node2D):
 	
 	# Hide pickup visuals
 	if sprite:
-		sprite.visible = false
+		sprite.modulate.a = 0.0  # Set to transparent instead of hiding
+		sprite.visible = true  # Keep visible for fade-in
 	if collision:
 		collision.set_deferred("disabled", true)
 	if particles:
 		particles.emitting = false
 	
-	# Handle respawn or deletion
-	if can_respawn and respawn_timer:
-		respawn_timer.start()
-	else:
-		# Wait for sound to finish then delete
-		await get_tree().create_timer(2.0).timeout
-		queue_free()
+	# Start respawn timer
+	respawn_timer.start()
 
 func _on_respawn_timer_timeout():
-	is_collected = false
-	
-	# Show pickup visuals again
+	# Show pickup visuals again with fade-in
 	if sprite:
-		sprite.visible = true
-	if collision:
-		collision.disabled = false
+		sprite.modulate.a = 0.0  # Start transparent
+		
+		# Create fade-in tween
+		var tween = create_tween()
+		tween.tween_property(sprite, "modulate:a", 1.0, fade_in_duration)
+		
+		# Wait for fade-in to complete before enabling collision and allowing collection
+		tween.finished.connect(_on_fade_in_complete)
+	
 	if particles:
 		particles.emitting = true
+
+func _on_fade_in_complete():
+	# Only re-enable collision and allow collection after fade-in is done
+	is_collected = false
+	if collision:
+		collision.disabled = false

@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://6ejgsp2snscl"]
+[gd_scene load_steps=5 format=3 uid="uid://6ejgsp2snscl"]
 
 [ext_resource type="Script" uid="uid://dyh3dpibembok" path="res://Scripts/jetpack.gd" id="1_gsluh"]
 [ext_resource type="Texture2D" uid="uid://b64vbohompjuu" path="res://Assets/sprites/InteractableSprites/jetpack.png" id="1_nea11"]
+[ext_resource type="AudioStream" uid="uid://cbk11m3ppcu7y" path="res://Assets/sounds/item-equip-6904.mp3" id="2_h4p0r"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gsluh"]
 radius = 11.0
@@ -9,6 +10,7 @@ radius = 11.0
 [node name="Jetpack" type="Area2D"]
 collision_mask = 2
 script = ExtResource("1_gsluh")
+pickup_sound = ExtResource("2_h4p0r")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_gsluh")

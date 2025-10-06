@@ -24,7 +24,7 @@ var zipline_audio_player: AudioStreamPlayer
 var click_audio_player: AudioStreamPlayer
 var jump_audio_player: AudioStreamPlayer
 var parry_activate_audio_player: AudioStreamPlayer
-var parry_available_audio_player: AudioStreamPlayer  # NEW: Parry available audio player
+var parry_available_audio_player: AudioStreamPlayer
 
 @export_group("Audio")
 @export var whoosh_sound: AudioStream
@@ -33,13 +33,12 @@ var parry_available_audio_player: AudioStreamPlayer  # NEW: Parry available audi
 @export var click_sound: AudioStream
 @export var jump_sound: AudioStream
 @export var parry_activate_sound: AudioStream
-@export var parry_available_sound: AudioStream  # NEW: Parry available sound export
+@export var parry_available_sound: AudioStream
 
-# NEW: Volume controls for quieter sounds
 @export_group("Sound Volumes")
-@export var jump_sound_volume_db: float = -10.0  # Quieter jump sound
-@export var parry_activate_sound_volume_db: float = -10.0  # Quieter parry activate sound
-@export var parry_available_sound_volume_db: float = 4.0 # Quieter parry available sound
+@export var jump_sound_volume_db: float = -10.0
+@export var parry_activate_sound_volume_db: float = -10.0
+@export var parry_available_sound_volume_db: float = 4.0
 
 var last_attack_was_unparryable: bool = false
 signal parry_success
@@ -172,27 +171,24 @@ func _setup_audio_system():
 	if click_sound: click_audio_player.stream = click_sound
 	add_child(click_audio_player)
 	
-	# Jump audio player setup with quieter volume
 	jump_audio_player = AudioStreamPlayer.new()
 	jump_audio_player.name = "JumpAudioPlayer"
 	jump_audio_player.bus = "SFX"
-	jump_audio_player.volume_db = jump_sound_volume_db  # NEW: Set quieter volume
+	jump_audio_player.volume_db = jump_sound_volume_db
 	if jump_sound: jump_audio_player.stream = jump_sound
 	add_child(jump_audio_player)
 	
-	# Parry activation audio player setup with quieter volume
 	parry_activate_audio_player = AudioStreamPlayer.new()
 	parry_activate_audio_player.name = "ParryActivateAudioPlayer"
 	parry_activate_audio_player.bus = "SFX"
-	parry_activate_audio_player.volume_db = parry_activate_sound_volume_db  # NEW: Set quieter volume
+	parry_activate_audio_player.volume_db = parry_activate_sound_volume_db
 	if parry_activate_sound: parry_activate_audio_player.stream = parry_activate_sound
 	add_child(parry_activate_audio_player)
 	
-	# NEW: Parry available audio player setup with quieter volume
 	parry_available_audio_player = AudioStreamPlayer.new()
 	parry_available_audio_player.name = "ParryAvailableAudioPlayer"
 	parry_available_audio_player.bus = "SFX"
-	parry_available_audio_player.volume_db = parry_available_sound_volume_db  # NEW: Set quieter volume
+	parry_available_audio_player.volume_db = parry_available_sound_volume_db
 	if parry_available_sound: parry_available_audio_player.stream = parry_available_sound
 	add_child(parry_available_audio_player)
 
@@ -222,7 +218,6 @@ func _play_parry_activate_sound():
 	if parry_activate_audio_player and parry_activate_sound:
 		parry_activate_audio_player.play()
 
-# NEW: Play parry available sound effect
 func _play_parry_available_sound():
 	if parry_available_audio_player and parry_available_sound:
 		parry_available_audio_player.play()
@@ -304,14 +299,12 @@ func handle_input():
 	var is_on_zipline_check = is_on_zipline
 	var jetpack_active = has_jetpack and jetpack_component and jetpack_component.is_active
 	
-	# Disable zipline when jetpack is active
 	if not jetpack_active:
 		if Input.is_action_just_pressed("Jump") and zipline_in_range and not is_on_vine and not is_on_zipline_check:
 			grab_zipline()
 		elif Input.is_action_just_pressed("Jump") and is_on_zipline_check:
 			release_zipline()
 	
-	# Disable dash and high jump when jetpack is active
 	if not jetpack_active:
 		if Input.is_action_just_pressed("Dash") and can_dash and current_parry_stacks >= 1 and not is_on_vine and not is_on_zipline_check:
 			activate_dash()
@@ -329,12 +322,10 @@ func handle_input():
 				can_coyote_jump = false
 				coyote_time_timer.stop()
 	
-	# Parry still works with jetpack
 	if Input.is_action_just_pressed("Parry") and can_parry and not is_on_vine:
 		activate_parry()
 
 func handle_movement(delta: float):
-	# Check if jetpack is active - use jetpack movement instead
 	if has_jetpack and jetpack_component and jetpack_component.is_active:
 		handle_jetpack_movement(delta)
 	elif is_on_zipline:
@@ -458,7 +449,6 @@ func activate_parry():
 	health_script.is_invulnerable = true
 	update_parry_ready_sprite()
 	
-	# Play parry activation sound
 	_play_parry_activate_sound()
 	
 	if glint_sprite:
@@ -649,7 +639,7 @@ func _on_parry_timeout():
 func _on_parry_cooldown_timeout():
 	can_parry = true
 	update_parry_ready_sprite()
-	_play_parry_available_sound()  # NEW: Play sound when parry becomes available again
+	_play_parry_available_sound()
 
 func _on_parry_pre_freeze_timeout():
 	is_in_pre_freeze_parry = false
@@ -668,7 +658,7 @@ func _on_parry_safety_timeout():
 	else: health_script.is_invulnerable = false
 	can_parry = true
 	update_parry_ready_sprite()
-	_play_parry_available_sound()  # NEW: Play sound when parry becomes available from safety timeout
+	_play_parry_available_sound()
 	last_attack_was_unparryable = false
 	was_invulnerable_before_parry = false
 
@@ -689,7 +679,7 @@ func _on_player_died():
 	if click_audio_player and click_audio_player.playing: click_audio_player.stop()
 	if jump_audio_player and jump_audio_player.playing: jump_audio_player.stop()
 	if parry_activate_audio_player and parry_activate_audio_player.playing: parry_activate_audio_player.stop()
-	if parry_available_audio_player and parry_available_audio_player.playing: parry_available_audio_player.stop()  # NEW: Stop parry available sound
+	if parry_available_audio_player and parry_available_audio_player.playing: parry_available_audio_player.stop()
 	_reset_all_parry_states()
 	is_dashing = false
 	is_bouncing = false
@@ -769,7 +759,7 @@ func set_active_checkpoint(checkpoint_pos: Vector2):
 func respawn_at_checkpoint():
 	if has_active_checkpoint:
 		global_position = active_checkpoint_position
-		velocity = Vector2.ZERO  # Reset velocity
+		velocity = Vector2.ZERO
 		print("Respawning at checkpoint: ", active_checkpoint_position)
 		return true
 	return false
@@ -780,28 +770,20 @@ func clear_checkpoint():
 	print("Checkpoint cleared")
 
 func reset_player_state():
-	# Reset movement
 	velocity = Vector2.ZERO
-	
-	# Reset dash/bounce states
 	is_dashing = false
 	is_bouncing = false
 	is_vine_release_dash = false
 	can_dash = true
 	dash_direction = Vector2.ZERO
 	bounce_direction_vector = Vector2.ZERO
-	
-	# Reset jump states
 	can_coyote_jump = false
 	was_on_floor_last_frame = false
 	can_high_jump = true
-	
-	# Reset parry states
 	_reset_all_parry_states()
 	can_parry = true
 	update_parry_ready_sprite()
 	
-	# Reset zipline states
 	if is_on_zipline and current_zipline:
 		current_zipline.release_player()
 	is_on_zipline = false
@@ -809,11 +791,9 @@ func reset_player_state():
 	zipline_in_range = null
 	_stop_zipline_sound()
 	
-	# Reset vine states
 	if vine_component and vine_component.is_swinging:
 		vine_component.release_vine()
 	
-	# Reset sprite visibility
 	animated_sprite.modulate.a = 1.0
 	if glint_sprite:
 		glint_sprite.visible = false
@@ -824,28 +804,22 @@ func reset_player_state():
 	if parry_spark:
 		parry_spark.visible = false
 	
-	# Reset timescale
 	Engine.time_scale = 1.0
 	
-	# Stop all audio
 	if click_audio_player and click_audio_player.playing:
 		click_audio_player.stop()
 	if jump_audio_player and jump_audio_player.playing:
 		jump_audio_player.stop()
 	if parry_activate_audio_player and parry_activate_audio_player.playing:
 		parry_activate_audio_player.stop()
-	if parry_available_audio_player and parry_available_audio_player.playing:  # NEW: Stop parry available sound
+	if parry_available_audio_player and parry_available_audio_player.playing:
 		parry_available_audio_player.stop()
 	
-	# Reset parry stacks
 	reset_parry_stacks()
 	
-	# Note: Collision is now handled by game manager
-	# to ensure proper sequencing
 	if has_jetpack and jetpack_component and jetpack_component.is_active:
 		jetpack_component.deactivate()
 		has_jetpack = false
-	
 	
 	print("Player state fully reset for respawn")
 	
@@ -855,44 +829,27 @@ func activate_jetpack(duration: float):
 		jetpack_component.activate(duration)
 		
 func handle_jetpack_movement(delta: float):
-	"""Handles player movement when jetpack is active"""
-	# The jetpack component handles velocity changes in its _physics_process
-	# We just need to handle sprite direction and animations
-	
 	var direction := get_effective_horizontal_input()
 	update_sprite_direction(direction)
-	
-	# Use normal animation system while jetpacking
 	update_jetpack_animations(direction)
-	
-	# Move the player
 	move_and_slide()
-	
+
 func update_jetpack_animations(direction: float):
-	"""Updates animations while jetpack is active - maintains normal animation logic"""
 	if not is_in_pre_freeze_parry:
 		if is_on_floor():
-			# On ground with jetpack - use normal ground animations
 			if direction == 0:
 				animated_sprite.play("Idle")
 			else:
 				animated_sprite.play("Run")
 		else:
-			# In air with jetpack - use jump animation
 			animated_sprite.play("Jump")
 
 func _on_jetpack_activated():
-	"""Called when jetpack becomes active"""
 	print("Jetpack system online!")
-	# You can add visual/audio feedback here
 
 func _on_jetpack_deactivated():
-	"""Called when jetpack runs out of fuel or expires"""
 	has_jetpack = false
 	print("Jetpack depleted!")
-	# You can add visual/audio feedback here
 
 func _on_jetpack_fuel_changed(current_fuel: float, max_fuel: float):
-	"""Called every frame while jetpack is active to track fuel"""
-	# Update UI fuel bar here if you have one
 	var fuel_percentage = (current_fuel / max_fuel) * 100.0

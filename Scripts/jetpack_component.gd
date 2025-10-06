@@ -11,7 +11,10 @@ extends Node
 @export var gravity_when_not_thrusting: float = 0.5  # Gravity multiplier when not using thrust
 
 # Visual/Audio
-@export var jetpack_sound: AudioStream
+@export_group("Audio")
+@export var jetpack_sound: AudioStream  # Sound when thrusting upward
+@export var low_fuel_warning_sound: AudioStream  # Sound when 3 seconds remaining
+
 @export var jetpack_particles_scene: PackedScene
 @export var jetpack_sprite_node: Sprite2D  # Drag your existing Sprite2D node here!
 
@@ -19,13 +22,15 @@ var is_active: bool = false
 var fuel_remaining: float = 100.0
 var max_fuel: float = 100.0
 var duration_timer: Timer
-var jetpack_audio_player: AudioStreamPlayer
+var jetpack_audio_player: AudioStreamPlayer2D
+var low_fuel_audio_player: AudioStreamPlayer2D
 var jetpack_particles: Node2D
 var jetpack_fire: AnimatedSprite2D  # Reference to the JetpackFire node
 
 var player: CharacterBody2D
 var original_gravity_scale: float = 1.0
 var health_component: Node  # Reference to player's Health component
+var low_fuel_warning_played: bool = false  # Track if warning has been played
 
 signal jetpack_activated
 signal jetpack_deactivated
@@ -57,26 +62,66 @@ func _ready():
 	duration_timer.timeout.connect(_on_duration_timeout)
 	add_child(duration_timer)
 	
-	# Setup audio
-	jetpack_audio_player = AudioStreamPlayer.new()
+	# Setup audio system
+	_setup_audio_system()
+
+func _setup_audio_system():
+	"""Setup the audio system following the crusher pattern"""
+	jetpack_audio_player = AudioStreamPlayer2D.new()
+	jetpack_audio_player.name = "JetpackAudioPlayer2D"
 	jetpack_audio_player.bus = "SFX"
-	jetpack_audio_player.volume_db = -5.0
+	jetpack_audio_player.volume_db = 5.0  # Increased from -5.0 to make thrust sound louder
+	add_child(jetpack_audio_player)
+	
 	if jetpack_sound:
 		jetpack_audio_player.stream = jetpack_sound
-	add_child(jetpack_audio_player)
+	
+	low_fuel_audio_player = AudioStreamPlayer2D.new()
+	low_fuel_audio_player.name = "LowFuelAudioPlayer2D"
+	low_fuel_audio_player.bus = "SFX"
+	add_child(low_fuel_audio_player)
+	
+	if low_fuel_warning_sound:
+		low_fuel_audio_player.stream = low_fuel_warning_sound
+	
+	print("Jetpack audio system initialized")
+
+func _play_jetpack_sound():
+	"""Play the jetpack thrust sound"""
+	if jetpack_audio_player and jetpack_sound:
+		if not jetpack_audio_player.playing:
+			jetpack_audio_player.play()
+			print("Playing jetpack thrust sound effect")
+
+func _stop_jetpack_sound():
+	"""Stop the jetpack thrust sound"""
+	if jetpack_audio_player and jetpack_audio_player.playing:
+		jetpack_audio_player.stop()
+
+func _play_low_fuel_warning():
+	"""Play the low fuel warning sound"""
+	if low_fuel_audio_player and low_fuel_warning_sound and not low_fuel_warning_played:
+		low_fuel_audio_player.play()
+		low_fuel_warning_played = true
+		print("Playing low fuel warning sound effect")
 
 func activate(duration: float, visual_sprite: Sprite2D = null):
 	"""Activates the jetpack for a given duration"""
 	if is_active:
-		# If already active, just add to duration
-		duration_timer.wait_time += duration
-		fuel_remaining = min(fuel_remaining + (duration * 10.0), max_fuel)
+		# If already active, reset duration and fuel to full
+		fuel_remaining = duration * 10.0  # Reset to full fuel
+		max_fuel = fuel_remaining
+		duration_timer.wait_time = duration
+		duration_timer.start()  # Restart the timer from beginning
+		low_fuel_warning_played = false  # Reset warning flag
+		print("Jetpack timer reset to full duration!")
 	else:
 		is_active = true
 		fuel_remaining = duration * 10.0  # Convert duration to fuel
 		max_fuel = fuel_remaining
 		duration_timer.wait_time = duration
 		duration_timer.start()
+		low_fuel_warning_played = false  # Reset warning flag
 		
 		# Show the jetpack sprite
 		if jetpack_sprite_node:
@@ -107,9 +152,8 @@ func deactivate():
 	is_active = false
 	fuel_remaining = 0.0
 	
-	# Stop audio
-	if jetpack_audio_player and jetpack_audio_player.playing:
-		jetpack_audio_player.stop()
+	# Stop all audio
+	_stop_jetpack_sound()
 	
 	# Remove particles
 	if jetpack_particles and is_instance_valid(jetpack_particles):
@@ -130,7 +174,7 @@ func deactivate():
 	fuel_changed.emit(fuel_remaining, max_fuel)
 
 func _sync_flicker_with_player():
-	"""Syncs the jetpack sprite's alpha/transparency with the player's main sprite"""
+	"""Syncs the jetpack sprite's alpha/transparency with the player's main sprite for damage flicker"""
 	if not player or not jetpack_sprite_node:
 		return
 	
@@ -140,20 +184,55 @@ func _sync_flicker_with_player():
 		main_sprite = player.get_node("MainSprite")
 	
 	if main_sprite:
-		# Copy the alpha value from the player sprite to the jetpack sprite
-		jetpack_sprite_node.modulate.a = main_sprite.modulate.a
+		# Only sync the flicker effect, multiply with existing alpha (which has fuel fade)
+		var player_alpha = main_sprite.modulate.a
+		var current_alpha = jetpack_sprite_node.modulate.a
 		
-		# Also sync the jetpack fire if it exists
-		if jetpack_fire:
-			jetpack_fire.modulate.a = main_sprite.modulate.a
+		# If player is flickering (alpha < 1), apply that flicker on top of fuel fade
+		if player_alpha < 1.0:
+			jetpack_sprite_node.modulate.a = current_alpha * player_alpha
+			if jetpack_fire:
+				jetpack_fire.modulate.a = current_alpha * player_alpha
+
+func _update_jetpack_fade():
+	"""Updates jetpack transparency based on fuel level"""
+	if not jetpack_sprite_node:
+		return
+	
+	# Calculate fuel-based alpha (fade continuously from start to finish)
+	var fuel_ratio = 1.0
+	if max_fuel > 0:
+		fuel_ratio = clamp(fuel_remaining / max_fuel, 0.0, 1.0)
+	
+	# Apply exponential curve to make fade much more dramatic
+	# Raising to power of 3 makes it fade VERY fast
+	var curved_ratio = pow(fuel_ratio, 1.0)
+	
+	# Fade from 100% opacity to almost invisible (1%) at empty
+	var fuel_alpha = lerp(0.01, 1.0, curved_ratio)
+	
+	# Apply fuel-based fade
+	jetpack_sprite_node.modulate.a = fuel_alpha
+	if jetpack_fire:
+		jetpack_fire.modulate.a = fuel_alpha
 
 func _physics_process(delta: float):
 	"""This is the CORE jetpack logic - runs every frame when active"""
 	if not is_active or not player:
 		return
 	
+	# Always drain fuel based on time, regardless of thrust usage
+	fuel_remaining -= jetpack_fuel_drain_rate * delta
+	fuel_changed.emit(fuel_remaining, max_fuel)
+	
+	_update_jetpack_fade()
 	# Sync jetpack flicker with player sprite
 	_sync_flicker_with_player()
+	
+	# Check for low fuel warning (3 seconds remaining = 30 fuel at drain rate of 10/sec)
+	var fuel_time_remaining = fuel_remaining / jetpack_fuel_drain_rate
+	if fuel_time_remaining <= 3.0 and fuel_time_remaining > 0:
+		_play_low_fuel_warning()
 	
 	# Update jetpack sprite to follow player's facing direction
 	if jetpack_sprite_node and is_instance_valid(jetpack_sprite_node):
@@ -182,8 +261,7 @@ func _physics_process(delta: float):
 				jetpack_fire.play()
 		
 		# Play jetpack sound
-		if jetpack_audio_player and jetpack_sound and not jetpack_audio_player.playing:
-			jetpack_audio_player.play()
+		_play_jetpack_sound()
 		
 		# Update particles
 		if jetpack_particles and jetpack_particles.has_method("set_emitting"):
@@ -198,8 +276,7 @@ func _physics_process(delta: float):
 			jetpack_fire.stop()
 		
 		# Stop sound
-		if jetpack_audio_player and jetpack_audio_player.playing:
-			jetpack_audio_player.stop()
+		_stop_jetpack_sound()
 		
 		# Update particles
 		if jetpack_particles and jetpack_particles.has_method("set_emitting"):

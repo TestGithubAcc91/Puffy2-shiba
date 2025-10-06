@@ -1,8 +1,9 @@
-[gd_scene load_steps=34 format=4 uid="uid://t8fs2g3m2cip"]
+[gd_scene load_steps=35 format=4 uid="uid://t8fs2g3m2cip"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_smbiq"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_uqgtt"]
 [ext_resource type="Texture2D" uid="uid://cchvdqg75syne" path="res://Assets/sprites/MapSprites/Parallax/Desert/StockCake-Peaceful Pixel Desert_1759456948.jpg" id="3_8o6j0"]
+[ext_resource type="Texture2D" uid="uid://bcdwsatq0c60x" path="res://Assets/sprites/MapSprites/Parallax/Desert/spaceBackground.png" id="4_1kjah"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="6_kk3p3"]
 [ext_resource type="PackedScene" uid="uid://bp1jjjj6d1sce" path="res://Scenes/coin.tscn" id="7_ayobu"]
 [ext_resource type="PackedScene" uid="uid://beodtqr1g8lyc" path="res://Scenes/charge.tscn" id="8_m2hwn"]
@@ -194,6 +195,66 @@ position = Vector2(-590.4254, -24.770721)
 scale = Vector2(0.1488863, 0.15930833)
 texture = ExtResource("3_8o6j0")
 
+[node name="SpaceBackground" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-630.92804, -114.69183)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground2" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-543.7215, -114.69183)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground3" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-630.92804, -172.0697)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground4" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-543.7215, -172.0697)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground5" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-630.92804, -229.38367)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground6" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-543.7215, -229.38367)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground7" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-630.92804, -286.76154)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground8" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-543.7215, -286.76154)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground9" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-630.92804, -344.0755)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground10" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-543.7215, -344.0755)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground11" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-630.92804, -401.45337)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
+[node name="SpaceBackground12" type="Sprite2D" parent="ParallaxBackgroundHolder"]
+position = Vector2(-543.7215, -401.45337)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("4_1kjah")
+
 [node name="Player" parent="." instance=ExtResource("6_kk3p3")]
 z_index = 1
 position = Vector2(-2, 3)
@@ -278,6 +339,9 @@ position = Vector2(334, -12)
 
 [node name="Void" parent="LevelHolder/BarrierHolder" instance=ExtResource("23_2a7d0")]
 position = Vector2(95, 68)
+damage_amount = 100
+ignore_iframes = true
+unparryable = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LevelHolder/BarrierHolder/Void"]
 shape = SubResource("WorldBoundaryShape2D_i6g32")
@@ -292,6 +356,9 @@ shape = SubResource("WorldBoundaryShape2D_vm72l")
 
 [node name="Jetpack" parent="LevelHolder" instance=ExtResource("19_r0dbs")]
 position = Vector2(-37, -35)
+
+[node name="Jetpack2" parent="LevelHolder" instance=ExtResource("19_r0dbs")]
+position = Vector2(103, -35)
 
 [node name="UI" parent="." instance=ExtResource("25_48kkd")]
 

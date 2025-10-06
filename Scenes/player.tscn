@@ -1,4 +1,4 @@
-[gd_scene load_steps=50 format=3 uid="uid://bkfnr4qat1ah0"]
+[gd_scene load_steps=53 format=3 uid="uid://bkfnr4qat1ah0"]
 
 [ext_resource type="Script" uid="uid://dbdi6y3t2arwa" path="res://Scripts/player_movement.gd" id="1_cvnsp"]
 [ext_resource type="PackedScene" uid="uid://cw3hs2qsg2k4t" path="res://Scenes/air_puff_H.tscn" id="2_pu2lt"]
@@ -25,8 +25,11 @@
 [ext_resource type="Texture2D" uid="uid://dfvr42g7lumlw" path="res://Assets/sprites/VFXSprites/parrySpark.png" id="14_7dp3o"]
 [ext_resource type="Texture2D" uid="uid://nxsnbivw3ij4" path="res://Assets/sprites/PlayerSprites/ziplineFriction.png" id="15_h4iuc"]
 [ext_resource type="Texture2D" uid="uid://ckd3ojrt5t8sj" path="res://Assets/sprites/PlayerGUI/parryCharges/parryNotReady.png" id="16_fd4e3"]
+[ext_resource type="AudioStream" uid="uid://ox4yxonnsifn" path="res://Assets/sounds/pixelHurt.mp3" id="16_olqyp"]
+[ext_resource type="AudioStream" uid="uid://d2b6xm027nyel" path="res://Assets/sprites/InteractableSprites/rocketthrustmaxx-100019.mp3" id="27_83xs0"]
 [ext_resource type="Script" uid="uid://cjw0p2gahmq73" path="res://Scripts/jetpack_component.gd" id="27_vfarp"]
 [ext_resource type="Texture2D" uid="uid://b64vbohompjuu" path="res://Assets/sprites/InteractableSprites/jetpack.png" id="28_y6uwr"]
+[ext_resource type="AudioStream" uid="uid://cc80451xoey4v" path="res://Assets/sprites/InteractableSprites/beep-warning-6387.mp3" id="28_ypfnu"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_igrcy"]
 atlas = ExtResource("7_gymyn")
@@ -238,6 +241,7 @@ shape = SubResource("CircleShape2D_cvnsp")
 
 [node name="HealthScript" type="Node" parent="."]
 script = ExtResource("3_6t5aa")
+damage_sound = ExtResource("16_olqyp")
 
 [node name="ParryCharge1" type="Sprite2D" parent="."]
 self_modulate = Color(1, 1, 1, 0.78431374)
@@ -311,6 +315,9 @@ texture = ExtResource("16_fd4e3")
 
 [node name="JetpackComponent" type="Node" parent="." node_paths=PackedStringArray("jetpack_sprite_node")]
 script = ExtResource("27_vfarp")
+max_vertical_speed = 200.0
+jetpack_sound = ExtResource("27_83xs0")
+low_fuel_warning_sound = ExtResource("28_ypfnu")
 jetpack_sprite_node = NodePath("../Jetpack")
 
 [node name="Jetpack" type="Sprite2D" parent="."]
@@ -326,18 +333,18 @@ position = Vector2(-1.9999995, 17)
 rotation = -2.223693
 sprite_frames = SubResource("SpriteFrames_vfarp")
 autoplay = "default"
-frame_progress = 0.35544416
+frame_progress = 0.65288574
 
 [node name="JetpackFire2" type="AnimatedSprite2D" parent="Jetpack/JetpackFire"]
 z_index = -1
 position = Vector2(2.3360066, 6.822248)
 sprite_frames = SubResource("SpriteFrames_vfarp")
 autoplay = "default"
-frame_progress = 0.9211337
+frame_progress = 0.21849844
 
 [node name="JetpackFire3" type="AnimatedSprite2D" parent="Jetpack/JetpackFire"]
 z_index = -1
 position = Vector2(7.0090866, -0.9341894)
 sprite_frames = SubResource("SpriteFrames_vfarp")
 autoplay = "default"
-frame_progress = 0.9749271
+frame_progress = 0.27229273
