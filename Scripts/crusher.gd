@@ -6,6 +6,7 @@ extends Node2D
 # Audio properties
 @export_group("Audio")
 @export var crush_sound: AudioStream  # Sound to play when clone appears/disappears
+@export var prepare_sound: AudioStream  # Sound to play when crushPrepare2 starts
 
 var player = null
 var crush_clone = null
@@ -16,6 +17,8 @@ var killzone_activated = false
 
 # Audio system
 var crush_audio_player: AudioStreamPlayer2D
+var prepare_audio_player: AudioStreamPlayer2D
+var prepare2_played = false  # Track if prepare2 sound has been played
 
 func _ready():
 	area_2d.body_entered.connect(_on_body_entered)
@@ -28,11 +31,19 @@ func _ready():
 func _setup_audio_system():
 	crush_audio_player = AudioStreamPlayer2D.new()
 	crush_audio_player.name = "CrushAudioPlayer2D"
-	crush_audio_player.bus = "SFX"  # Use SFX bus like the main game
+	crush_audio_player.bus = "SFX"
 	add_child(crush_audio_player)
 	
 	if crush_sound:
 		crush_audio_player.stream = crush_sound
+	
+	prepare_audio_player = AudioStreamPlayer2D.new()
+	prepare_audio_player.name = "PrepareAudioPlayer2D"
+	prepare_audio_player.bus = "SFX"
+	add_child(prepare_audio_player)
+	
+	if prepare_sound:
+		prepare_audio_player.stream = prepare_sound
 	
 	print("Crusher audio system initialized")
 
@@ -41,6 +52,12 @@ func _play_crush_sound():
 	if crush_audio_player and crush_sound:
 		crush_audio_player.play()
 		print("Playing crush sound effect")
+
+# Function to play prepare sound
+func _play_prepare_sound():
+	if prepare_audio_player and prepare_sound:
+		prepare_audio_player.play()
+		print("Playing prepare sound effect")
 
 func _process(delta):
 	if crush_clone and player and not killzone_activated:
@@ -57,6 +74,9 @@ func _process(delta):
 		if clone_timer >= 1.5 and clone_timer < 1.9:
 			if crush_clone.animation != "crushPrepare2":
 				crush_clone.play("crushPrepare2")
+				if not prepare2_played:
+					_play_prepare_sound()
+					prepare2_played = true
 		
 		# Play crush at 1.9s (0.1s before damage)
 		elif clone_timer >= 1.9 and clone_timer < 2.0:
@@ -93,6 +113,7 @@ func _on_body_entered(body):
 			
 			clone_timer = 0.0
 			killzone_activated = false
+			prepare2_played = false  # Reset the flag for next cycle
 
 func activate_killzone():
 	killzone_activated = true

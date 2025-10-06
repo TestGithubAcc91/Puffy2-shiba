@@ -862,12 +862,24 @@ func handle_jetpack_movement(delta: float):
 	var direction := get_effective_horizontal_input()
 	update_sprite_direction(direction)
 	
-	# Play jetpack animation (create "Jetpack" animation or use "Jump")
-	if jetpack_component.is_active:
-		animated_sprite.play("Jump")  # Change to "Jetpack" if you create that animation
+	# Use normal animation system while jetpacking
+	update_jetpack_animations(direction)
 	
 	# Move the player
 	move_and_slide()
+	
+func update_jetpack_animations(direction: float):
+	"""Updates animations while jetpack is active - maintains normal animation logic"""
+	if not is_in_pre_freeze_parry:
+		if is_on_floor():
+			# On ground with jetpack - use normal ground animations
+			if direction == 0:
+				animated_sprite.play("Idle")
+			else:
+				animated_sprite.play("Run")
+		else:
+			# In air with jetpack - use jump animation
+			animated_sprite.play("Jump")
 
 func _on_jetpack_activated():
 	"""Called when jetpack becomes active"""

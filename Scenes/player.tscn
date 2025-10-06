@@ -25,8 +25,8 @@
 [ext_resource type="Texture2D" uid="uid://dfvr42g7lumlw" path="res://Assets/sprites/VFXSprites/parrySpark.png" id="14_7dp3o"]
 [ext_resource type="Texture2D" uid="uid://nxsnbivw3ij4" path="res://Assets/sprites/PlayerSprites/ziplineFriction.png" id="15_h4iuc"]
 [ext_resource type="Texture2D" uid="uid://ckd3ojrt5t8sj" path="res://Assets/sprites/PlayerGUI/parryCharges/parryNotReady.png" id="16_fd4e3"]
-[ext_resource type="AudioStream" uid="uid://ox4yxonnsifn" path="res://Assets/sounds/pixelHurt.mp3" id="16_olqyp"]
 [ext_resource type="Script" uid="uid://cjw0p2gahmq73" path="res://Scripts/jetpack_component.gd" id="27_vfarp"]
+[ext_resource type="Texture2D" uid="uid://b64vbohompjuu" path="res://Assets/sprites/InteractableSprites/jetpack.png" id="28_y6uwr"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_igrcy"]
 atlas = ExtResource("7_gymyn")
@@ -173,13 +173,13 @@ animations = [{
 "speed": 7.0
 }]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_2ijsl"]
-atlas = ExtResource("15_h4iuc")
-region = Rect2(0, 0, 16, 16)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_p1odr"]
 atlas = ExtResource("15_h4iuc")
 region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2ijsl"]
+atlas = ExtResource("15_h4iuc")
+region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0gysh"]
 atlas = ExtResource("15_h4iuc")
@@ -189,10 +189,10 @@ region = Rect2(32, 0, 16, 16)
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_2ijsl")
+"texture": SubResource("AtlasTexture_p1odr")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_p1odr")
+"texture": SubResource("AtlasTexture_2ijsl")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0gysh")
@@ -238,8 +238,6 @@ shape = SubResource("CircleShape2D_cvnsp")
 
 [node name="HealthScript" type="Node" parent="."]
 script = ExtResource("3_6t5aa")
-iframe_duration = 1.5
-damage_sound = ExtResource("16_olqyp")
 
 [node name="ParryCharge1" type="Sprite2D" parent="."]
 self_modulate = Color(1, 1, 1, 0.78431374)
@@ -311,5 +309,35 @@ self_modulate = Color(1, 1, 1, 0.78431374)
 position = Vector2(9, -6)
 texture = ExtResource("16_fd4e3")
 
-[node name="JetpackComponent" type="Node" parent="."]
+[node name="JetpackComponent" type="Node" parent="." node_paths=PackedStringArray("jetpack_sprite_node")]
 script = ExtResource("27_vfarp")
+jetpack_sprite_node = NodePath("../Jetpack")
+
+[node name="Jetpack" type="Sprite2D" parent="."]
+visible = false
+z_index = -2
+position = Vector2(0, -7)
+texture = ExtResource("28_y6uwr")
+
+[node name="JetpackFire" type="AnimatedSprite2D" parent="Jetpack"]
+visible = false
+z_index = -1
+position = Vector2(-1.9999995, 17)
+rotation = -2.223693
+sprite_frames = SubResource("SpriteFrames_vfarp")
+autoplay = "default"
+frame_progress = 0.35544416
+
+[node name="JetpackFire2" type="AnimatedSprite2D" parent="Jetpack/JetpackFire"]
+z_index = -1
+position = Vector2(2.3360066, 6.822248)
+sprite_frames = SubResource("SpriteFrames_vfarp")
+autoplay = "default"
+frame_progress = 0.9211337
+
+[node name="JetpackFire3" type="AnimatedSprite2D" parent="Jetpack/JetpackFire"]
+z_index = -1
+position = Vector2(7.0090866, -0.9341894)
+sprite_frames = SubResource("SpriteFrames_vfarp")
+autoplay = "default"
+frame_progress = 0.9749271

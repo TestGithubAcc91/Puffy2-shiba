@@ -190,8 +190,8 @@ script = ExtResource("2_uqgtt")
 camera = NodePath("../Player/Camera2D")
 
 [node name="Desert1" type="Sprite2D" parent="ParallaxBackgroundHolder"]
-position = Vector2(-590.4254, -9.501097)
-scale = Vector2(0.108167864, 0.115739614)
+position = Vector2(-590.4254, -24.770721)
+scale = Vector2(0.1488863, 0.15930833)
 texture = ExtResource("3_8o6j0")
 
 [node name="Player" parent="." instance=ExtResource("6_kk3p3")]
