@@ -77,7 +77,13 @@ var level_medal_times = {
 }
 
 func _ready():
-	await _setup_audio_system()  # Now async
+	await _setup_web_audio_fix()  # Add this first
+	await _setup_audio_system()
+	
+	# Connect first interaction for web audio
+	if OS.get_name() == "HTML5":
+		get_viewport().gui_focus_changed.connect(_on_first_user_interaction)
+	
 	level_select_menu.level_selected.connect(_on_level_selected)
 	
 	for button_name in ["TutorialButton", "Level1Button", "Level2Button"]:
@@ -90,6 +96,10 @@ func _ready():
 	_setup_root_curtain()
 	_connect_menu_buttons_sound()
 	_play_music("level_select", true)
+	
+	# Debug info
+	await get_tree().create_timer(1.0).timeout
+	_print_audio_debug()
 
 func _setup_root_curtain():
 	if not black_curtain:
@@ -108,34 +118,43 @@ func _setup_audio_system():
 	# Wait a frame to ensure audio system is ready (critical for web)
 	await get_tree().process_frame
 	
+	# Clear any existing audio players to prevent duplicates
+	for child in get_children():
+		if child is AudioStreamPlayer:
+			child.queue_free()
+	
+	await get_tree().process_frame
+	
 	var players = [
-		{"name": "ButtonAudioPlayer", "stream": button_click_sound, "var": "audio_player"},
-		{"name": "ResultsAudioPlayer", "stream": results_thud_sound, "var": "results_audio_player"},
-		{"name": "GoAudioPlayer", "stream": go_sound, "var": "go_audio_player"}
+		{"name": "ButtonAudioPlayer", "stream": button_click_sound, "var": "audio_player", "bus": "SFX"},
+		{"name": "ResultsAudioPlayer", "stream": results_thud_sound, "var": "results_audio_player", "bus": "SFX"},
+		{"name": "GoAudioPlayer", "stream": go_sound, "var": "go_audio_player", "bus": "SFX"}
 	]
 	
 	for p in players:
 		var player = AudioStreamPlayer.new()
 		player.name = p.name
 		
-		# Only set bus if it exists, otherwise use default "Master"
-		if AudioServer.get_bus_index("SFX") != -1:
-			player.bus = "SFX"
+		# Set bus if it exists
+		if AudioServer.get_bus_index(p.bus) != -1:
+			player.bus = p.bus
+		
+		# CRITICAL FOR WEB: Set the stream BEFORE adding to scene
+		if p.stream:
+			# Create a duplicate of the stream to prevent sharing
+			player.stream = p.stream.duplicate()
 		
 		add_child(player)
 		
-		# Wait a frame before assigning stream (helps web exports)
+		# Wait a frame after adding
 		await get_tree().process_frame
-		
-		if p.stream:
-			player.stream = p.stream
 		
 		set(p.var, player)
 	
+	# Setup music player
 	music_player = AudioStreamPlayer.new()
 	music_player.name = "MusicPlayer"
 	
-	# Only set bus if it exists
 	if AudioServer.get_bus_index("Music") != -1:
 		music_player.bus = "Music"
 	
@@ -143,11 +162,18 @@ func _setup_audio_system():
 	default_music_volume = music_volume_db
 	add_child(music_player)
 	
-	# Wait another frame for music player
+	# Wait for music player to be ready
 	await get_tree().process_frame
+	
+	print("Audio system setup complete. Players: ", get_children().filter(func(c): return c is AudioStreamPlayer))
 
 func _play_music(theme_name: String, fade_in: bool = true):
+	# Ensure music player exists
+	if _ensure_music_initialized():
+		await get_tree().process_frame
+		
 	if not music_player:
+		print("ERROR: Music player still not available")
 		return
 		
 	if current_music_theme == theme_name and music_player.playing and not is_music_fading:
@@ -157,27 +183,35 @@ func _play_music(theme_name: String, fade_in: bool = true):
 	var theme_stream = themes.get(theme_name)
 	
 	if not theme_stream:
+		print("ERROR: Theme stream not found for: ", theme_name)
 		return
 		
-	if music_player.playing and current_music_theme != theme_name:
+	# Stop any current music properly
+	if music_player.playing:
 		await _fade_out_current_music()
 	
 	if music_fade_tween:
 		music_fade_tween.kill()
 	
-	music_player.stream = theme_stream
+	# CRITICAL: Use duplicate for web export
+	music_player.stream = theme_stream.duplicate()
 	current_music_theme = theme_name
 	
-	# Wait a frame after setting stream (helps web)
+	# Extra wait for web export
+	await get_tree().process_frame
 	await get_tree().process_frame
 	
 	if fade_in:
 		music_player.volume_db = -80.0
 		music_player.play()
+		# Extra delay for web audio context
+		await get_tree().create_timer(0.1).timeout
 		_fade_in_music()
 	else:
 		music_player.volume_db = default_music_volume
 		music_player.play()
+		# Extra delay for web audio context
+		await get_tree().create_timer(0.1).timeout
 
 func _fade_in_music():
 	if not music_player.playing: return
@@ -206,7 +240,11 @@ func _connect_button_sound(button: BaseButton):
 	connected_buttons.append(button)
 
 func _play_button_sound():
-	if audio_player and button_click_sound: audio_player.play()
+	if audio_player and button_click_sound:
+		# Ensure we're using the correct stream (web export fix)
+		if audio_player.stream != button_click_sound:
+			audio_player.stream = button_click_sound.duplicate()
+		audio_player.play()
 
 func _play_results_thud_sound():
 	if results_audio_player and results_thud_sound: results_audio_player.play()
@@ -800,3 +838,56 @@ func _unpause_game_from_settings():
 func _on_player_damage_taken(): damage_count += 1
 func _on_player_parry_success(): parry_count += 1
 func _on_glit_collected(): glits_count += 1
+
+
+func _ensure_music_initialized():
+	if not music_player:
+		print("Music player not initialized, recreating...")
+		music_player = AudioStreamPlayer.new()
+		music_player.name = "MusicPlayer"
+		if AudioServer.get_bus_index("Music") != -1:
+			music_player.bus = "Music"
+		music_player.volume_db = music_volume_db
+		add_child(music_player)
+		return true
+	return false
+
+
+func _print_audio_debug():
+	print("=== AUDIO DEBUG ===")
+	print("Music player exists: ", music_player != null)
+	if music_player:
+		print("Music playing: ", music_player.playing)
+		print("Music stream: ", music_player.stream != null)
+		print("Music volume: ", music_player.volume_db)
+	print("===================")
+	
+	
+	
+func _setup_web_audio_fix():
+	# Web-specific audio fixes
+	if OS.get_name() == "HTML5":
+		# Force audio context to resume on first user interaction
+		await get_tree().process_frame
+		_prepare_web_audio()
+
+func _prepare_web_audio():
+	# This helps with web audio autoplay policies
+	if OS.get_name() == "HTML5":
+		# Play and immediately stop silent audio to unlock audio context
+		var dummy_player = AudioStreamPlayer.new()
+		var silent_stream = AudioStreamGenerator.new()
+		dummy_player.stream = silent_stream
+		add_child(dummy_player)
+		dummy_player.play()
+		await get_tree().process_frame
+		dummy_player.stop()
+		await get_tree().process_frame
+		dummy_player.queue_free()
+
+# Call this on first user interaction
+func _on_first_user_interaction():
+	if OS.get_name() == "HTML5" and music_player and not music_player.playing:
+		# Resume music if it should be playing
+		if current_music_theme:
+			_play_music(current_music_theme, true)
