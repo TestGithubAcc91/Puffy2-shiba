@@ -352,6 +352,14 @@ shape = SubResource("WorldBoundaryShape2D_i6g32")
 rotation = 1.5708
 shape = SubResource("WorldBoundaryShape2D_vm72l")
 
+[node name="TopWorldBorder" type="StaticBody2D" parent="LevelHolder/BarrierHolder"]
+position = Vector2(-5, -143)
+rotation = 1.5707964
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LevelHolder/BarrierHolder/TopWorldBorder"]
+rotation = 1.5708
+shape = SubResource("WorldBoundaryShape2D_vm72l")
+
 [node name="CheckpointHolder" type="Node2D" parent="LevelHolder"]
 
 [node name="Jetpack" parent="LevelHolder" instance=ExtResource("19_r0dbs")]

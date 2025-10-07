@@ -77,7 +77,7 @@ var level_medal_times = {
 }
 
 func _ready():
-	_setup_audio_system()
+	await _setup_audio_system()  # Now async
 	level_select_menu.level_selected.connect(_on_level_selected)
 	
 	for button_name in ["TutorialButton", "Level1Button", "Level2Button"]:
@@ -105,6 +105,9 @@ func _reset_curtain_position():
 	curtain_transitioning = false
 
 func _setup_audio_system():
+	# Wait a frame to ensure audio system is ready (critical for web)
+	await get_tree().process_frame
+	
 	var players = [
 		{"name": "ButtonAudioPlayer", "stream": button_click_sound, "var": "audio_player"},
 		{"name": "ResultsAudioPlayer", "stream": results_thud_sound, "var": "results_audio_player"},
@@ -114,33 +117,59 @@ func _setup_audio_system():
 	for p in players:
 		var player = AudioStreamPlayer.new()
 		player.name = p.name
-		player.bus = "SFX"
-		if p.stream: player.stream = p.stream
+		
+		# Only set bus if it exists, otherwise use default "Master"
+		if AudioServer.get_bus_index("SFX") != -1:
+			player.bus = "SFX"
+		
 		add_child(player)
+		
+		# Wait a frame before assigning stream (helps web exports)
+		await get_tree().process_frame
+		
+		if p.stream:
+			player.stream = p.stream
+		
 		set(p.var, player)
 	
 	music_player = AudioStreamPlayer.new()
 	music_player.name = "MusicPlayer"
-	music_player.bus = "Music"
+	
+	# Only set bus if it exists
+	if AudioServer.get_bus_index("Music") != -1:
+		music_player.bus = "Music"
+	
 	music_player.volume_db = music_volume_db
 	default_music_volume = music_volume_db
 	add_child(music_player)
+	
+	# Wait another frame for music player
+	await get_tree().process_frame
 
 func _play_music(theme_name: String, fade_in: bool = true):
+	if not music_player:
+		return
+		
 	if current_music_theme == theme_name and music_player.playing and not is_music_fading:
 		return
 	
 	var themes = {"level_select": level_select_theme, "forest": forest_theme, "beach": beach_theme}
 	var theme_stream = themes.get(theme_name)
 	
-	if not theme_stream: return
+	if not theme_stream:
+		return
+		
 	if music_player.playing and current_music_theme != theme_name:
 		await _fade_out_current_music()
 	
-	if music_fade_tween: music_fade_tween.kill()
+	if music_fade_tween:
+		music_fade_tween.kill()
 	
 	music_player.stream = theme_stream
 	current_music_theme = theme_name
+	
+	# Wait a frame after setting stream (helps web)
+	await get_tree().process_frame
 	
 	if fade_in:
 		music_player.volume_db = -80.0

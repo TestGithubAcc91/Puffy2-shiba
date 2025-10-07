@@ -305,7 +305,12 @@ func handle_input():
 		elif Input.is_action_just_pressed("Jump") and is_on_zipline_check:
 			release_zipline()
 	
-	if not jetpack_active:
+
+	if jetpack_active:
+		# Allow removing jetpack by pressing dash (doesn't consume charge)
+		if Input.is_action_just_pressed("Dash"):
+			remove_jetpack()
+	elif not jetpack_active:
 		if Input.is_action_just_pressed("Dash") and can_dash and current_parry_stacks >= 1 and not is_on_vine and not is_on_zipline_check:
 			activate_dash()
 		
@@ -853,3 +858,9 @@ func _on_jetpack_deactivated():
 
 func _on_jetpack_fuel_changed(current_fuel: float, max_fuel: float):
 	var fuel_percentage = (current_fuel / max_fuel) * 100.0
+
+func remove_jetpack():
+	"""Removes the jetpack without consuming a charge"""
+	if has_jetpack and jetpack_component and jetpack_component.is_active:
+		jetpack_component.deactivate()
+		has_jetpack = false
