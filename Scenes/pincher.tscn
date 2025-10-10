@@ -67,7 +67,7 @@ speed = 25.0
 movement_range = 30.0
 detection_range = 60.0
 dash_speed = 150.0
-recoil_distance = 30.0
+recoil_distance = 0.0
 killzone = NodePath("KillzoneScript_Area")
 unparryable_warning = NodePath("UnparryableWarning")
 

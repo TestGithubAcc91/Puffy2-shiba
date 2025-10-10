@@ -73,7 +73,7 @@ func _ready():
 	setup_vine_holder_animation()
 	create_detection_area()
 	create_approach_detection_area()
-	create_grab_indicator()
+	# Grab indicator disabled
 	if debug_enabled: create_debug_label()
 	create_vine_segments()
 	create_end_sprite()
@@ -112,8 +112,7 @@ func set_vine_length(new_length: float):
 		current_vine_bottom = vine_anchor + Vector2(0, vine_length)
 	if detection_area and not is_player_grabbing:
 		detection_area.position = Vector2(0, vine_length)
-	if grab_indicator and not is_player_grabbing:
-		grab_indicator.position = Vector2(0, vine_length)
+	# Grab indicator disabled
 	if debug_label:
 		debug_label.position = Vector2(-50, vine_length + 40)
 	create_vine_segments()
@@ -433,6 +432,7 @@ func create_grab_indicator():
 	grab_indicator.position = Vector2(0, vine_length)
 	grab_indicator.modulate = Color(1.0, 1.0, 1.0, 0.5)
 	grab_indicator.visible = false
+	grab_indicator.hide()  # Keep it permanently hidden
 
 func create_debug_label():
 	debug_label = Label.new()
@@ -463,11 +463,11 @@ func _process(delta):
 	if is_player_grabbing and player:
 		current_vine_bottom = player.global_position
 		detection_area.position = player.global_position - global_position
-		grab_indicator.position = player.global_position - global_position
+		# Grab indicator disabled
 	else:
 		current_vine_bottom = vine_anchor + Vector2(0, vine_length)
 		detection_area.position = Vector2(0, vine_length)
-		grab_indicator.position = Vector2(0, vine_length)
+		# Grab indicator disabled
 	
 	update_vine_segments_for_swinging()
 	
@@ -512,8 +512,7 @@ func _on_body_entered(body):
 		if body.has_node("VineComponent"):
 			var vine_component = body.get_node("VineComponent")
 			vine_component.set_nearby_vine(self)
-		if grab_indicator and not is_player_grabbing:
-			grab_indicator.visible = true
+		# Grab indicator stays hidden
 		# Only auto-grab if the player isn't already swinging on another vine
 		if body.has_node("VineComponent"):
 			var vine_component = body.get_node("VineComponent")
@@ -529,8 +528,7 @@ func _on_body_exited(body):
 			if not is_player_grabbing:
 				player = null
 		player_in_grab_area = false
-		if grab_indicator:
-			grab_indicator.visible = false
+		# Grab indicator stays hidden
 
 func attach_player(p: CharacterBody2D):
 	# FIXED: Only force release from other vines, not this one

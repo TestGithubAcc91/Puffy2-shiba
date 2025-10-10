@@ -270,7 +270,6 @@ bounce_speed = 100.0
 position = Vector2(0, -6)
 zoom = Vector2(4, 4)
 limit_bottom = 60
-position_smoothing_enabled = true
 position_smoothing_speed = 10.0
 
 [node name="LevelHolder" type="Node" parent="."]
