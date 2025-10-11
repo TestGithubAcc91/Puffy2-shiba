@@ -366,8 +366,11 @@ func handle_bounce_movement(delta: float):
 	var current_time = Time.get_ticks_msec() / 1000.0
 	var bounce_elapsed = current_time - bounce_start_time
 	
-	if bounce_elapsed >= bounce_duration: end_bounce()
-	else: velocity.x = bounce_direction_vector.x * (bounce_distance / bounce_duration)
+	if bounce_elapsed >= bounce_duration:
+		end_bounce()
+	else:
+		# Apply horizontal bounce velocity
+		velocity.x = bounce_direction_vector.x * (bounce_distance / bounce_duration)
 	
 	if not is_on_floor(): velocity += get_gravity() * delta
 	move_and_slide()
@@ -529,11 +532,21 @@ func activate_high_jump():
 	_play_whoosh_sound()
 	spawn_air_puffV()
 
+
 func handle_wall_bounce():
 	var original_dash_direction = dash_direction
 	end_dash()
+	
+	# Make sure any previous bounce state is cleared
+	is_bouncing = false
+	bounce_direction_vector = Vector2.ZERO
+	bounce_timer.stop()
+	
+	# Apply upward recoil immediately
 	velocity.y = wall_bounce_force.y
-	velocity.x = 0.0
+	velocity.x = 0.0  # Reset horizontal velocity before bounce
+	
+	# Set up bounce state for the delay
 	bounce_direction_vector = Vector2.LEFT if original_dash_direction.x > 0 else Vector2.RIGHT
 	bounce_timer.start()
 
@@ -671,7 +684,11 @@ func _on_coyote_time_timeout(): can_coyote_jump = false
 func reset_timescale(): Engine.time_scale = original_time_scale
 func _on_dash_timeout(): end_dash()
 func _on_dash_cooldown_timeout(): can_dash = true
-func _on_bounce_timeout(): is_bouncing = true; bounce_start_time = Time.get_ticks_msec() / 1000.0
+func _on_bounce_timeout():
+	is_bouncing = true
+	bounce_start_time = Time.get_ticks_msec() / 1000.0
+
+
 func _on_high_jump_cooldown_timeout(): can_high_jump = true
 
 func set_last_attack_unparryable(unparryable: bool):
