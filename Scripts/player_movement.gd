@@ -137,6 +137,7 @@ func _ready():
 	movement_blocked_at_level_start = true
 	_setup_audio_system()
 	health_script.died.connect(_on_player_died)
+	health_script.damage_taken.connect(_on_damage_taken)  # NEW: Connect to damage signal
 	setup_charge_system()
 	setup_ui()
 	setup_durations()
@@ -147,6 +148,30 @@ func _ready():
 		jetpack_component.jetpack_activated.connect(_on_jetpack_activated)
 		jetpack_component.jetpack_deactivated.connect(_on_jetpack_deactivated)
 		jetpack_component.fuel_changed.connect(_on_jetpack_fuel_changed)
+		
+func _on_damage_taken():
+	# If we were parrying and took damage, it means the attack was unparryable
+	# End the parry immediately to prevent further hits
+	if is_parrying and last_attack_was_unparryable:
+		print("Took damage from unparryable attack - ending parry immediately")
+		_force_end_parry()
+		
+func _force_end_parry():
+	is_parrying = false
+	parry_was_successful = false
+	
+	if parry_timer:
+		parry_timer.stop()
+	if parry_safety_timer:
+		parry_safety_timer.stop()
+	
+	if glint_sprite:
+		glint_sprite.visible = false
+		glint_sprite.stop()
+	
+	# Start cooldown for failed parry
+	parry_cooldown_timer.wait_time = parry_fail_cooldown
+	parry_cooldown_timer.start()
 
 func _setup_audio_system():
 	whoosh_audio_player = AudioStreamPlayer.new()

@@ -5,16 +5,16 @@ var facing_left: bool = false
 var projectile_radius: float = 8.0
 var detect_ground: bool = true
 var is_initialized: bool = false
-var is_unparryable: bool = false  # Track if this projectile is unparryable
+var is_unparryable: bool = false
 var is_disappearing: bool = false
 var lifetime_timer: Timer
-var sprite_rotation: float = 0.0  # Track sprite rotation manually
+var sprite_rotation: float = 0.0
 
 @export var damage_amount: int = 25
-@export var disappear_vfx: PackedScene  # VFX scene to spawn when disappearing
-@export var lifetime: float = 3.0  # Time before projectile disappears
-@export var wall_detection_distance: float = 3.0  # Extra distance beyond radius to detect walls
-@export var disappear_sound: AudioStream  # Sound to play when disappearing
+@export var disappear_vfx: PackedScene
+@export var lifetime: float = 3.0
+@export var wall_detection_distance: float = 3.0
+@export var disappear_sound: AudioStream
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -26,17 +26,21 @@ var disappear_audio_player: AudioStreamPlayer2D
 func _ready():
 	# Configure RigidBody2D properties for rolling
 	gravity_scale = 1.0
-	lock_rotation = true  # Keep the RigidBody2D rotation locked
+	lock_rotation = true
 	continuous_cd = CCD_MODE_CAST_RAY
 	contact_monitor = true
 	max_contacts_reported = 4
 	
-	# Set collision layers
-	# Layer 2: projectile layer
-	# Mask 1: only collide with tilemap/ground (layer 0)
-	collision_layer = 4   # Projectile on layer 2
-	collision_mask = 1    # Only collide with ground/tilemap (layer 0)
-	damage_zone.collision_mask = 2
+	# FIXED: Set proper collision layers
+	# Layer 1 (bit 1): player, Layer 2 (bit 2): projectiles, Layer 3 (bit 4): charges
+	# Projectile should be on layer 2, and only collide with ground (layer 0)
+	collision_layer = 4   # Projectile on layer 2 (bit value 4)
+	collision_mask = 1    # Only collide with ground/tilemap (layer 0, bit value 1)
+	
+	# FIXED: Damage zone should only detect player (layer 1, bit value 2)
+	if damage_zone:
+		damage_zone.collision_mask = 2  # Only detect player (layer 1)
+		damage_zone.collision_layer = 0 # Don't be detected by anything
 	
 	# Add to projectile group for easy identification
 	add_to_group("projectiles")
@@ -67,7 +71,7 @@ func _ready():
 func _setup_audio_system():
 	disappear_audio_player = AudioStreamPlayer2D.new()
 	disappear_audio_player.name = "DisappearAudioPlayer2D"
-	disappear_audio_player.bus = "SFX"  # Use SFX bus
+	disappear_audio_player.bus = "SFX"
 	
 	# Configure sound range and attenuation
 	disappear_audio_player.max_distance = 500.0
@@ -105,12 +109,11 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 			print("Warning: Animation '", anim_name, "' not found in projectile!")
 	
 	# Configure damage zone based on parryable status
-	# CRITICAL: Set ignore_iframes to FALSE so the killzone respects player iframes
 	if damage_zone:
-		# Set ignore_iframes to false - we always want to respect iframes
+		# CRITICAL FIX: Set ignore_iframes based on unparryable status
 		if "ignore_iframes" in damage_zone:
-			damage_zone.ignore_iframes = false
-			print("Projectile damage zone ignore_iframes set to: false")
+			damage_zone.ignore_iframes = is_unparryable  # Only ignore iframes for unparryable projectiles
+			print("Projectile damage zone ignore_iframes set to: ", is_unparryable)
 		
 		# Set unparryable status
 		if damage_zone.has_method("set_unparryable"):
@@ -130,7 +133,7 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 	var direction = -1 if facing_left else 1
 	linear_velocity = Vector2(direction * roll_speed, 0)
 	
-	print("Initialized rolling projectile: unparryable = ", is_unparryable, ", respects iframes = true")
+	print("Initialized rolling projectile: unparryable = ", is_unparryable, ", ignore_iframes = ", is_unparryable)
 
 func _physics_process(delta):
 	if not is_initialized or is_disappearing:

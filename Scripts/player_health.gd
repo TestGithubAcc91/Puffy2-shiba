@@ -12,7 +12,7 @@ signal health_decreased  # NEW: Signal emitted only when health actually decreas
 @export var current_health: int = 100
 @export var iframe_duration: float = 1.0
 @export var flicker_interval: float = 0.1
-@export var iframe_cooldown: float = 0.1  # Brief period after iframes start where additional damage is ignored
+@export var iframe_cooldown: float = 0.3  # Brief period after iframes start where additional damage is ignored
 
 var is_invulnerable: bool = false
 var iframe_timer: Timer
@@ -110,11 +110,6 @@ func _reset_sprite_transparency():
 		print("Sprite transparency reset to full opacity")
 
 func take_damage(amount: int, ignore_iframes: bool = false):
-	# NEW: Check if we're in the brief cooldown period after iframes started
-	if is_in_iframe_cooldown and not ignore_iframes:
-		print("In iframe cooldown period, damage ignored")
-		return
-	
 	# Store health before damage
 	var health_before = current_health
 	
@@ -140,6 +135,11 @@ func take_damage(amount: int, ignore_iframes: bool = false):
 			print("Player is invulnerable, damage blocked!")
 			return
 	
+	# NEW: Check if we're in the brief cooldown period after damage was just dealt
+	if is_in_iframe_cooldown and not ignore_iframes:
+		print("In iframe cooldown period, damage ignored")
+		return
+	
 	if ignore_iframes and is_invulnerable:
 		print("Damage ignoring i-frames!")
 	
@@ -158,27 +158,21 @@ func take_damage(amount: int, ignore_iframes: bool = false):
 	# NEW: Play damage sound effect when damage is actually taken
 	_play_damage_sound()
 	
-	# NEW: Don't reset if we're already in iframes - just extend the duration
-	if not is_invulnerable:
-		_reset_all_iframe_states()
-		
-		# Start new iframes
-		is_invulnerable = true
-		iframe_timer.start()
-		iframe_safety_timer.start()
-		
-		# Start flickering effect (but only if not forced invisible)
-		if not force_invisible:
-			is_flickering = true
-			flicker_timer.start()
-		
-		iframe_started.emit()
-		print("I-frames activated for ", iframe_duration, " seconds")
-	else:
-		# If already in iframes, just restart the timers to extend protection
-		iframe_timer.start()
-		iframe_safety_timer.start()
-		print("I-frames extended")
+	# NEW: Stop ALL timers and reset states before starting new iframes
+	_reset_all_iframe_states()
+	
+	# ALWAYS grant invulnerability and start visual iframes after taking damage
+	is_invulnerable = true
+	iframe_timer.start()
+	iframe_safety_timer.start()
+	
+	# Start flickering effect (but only if not forced invisible)
+	if not force_invisible:
+		is_flickering = true
+		flicker_timer.start()
+	
+	iframe_started.emit()
+	print("I-frames activated for ", iframe_duration, " seconds")
 	
 	# NEW: Start cooldown period to prevent rapid successive damage
 	is_in_iframe_cooldown = true
@@ -249,17 +243,14 @@ func _on_iframe_timeout():
 	print("I-frames ended, player can take damage again")
 
 func _on_flicker_timeout():
-	# Only flicker if we're supposed to be flickering AND not forced invisible AND still invulnerable
-	if is_flickering and animated_sprite and not force_invisible and is_invulnerable:
+	# Only flicker if we're supposed to be flickering AND not forced invisible
+	if is_flickering and animated_sprite and not force_invisible:
 		if animated_sprite.modulate.a > 0.5:
 			animated_sprite.modulate.a = 0.3
 		else:
 			animated_sprite.modulate.a = 1.0
 		
 		flicker_timer.start()
-	else:
-		# If we shouldn't be flickering, make sure sprite is visible
-		_reset_sprite_transparency()
 
 # NEW: Iframe cooldown timeout handler
 func _on_iframe_cooldown_timeout():
