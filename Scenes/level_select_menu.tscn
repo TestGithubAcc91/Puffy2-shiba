@@ -1,10 +1,11 @@
-[gd_scene load_steps=22 format=3 uid="uid://bck8lw4sj2ly6"]
+[gd_scene load_steps=23 format=3 uid="uid://bck8lw4sj2ly6"]
 
 [ext_resource type="Script" uid="uid://cojgak2pyu7c6" path="res://Scripts/level_select_menu.gd" id="1_52mtt"]
 [ext_resource type="FontFile" uid="uid://ckbaagqak4gj6" path="res://Assets/fonts/PixelOperator8-Bold.ttf" id="1_271b8"]
 [ext_resource type="Texture2D" uid="uid://c2mf3hsay4usg" path="res://Assets/sprites/PlayerGUI/GeneralGUI/BlueLevel/beachBackground.png" id="4_f18ie"]
 [ext_resource type="Texture2D" uid="uid://dhcd06bylb8j3" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/forestBackground.png" id="4_ube50"]
 [ext_resource type="Texture2D" uid="uid://bpbqfl4qhtu3t" path="res://Assets/sprites/PlayerGUI/GeneralGUI/puffyLogo.png" id="4_vowso"]
+[ext_resource type="Texture2D" uid="uid://2y2n8hxewbjp" path="res://Assets/sprites/PlayerGUI/GeneralGUI/YellowLevel/desert.png" id="4_wa85o"]
 [ext_resource type="Texture2D" uid="uid://d0f1tqptvfdvm" path="res://Assets/sprites/PlayerGUI/GeneralGUI/TutorialLevel/tutorialBackground.png" id="5_swa0l"]
 [ext_resource type="Texture2D" uid="uid://c4iwwwklkbaer" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/greenButton.png" id="8_461nm"]
 [ext_resource type="Texture2D" uid="uid://fxag7o0s0xak" path="res://Assets/sprites/PlayerGUI/GeneralGUI/GreenLevel/greenButtonSelect.png" id="9_ube50"]
@@ -54,6 +55,14 @@ self_modulate = Color(1, 1, 1, 0.27451)
 position = Vector2(1.0000005, -12.000001)
 scale = Vector2(0.49692804, 0.49692804)
 texture = ExtResource("4_f18ie")
+flip_h = true
+
+[node name="DesertBackground" type="Sprite2D" parent="."]
+visible = false
+self_modulate = Color(1, 1, 1, 0.27451)
+position = Vector2(1.0000005, -12.000001)
+scale = Vector2(0.53575826, 0.53575826)
+texture = ExtResource("4_wa85o")
 flip_h = true
 
 [node name="TutorialBackground" type="Sprite2D" parent="."]

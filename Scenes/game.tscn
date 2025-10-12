@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dtcx6xj2og0ed"]
+[gd_scene load_steps=14 format=3 uid="uid://dtcx6xj2og0ed"]
 
 [ext_resource type="PackedScene" uid="uid://bck8lw4sj2ly6" path="res://Scenes/level_select_menu.tscn" id="1_81klo"]
 [ext_resource type="Script" uid="uid://86bicgodvvg4" path="res://Scripts/game.gd" id="1_wrm1d"]
@@ -12,6 +12,7 @@
 [ext_resource type="AudioStream" uid="uid://ptgg2rkv6yj5" path="res://Assets/music/Spatial Entaglement - The Grey Room _ Density & Time.mp3" id="8_rku1e"]
 [ext_resource type="AudioStream" uid="uid://d10rxijkvs2a5" path="res://Assets/music/Claim To Fame - The Grey Room _ Clark Sims.mp3" id="9_rfjv2"]
 [ext_resource type="AudioStream" uid="uid://bt7suhna84lxf" path="res://Assets/music/Purple Desire - The Grey Room _ Clark Sims.mp3" id="10_1phco"]
+[ext_resource type="AudioStream" uid="uid://b7w81ran16bd0" path="res://Assets/music/Pawn - The Grey Room _ Golden Palms.mp3" id="11_rfjv2"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_wrm1d")
@@ -27,6 +28,7 @@ go_sound = ExtResource("7_h4fw4")
 level_select_theme = ExtResource("8_rku1e")
 forest_theme = ExtResource("9_rfjv2")
 beach_theme = ExtResource("10_1phco")
+desert_theme = ExtResource("11_rfjv2")
 
 [node name="LevelSelectMenu" parent="." instance=ExtResource("1_81klo")]
 position = Vector2(-12, -88)

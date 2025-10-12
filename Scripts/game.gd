@@ -61,6 +61,7 @@ signal player_died
 @export var level_select_theme: AudioStream
 @export var forest_theme: AudioStream
 @export var beach_theme: AudioStream
+@export var desert_theme: AudioStream
 
 @export_group("Music Settings")
 @export var music_fade_duration: float = 1.5
@@ -95,7 +96,7 @@ func _ready():
 	
 	_setup_root_curtain()
 	_connect_menu_buttons_sound()
-	_play_music("level_select", true)
+	_play_music("level_select", true, null)
 	
 	# Debug info
 	await get_tree().create_timer(1.0).timeout
@@ -167,7 +168,7 @@ func _setup_audio_system():
 	
 	print("Audio system setup complete. Players: ", get_children().filter(func(c): return c is AudioStreamPlayer))
 
-func _play_music(theme_name: String, fade_in: bool = true):
+func _play_music(theme_name: String, fade_in: bool = true, volume_override = null):
 	# Ensure music player exists
 	if _ensure_music_initialized():
 		await get_tree().process_frame
@@ -179,7 +180,7 @@ func _play_music(theme_name: String, fade_in: bool = true):
 	if current_music_theme == theme_name and music_player.playing and not is_music_fading:
 		return
 	
-	var themes = {"level_select": level_select_theme, "forest": forest_theme, "beach": beach_theme}
+	var themes = {"level_select": level_select_theme, "forest": forest_theme, "beach": beach_theme, "desert": desert_theme}
 	var theme_stream = themes.get(theme_name)
 	
 	if not theme_stream:
@@ -197,6 +198,11 @@ func _play_music(theme_name: String, fade_in: bool = true):
 	music_player.stream = theme_stream.duplicate()
 	current_music_theme = theme_name
 	
+	# Set volume override if provided
+	var target_volume = default_music_volume
+	if volume_override != null:
+		target_volume = default_music_volume + volume_override
+	
 	# Extra wait for web export
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -206,18 +212,20 @@ func _play_music(theme_name: String, fade_in: bool = true):
 		music_player.play()
 		# Extra delay for web audio context
 		await get_tree().create_timer(0.1).timeout
-		_fade_in_music()
+		_fade_in_music(target_volume)
 	else:
-		music_player.volume_db = default_music_volume
+		music_player.volume_db = target_volume
 		music_player.play()
 		# Extra delay for web audio context
 		await get_tree().create_timer(0.1).timeout
 
-func _fade_in_music():
+func _fade_in_music(target_volume = null):
 	if not music_player.playing: return
+	if target_volume == null:
+		target_volume = default_music_volume
 	is_music_fading = true
 	music_fade_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	music_fade_tween.tween_property(music_player, "volume_db", default_music_volume, music_fade_duration)
+	music_fade_tween.tween_property(music_player, "volume_db", target_volume, music_fade_duration)
 	await music_fade_tween.finished
 	is_music_fading = false
 
@@ -351,12 +359,16 @@ func _change_to_level(level_identifier):
 
 func _switch_level_music(level_identifier):
 	var theme = "forest"
+	var volume_override = null
 	
-	# Only level 2 uses beach theme, everything else uses forest
+	# Level 2 uses beach theme, Level 3 uses desert theme
 	if str(level_identifier) == "2":
 		theme = "beach"
+	elif str(level_identifier) == "3":
+		theme = "desert"
+		volume_override = 10.0  # Raise desert theme volume by 5dB
 	
-	_play_music(theme, true)
+	_play_music(theme, true, volume_override)
 
 func _switch_to_player_camera():
 	var menu_camera = level_select_menu.get_node("Camera2D") if level_select_menu.has_node("Camera2D") else null

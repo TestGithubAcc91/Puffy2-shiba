@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://df7ftdnfm8vmy"
-path="res://.godot/imported/desertBackground.png-def1f4cb7675ea4de653171f04b218ca.ctex"
+uid="uid://2y2n8hxewbjp"
+path="res://.godot/imported/desert.png-6b709137edeb6cbd34a18b69aea86061.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/sprites/MapSprites/Parallax/Desert/desertBackground.png"
-dest_files=["res://.godot/imported/desertBackground.png-def1f4cb7675ea4de653171f04b218ca.ctex"]
+source_file="res://Assets/sprites/PlayerGUI/GeneralGUI/YellowLevel/desert.png"
+dest_files=["res://.godot/imported/desert.png-6b709137edeb6cbd34a18b69aea86061.ctex"]
 
 [params]
 

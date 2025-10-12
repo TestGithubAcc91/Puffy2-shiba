@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://b7w81ran16bd0"
+path="res://.godot/imported/Pawn - The Grey Room _ Golden Palms.mp3-7189ecb33198227b0a3bcc503a90fad5.mp3str"
+
+[deps]
+
+source_file="res://Assets/music/Pawn - The Grey Room _ Golden Palms.mp3"
+dest_files=["res://.godot/imported/Pawn - The Grey Room _ Golden Palms.mp3-7189ecb33198227b0a3bcc503a90fad5.mp3str"]
+
+[params]
+
+loop=true
+loop_offset=0.0
+bpm=0.0
+beat_count=0
+bar_beats=4

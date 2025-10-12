@@ -19,6 +19,7 @@ signal level_selected(level_number)
 @onready var forest_background = $ForestBackground
 @onready var beach_background = $BeachBackground
 @onready var tutorial_background = $TutorialBackground
+@onready var desert_background = $DesertBackground
 var tween: Tween
 
 # Animation variables
@@ -36,6 +37,9 @@ func _ready():
 	
 	tutorial_background.modulate.a = 0.0
 	tutorial_background.visible = true
+	
+	desert_background.modulate.a = 0.0
+	desert_background.visible = true
 	
 	# Connect Level 1 button signals
 	$Level1Button.pressed.connect(_on_level_1_button_pressed)
@@ -74,6 +78,7 @@ func _fade_out_all_backgrounds():
 	tween.parallel().tween_property(forest_background, "modulate:a", 0.0, 0.3)
 	tween.parallel().tween_property(beach_background, "modulate:a", 0.0, 0.3)
 	tween.parallel().tween_property(tutorial_background, "modulate:a", 0.0, 0.3)
+	tween.parallel().tween_property(desert_background, "modulate:a", 0.0, 0.3)
 
 # Helper function to fade in a specific background
 func _fade_in_background(background_node):
@@ -85,6 +90,7 @@ func _fade_in_background(background_node):
 	tween.parallel().tween_property(forest_background, "modulate:a", 0.0, 0.3)
 	tween.parallel().tween_property(beach_background, "modulate:a", 0.0, 0.3)
 	tween.parallel().tween_property(tutorial_background, "modulate:a", 0.0, 0.3)
+	tween.parallel().tween_property(desert_background, "modulate:a", 0.0, 0.3)
 	# Then fade in the target background
 	tween.parallel().tween_property(background_node, "modulate:a", 1.0, 0.3)
 
@@ -120,12 +126,12 @@ func _on_tutorial_button_hover_start():
 func _on_tutorial_button_hover_end():
 	_fade_out_all_backgrounds()
 
-# Level 3 button handlers
+# Level 3 button handlers (Desert theme)
 func _on_level_3_button_pressed():
 	level_selected.emit(3)
 
 func _on_level_3_button_hover_start():
-	_fade_in_background(forest_background)
+	_fade_in_background(desert_background)
 
 func _on_level_3_button_hover_end():
 	_fade_out_all_backgrounds()
