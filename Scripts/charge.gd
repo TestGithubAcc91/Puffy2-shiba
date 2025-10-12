@@ -19,6 +19,12 @@ var respawn_timer: Timer
 var audio_player: AudioStreamPlayer
 
 func _ready():
+	# Configure collision layers - only interact with player
+	# Layer 1: player, Layer 2: projectiles, Layer 3: charges
+	# Put charge on layer 3 (bit value 4) and only detect player on layer 1 (bit value 1)
+	collision_layer = 4  # Charge on layer 3
+	collision_mask = 2   # Only detect player on layer 1
+	
 	# Connect the body_entered signal
 	body_entered.connect(_on_body_entered)
 	

@@ -126,6 +126,7 @@ animations = [{
 [node name="Shifter" type="Node2D"]
 script = ExtResource("1_3yqvl")
 projectile_scene = ExtResource("2_2dl13")
+roll_speed = 125.0
 shoot_sound = ExtResource("3_ioihu")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]

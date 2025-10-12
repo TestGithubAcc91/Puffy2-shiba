@@ -32,8 +32,11 @@ func _ready():
 	max_contacts_reported = 4
 	
 	# Set collision layers
-	collision_layer = 2
-	collision_mask = 1 | 1
+	# Layer 2: projectile layer
+	# Mask 1: only collide with tilemap/ground (layer 0)
+	collision_layer = 4   # Projectile on layer 2
+	collision_mask = 1    # Only collide with ground/tilemap (layer 0)
+	damage_zone.collision_mask = 2
 	
 	# Add to projectile group for easy identification
 	add_to_group("projectiles")
@@ -102,22 +105,32 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 			print("Warning: Animation '", anim_name, "' not found in projectile!")
 	
 	# Configure damage zone based on parryable status
+	# CRITICAL: Set ignore_iframes to FALSE so the killzone respects player iframes
 	if damage_zone:
+		# Set ignore_iframes to false - we always want to respect iframes
+		if "ignore_iframes" in damage_zone:
+			damage_zone.ignore_iframes = false
+			print("Projectile damage zone ignore_iframes set to: false")
+		
+		# Set unparryable status
 		if damage_zone.has_method("set_unparryable"):
 			damage_zone.set_unparryable(is_unparryable)
-		if damage_zone.has_method("set_damage_amount"):
-			damage_zone.set_damage_amount(damage_amount)
 		if "unparryable" in damage_zone:
 			damage_zone.unparryable = is_unparryable
+			print("Projectile damage zone unparryable set to: ", is_unparryable)
+		
+		# Set damage amount
+		if damage_zone.has_method("set_damage_amount"):
+			damage_zone.set_damage_amount(damage_amount)
 		if "damage_amount" in damage_zone:
 			damage_zone.damage_amount = damage_amount
-		print("Projectile damage zone configured: unparryable = ", is_unparryable)
+			print("Projectile damage zone damage_amount set to: ", damage_amount)
 	
 	# Apply initial horizontal velocity
 	var direction = -1 if facing_left else 1
 	linear_velocity = Vector2(direction * roll_speed, 0)
 	
-	print("Initialized rolling projectile: unparryable = ", is_unparryable)
+	print("Initialized rolling projectile: unparryable = ", is_unparryable, ", respects iframes = true")
 
 func _physics_process(delta):
 	if not is_initialized or is_disappearing:
