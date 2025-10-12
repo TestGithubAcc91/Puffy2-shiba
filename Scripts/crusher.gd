@@ -59,14 +59,30 @@ func _play_prepare_sound():
 		prepare_audio_player.play()
 		print("Playing prepare sound effect")
 
+# Helper function to get offset based on rotation
+func _get_offset() -> float:
+	# Check if rotated 180 degrees (upside down)
+	# Normalize rotation to 0-360 range
+	var normalized_rotation = fmod(rotation_degrees, 360.0)
+	if normalized_rotation < 0:
+		normalized_rotation += 360.0
+	
+	# If rotation is approximately 180 degrees (with some tolerance), use offset of 10
+	if abs(normalized_rotation - 180.0) < 10.0:
+		return 2.0  # Upside down offset
+	else:
+		return -16.0  # Normal offset
+
 func _process(delta):
 	if crush_clone and player and not killzone_activated:
+		var offset = _get_offset()
+		
 		if crush_area:
 			crush_area.global_position = player.global_position
-			crush_area.global_position.y -= 16
+			crush_area.global_position.y += offset
 		else:
 			crush_clone.global_position = player.global_position
-			crush_clone.global_position.y -= 16
+			crush_clone.global_position.y += offset
 		
 		clone_timer += delta
 		
@@ -87,8 +103,9 @@ func _process(delta):
 		if clone_timer >= 2.0:
 			activate_killzone()
 	elif crush_area and player and killzone_activated:
+		var offset = _get_offset()
 		crush_area.global_position = player.global_position
-		crush_area.global_position.y -= 16
+		crush_area.global_position.y += offset
 
 func _on_body_entered(body):
 	if body.is_in_group("player") or body.name == "Player":
@@ -97,11 +114,13 @@ func _on_body_entered(body):
 		is_active = true
 		
 		if not crush_clone:
+			var offset = _get_offset()
+			
 			crush_clone = animated_sprite.duplicate()
 			add_child(crush_clone)
 			crush_clone.play("crushPrepare")
 			crush_clone.global_position = player.global_position
-			crush_clone.global_position.y -= 16
+			crush_clone.global_position.y += offset
 			crush_clone.z_index = 1
 			crush_clone.modulate.a = 0.0
 			
