@@ -47,7 +47,7 @@ func _ready():
 		push_error("ERROR: AnimatedSprite2D node not found as child!")
 		return
 	
-	print("Enemy shooter initialized successfully")
+
 	
 	# Set initial facing direction
 	update_facing_direction()
@@ -59,7 +59,7 @@ func _ready():
 	fire_timer.timeout.connect(_on_fire_timer_timeout)
 	add_child(fire_timer)
 	
-	print("Fire timer started with rate: ", fire_rate, " seconds")
+
 	
 	# Connect to player's death signal if available
 	connect_to_player_signals()
@@ -90,7 +90,7 @@ func _setup_audio_system():
 	if shoot_sound:
 		shoot_audio_player.stream = shoot_sound
 	
-	print("Rolling shooter audio system initialized")
+
 
 # Function to play shoot sound
 func _play_shoot_sound():
@@ -101,7 +101,7 @@ func _play_shoot_sound():
 func decide_next_shot_type():
 	if random_parry_pattern:
 		next_shot_unparryable = randf() < unparryable_chance
-		print("Next shot type decided: ", "UNPARRYABLE" if next_shot_unparryable else "PARRYABLE")
+
 	else:
 		next_shot_unparryable = false
 
@@ -167,7 +167,7 @@ func start_shooting_sequence():
 	# Check if the animation exists
 	if animated_sprite.sprite_frames.has_animation(anim_name):
 		animated_sprite.play(anim_name)
-		print("Playing animation: ", anim_name)
+
 	else:
 		# Fallback warning
 		print("Warning: Animation '", anim_name, "' not found!")
@@ -260,7 +260,7 @@ func spawn_projectile():
 				next_shot_unparryable  # Pass unparryable status
 			)
 		
-		print("Spawned ", "UNPARRYABLE" if next_shot_unparryable else "PARRYABLE", " projectile")
+
 
 # Method to manually stop enemy (can be called from other scripts)
 func stop_enemy():

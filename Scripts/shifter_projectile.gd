@@ -104,7 +104,7 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 		var anim_name = "unparryable" if is_unparryable else "canParry"
 		if animated_sprite.sprite_frames.has_animation(anim_name):
 			animated_sprite.play(anim_name)
-			print("Projectile playing animation: ", anim_name)
+
 		else:
 			print("Warning: Animation '", anim_name, "' not found in projectile!")
 	
@@ -113,28 +113,27 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 		# FIXED: Keep ignore_iframes as false - respect player iframes even when unparryable
 		if "ignore_iframes" in damage_zone:
 			damage_zone.ignore_iframes = false  # Always respect player iframes
-			print("Projectile damage zone ignore_iframes set to: false")
+
 		
 		# Set unparryable status
 		if damage_zone.has_method("set_unparryable"):
 			damage_zone.set_unparryable(is_unparryable)
 		if "unparryable" in damage_zone:
 			damage_zone.unparryable = is_unparryable
-			print("Projectile damage zone unparryable set to: ", is_unparryable)
+
 		
 		# Set damage amount
 		if damage_zone.has_method("set_damage_amount"):
 			damage_zone.set_damage_amount(damage_amount)
 		if "damage_amount" in damage_zone:
 			damage_zone.damage_amount = damage_amount
-			print("Projectile damage zone damage_amount set to: ", damage_amount)
+
 	
 	# Apply initial horizontal velocity
 	var direction = -1 if facing_left else 1
 	linear_velocity = Vector2(direction * roll_speed, 0)
 	
-	print("Initialized rolling projectile: unparryable = ", is_unparryable, ", ignore_iframes = ", is_unparryable)
-
+	
 func _physics_process(delta):
 	if not is_initialized or is_disappearing:
 		return
@@ -158,7 +157,7 @@ func _physics_process(delta):
 	
 	var result = space_state.intersect_ray(query)
 	if result.size() > 0:
-		print("Projectile detected wall ahead, destroying")
+
 		start_disappear_sequence()
 		return
 	
@@ -188,7 +187,7 @@ func is_on_floor() -> bool:
 
 func _on_damage_zone_body_entered(body: Node2D):
 	if body.is_in_group("player"):
-		print("Projectile hit player, destroying projectile")
+
 		start_disappear_sequence()
 
 func _on_body_entered(body):
