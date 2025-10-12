@@ -182,6 +182,10 @@ func _dash_monitoring_coroutine():
 	# Only check this specific crate instance
 	if not is_destroyed and is_instance_valid(self):
 		check_if_should_destroy_dash()
+		
+		# NEW: Wait 0.5s and check if player is still touching the crate
+		await get_tree().create_timer(0.5).timeout
+		_check_player_stuck_in_crate()
 
 func _high_jump_monitoring_coroutine():
 	# Wait until player velocity reaches 0 or starts falling (becomes positive)
@@ -196,6 +200,10 @@ func _high_jump_monitoring_coroutine():
 	# Only check this specific crate instance
 	if not is_destroyed and is_instance_valid(self):
 		check_if_should_destroy_high_jump()
+		
+		# NEW: Wait 0.5s and check if player is still touching the crate
+		await get_tree().create_timer(0.5).timeout
+		_check_player_stuck_in_crate()
 
 func check_if_should_destroy_dash():
 	"""Check if THIS specific crate was touched during the dash"""
@@ -234,6 +242,50 @@ func check_if_should_destroy_high_jump():
 			if is_instance_valid(static_body_collision) and collision_was_disabled:
 				static_body_collision.disabled = original_collision_state
 				collision_was_disabled = false  # Reset so next high jump can track properly
+
+func _check_player_stuck_in_crate():
+	"""Check if player is stuck inside the crate 0.5s after dash/high jump ends"""
+	# Don't check if crate is destroyed or collision is disabled
+	if is_destroyed or not static_body_collision or static_body_collision.disabled:
+		return
+	
+	# Check if player is overlapping with this crate's collision shape
+	if not player_node or not is_instance_valid(player_node):
+		return
+	
+	if not collision_shape or not is_instance_valid(collision_shape):
+		return
+	
+	# Get the collision shape's global bounds
+	var shape = collision_shape.shape
+	if not shape:
+		return
+	
+	# Check if player's position is within the crate's collision bounds
+	var crate_center = collision_shape.global_position
+	var player_pos = player_node.global_position
+	
+	# Calculate distance from player to crate center
+	var distance = player_pos.distance_to(crate_center)
+	
+	# If shape is a RectangleShape2D, check if player is inside
+	if shape is RectangleShape2D:
+		var extents = shape.size / 2.0
+		var local_pos = player_pos - crate_center
+		
+		if abs(local_pos.x) < extents.x and abs(local_pos.y) < extents.y:
+			print("PLAYER STUCK IN CRATE - Keeping collision disabled at ", global_position)
+			static_body_collision.disabled = true
+			return
+	
+	# If shape is a CircleShape2D or CapsuleShape2D, check distance
+	elif shape is CircleShape2D:
+		if distance < shape.radius:
+			print("PLAYER STUCK IN CRATE - Keeping collision disabled at ", global_position)
+			static_body_collision.disabled = true
+			return
+	
+	print("Player not stuck in crate at ", global_position)
 
 func destroy_crate():
 	"""Permanently destroy the crate with destroy animation"""

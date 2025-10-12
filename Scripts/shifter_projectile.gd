@@ -110,10 +110,10 @@ func initialize_rolling_motion(speed: float, left: bool, radius: float, ground_d
 	
 	# Configure damage zone based on parryable status
 	if damage_zone:
-		# CRITICAL FIX: Set ignore_iframes based on unparryable status
+		# FIXED: Keep ignore_iframes as false - respect player iframes even when unparryable
 		if "ignore_iframes" in damage_zone:
-			damage_zone.ignore_iframes = is_unparryable  # Only ignore iframes for unparryable projectiles
-			print("Projectile damage zone ignore_iframes set to: ", is_unparryable)
+			damage_zone.ignore_iframes = false  # Always respect player iframes
+			print("Projectile damage zone ignore_iframes set to: false")
 		
 		# Set unparryable status
 		if damage_zone.has_method("set_unparryable"):
