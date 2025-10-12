@@ -1,11 +1,19 @@
 extends Area2D
 @onready var collision_shape = $CollisionShape2D
-@onready var sprite = $Sprite2D
+@onready var animated_sprite = $AnimatedSprite2D
 @onready var static_body = $StaticBody2D
 @onready var static_body_collision = $StaticBody2D/CollisionShape2D
+
+# Audio properties
+@export_group("Audio")
+@export var break_sound: AudioStream  # Sound to play when crate breaks
+
 var player_node
 var is_destroyed: bool = false
 var player_touched_while_dashing: bool = false
+
+# Audio system
+var break_audio_player: AudioStreamPlayer2D
 
 func _ready():
 	await get_tree().process_frame
@@ -14,8 +22,29 @@ func _ready():
 	# Connect to Area2D body_entered signal
 	body_entered.connect(_on_body_entered)
 	
+	# Setup audio system
+	_setup_audio_system()
+	
 	if player_node and player_node.has_signal("dash_started"):
 		call_deferred("_connect_to_player")
+
+# Setup the audio system
+func _setup_audio_system():
+	break_audio_player = AudioStreamPlayer2D.new()
+	break_audio_player.name = "BreakAudioPlayer2D"
+	break_audio_player.bus = "SFX"  # Use SFX bus like the main game
+	add_child(break_audio_player)
+	
+	if break_sound:
+		break_audio_player.stream = break_sound
+	
+	print("Crate break audio system initialized")
+
+# Function to play break sound
+func _play_break_sound():
+	if break_audio_player and break_sound:
+		break_audio_player.play()
+		print("Playing crate break sound effect")
 
 func _connect_to_player():
 	if player_node and player_node.has_signal("dash_started"):
@@ -26,6 +55,11 @@ func _on_body_entered(body):
 	if body == player_node and player_node.is_dashing and not is_destroyed:
 		player_touched_while_dashing = true
 		print("Player touched crate while dashing!")
+		# Start destroy animation immediately
+		if animated_sprite and animated_sprite.sprite_frames.has_animation("destroy"):
+			animated_sprite.play("destroy")
+		# Play break sound
+		_play_break_sound()
 
 func _on_player_dash_started():
 	"""Called when player starts a dash - disable StaticBody2D collision only"""
@@ -64,21 +98,19 @@ func check_if_should_destroy():
 			static_body_collision.disabled = false
 
 func destroy_crate():
-	"""Permanently destroy the crate with fade animation"""
+	"""Permanently destroy the crate with destroy animation"""
 	if is_destroyed:
 		return
 	
 	is_destroyed = true
 	
-	# Fade out animation
-	if sprite:
-		var tween = create_tween()
-		tween.tween_property(sprite, "modulate:a", 0.0, 0.3)
-	
-	# Remove the static body completely
+	# Remove the static body immediately
 	if static_body:
 		static_body.queue_free()
 	
-	# Wait for fade to complete, then remove
-	await get_tree().create_timer(0.3).timeout
+	# Animation already started in _on_body_entered, just wait for it to finish
+	if animated_sprite:
+		await animated_sprite.animation_finished
+	
+	# Remove the crate
 	queue_free()

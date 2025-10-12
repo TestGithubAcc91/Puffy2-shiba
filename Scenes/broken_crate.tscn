@@ -1,7 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://beaeybmuv8leh"]
+[gd_scene load_steps=13 format=3 uid="uid://beaeybmuv8leh"]
 
 [ext_resource type="Texture2D" uid="uid://c1gojgfenibt0" path="res://Assets/sprites/InteractableSprites/brokenCrate.png" id="1_4fgoc"]
 [ext_resource type="Script" uid="uid://dom2c6axt74w" path="res://Scripts/broken_crate.gd" id="1_xnkvn"]
+[ext_resource type="AudioStream" uid="uid://cpv4y00n8ykty" path="res://Scripts/crate-break-1-93926.mp3" id="2_5tggm"]
+[ext_resource type="Texture2D" uid="uid://b5ro8sinimot7" path="res://assets/sprites/VFXSprites/smokePuff.png" id="3_m82kx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_m82kx"]
 size = Vector2(16, 16)
@@ -9,12 +11,61 @@ size = Vector2(16, 16)
 [sub_resource type="CircleShape2D" id="CircleShape2D_xnkvn"]
 radius = 5.0
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_5tggm"]
+atlas = ExtResource("3_m82kx")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xjr4a"]
+atlas = ExtResource("3_m82kx")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8htqm"]
+atlas = ExtResource("3_m82kx")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rx30c"]
+atlas = ExtResource("3_m82kx")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7xjku"]
+atlas = ExtResource("3_m82kx")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lcglc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_4fgoc")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5tggm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xjr4a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8htqm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rx30c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7xjku")
+}],
+"loop": false,
+"name": &"destroy",
+"speed": 10.0
+}]
+
 [node name="BrokenCrate" type="Area2D"]
 collision_mask = 2
 script = ExtResource("1_xnkvn")
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("1_4fgoc")
+break_sound = ExtResource("2_5tggm")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 collision_mask = 2
@@ -24,3 +75,7 @@ shape = SubResource("RectangleShape2D_m82kx")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_xnkvn")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_lcglc")
+autoplay = "default"
