@@ -14,6 +14,11 @@ var player_touched_while_dashing: bool = false
 var player_touched_while_high_jumping: bool = false
 var is_high_jumping: bool = false
 
+# NEW: Safety variables
+var collision_was_disabled: bool = false
+var original_collision_state: bool = false
+var safety_timer: Timer
+
 # Audio system
 var break_audio_player: AudioStreamPlayer2D
 
@@ -27,11 +32,29 @@ func _ready():
 	# Setup audio system
 	_setup_audio_system()
 	
+	# NEW: Setup safety timer
+	_setup_safety_timer()
+	
 	if player_node:
 		if player_node.has_signal("dash_started"):
 			call_deferred("_connect_to_player")
 		if player_node.has_signal("high_jump_started"):
 			call_deferred("_connect_high_jump_signal")
+
+# NEW: Setup safety timer to prevent permanent collision disable
+func _setup_safety_timer():
+	safety_timer = Timer.new()
+	safety_timer.wait_time = 3.0  # 3 second safety net
+	safety_timer.one_shot = true
+	safety_timer.timeout.connect(_safety_restore_collision)
+	add_child(safety_timer)
+
+# NEW: Safety collision restoration
+func _safety_restore_collision():
+	if not is_destroyed and static_body_collision and is_instance_valid(static_body_collision):
+		static_body_collision.disabled = original_collision_state
+		collision_was_disabled = false
+		print("SAFETY: Restored crate collision at ", global_position)
 
 # Setup the audio system
 func _setup_audio_system():
@@ -88,8 +111,15 @@ func _on_player_dash_started():
 	# Reset touch flag for this dash
 	player_touched_while_dashing = false
 	
+	# NEW: Store original collision state and track that we disabled it
+	original_collision_state = not static_body_collision.disabled
+	collision_was_disabled = true
+	
 	# CRITICAL FIX: Disable collision immediately without waiting for next frame
 	static_body_collision.disabled = true
+	
+	# NEW: Start safety timer
+	safety_timer.start()
 	
 	print("DASH STARTED - Crate at ", global_position, " monitoring for collision")
 	
@@ -105,8 +135,15 @@ func _on_player_high_jump_started():
 	player_touched_while_high_jumping = false
 	is_high_jumping = true
 	
+	# NEW: Store original collision state and track that we disabled it
+	original_collision_state = not static_body_collision.disabled
+	collision_was_disabled = true
+	
 	# CRITICAL FIX: Disable collision immediately without waiting for next frame
 	static_body_collision.disabled = true
+	
+	# NEW: Start safety timer
+	safety_timer.start()
 	
 	print("HIGH JUMP STARTED - Crate at ", global_position, " monitoring for collision")
 	
@@ -128,6 +165,9 @@ func _dash_monitoring_coroutine():
 	while player_node and player_node.is_dashing:
 		await get_tree().process_frame
 	
+	# NEW: Stop safety timer since we're handling collision normally
+	safety_timer.stop()
+	
 	# Only check this specific crate instance
 	if not is_destroyed and is_instance_valid(self):
 		check_if_should_destroy_dash()
@@ -138,6 +178,9 @@ func _high_jump_monitoring_coroutine():
 		await get_tree().process_frame
 	
 	is_high_jumping = false
+	
+	# NEW: Stop safety timer since we're handling collision normally
+	safety_timer.stop()
 	
 	# Only check this specific crate instance
 	if not is_destroyed and is_instance_valid(self):
@@ -155,8 +198,9 @@ func check_if_should_destroy_dash():
 	else:
 		# Player didn't touch THIS crate - restore its StaticBody2D collision
 		print("Restoring collision for crate at ", global_position)
-		if is_instance_valid(static_body_collision):
-			static_body_collision.disabled = false
+		if is_instance_valid(static_body_collision) and collision_was_disabled:
+			static_body_collision.disabled = original_collision_state
+			collision_was_disabled = false
 
 func check_if_should_destroy_high_jump():
 	"""Check if THIS specific crate was touched during the high jump"""
@@ -170,8 +214,9 @@ func check_if_should_destroy_high_jump():
 	else:
 		# Player didn't touch THIS crate - restore its StaticBody2D collision
 		print("Restoring collision for crate at ", global_position)
-		if is_instance_valid(static_body_collision):
-			static_body_collision.disabled = false
+		if is_instance_valid(static_body_collision) and collision_was_disabled:
+			static_body_collision.disabled = original_collision_state
+			collision_was_disabled = false
 
 func destroy_crate():
 	"""Permanently destroy the crate with destroy animation"""
@@ -179,6 +224,9 @@ func destroy_crate():
 		return
 	
 	is_destroyed = true
+	
+	# NEW: Stop safety timer
+	safety_timer.stop()
 	
 	# Remove the static body immediately
 	if static_body:
@@ -190,3 +238,13 @@ func destroy_crate():
 	
 	# Remove the crate
 	queue_free()
+
+# NEW: Ensure collision is restored if crate is removed for any reason
+func _exit_tree():
+	if safety_timer and is_instance_valid(safety_timer):
+		safety_timer.stop()
+	
+	# If collision was disabled and we still have a valid static body, restore it
+	if collision_was_disabled and static_body_collision and is_instance_valid(static_body_collision):
+		static_body_collision.disabled = original_collision_state
+		print("Exit tree: Restored crate collision at ", global_position)
