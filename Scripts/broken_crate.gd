@@ -88,21 +88,13 @@ func _on_player_dash_started():
 	# Reset touch flag for this dash
 	player_touched_while_dashing = false
 	
-	# Disable the StaticBody2D collision immediately using set_deferred
-	static_body_collision.set_deferred("disabled", true)
+	# CRITICAL FIX: Disable collision immediately without waiting for next frame
+	static_body_collision.disabled = true
 	
 	print("DASH STARTED - Crate at ", global_position, " monitoring for collision")
 	
-	# Wait a frame to ensure collision is disabled
-	await get_tree().process_frame
-	
-	# Wait until player is no longer dashing
-	while player_node and player_node.is_dashing:
-		await get_tree().process_frame
-	
-	# Only check this specific crate instance
-	if not is_destroyed and is_instance_valid(self):
-		check_if_should_destroy_dash()
+	# Start monitoring for the duration of the dash
+	_start_dash_monitoring()
 
 func _on_player_high_jump_started():
 	"""Called when player starts a high jump - disable StaticBody2D collision immediately"""
@@ -113,14 +105,34 @@ func _on_player_high_jump_started():
 	player_touched_while_high_jumping = false
 	is_high_jumping = true
 	
-	# Disable the StaticBody2D collision immediately using set_deferred
-	static_body_collision.set_deferred("disabled", true)
+	# CRITICAL FIX: Disable collision immediately without waiting for next frame
+	static_body_collision.disabled = true
 	
 	print("HIGH JUMP STARTED - Crate at ", global_position, " monitoring for collision")
 	
-	# Wait a frame to ensure collision is disabled
-	await get_tree().process_frame
+	# Start monitoring for the duration of the high jump
+	_start_high_jump_monitoring()
+
+func _start_dash_monitoring():
+	"""Monitor for player collision during dash"""
+	# Start the monitoring coroutine
+	_dash_monitoring_coroutine()
+
+func _start_high_jump_monitoring():
+	"""Monitor for player collision during high jump"""
+	# Start the monitoring coroutine
+	_high_jump_monitoring_coroutine()
+
+func _dash_monitoring_coroutine():
+	# Wait until player is no longer dashing
+	while player_node and player_node.is_dashing:
+		await get_tree().process_frame
 	
+	# Only check this specific crate instance
+	if not is_destroyed and is_instance_valid(self):
+		check_if_should_destroy_dash()
+
+func _high_jump_monitoring_coroutine():
 	# Wait until player velocity reaches 0 or starts falling (becomes positive)
 	while player_node and player_node.velocity.y < 0:  # Monitor only while moving upward
 		await get_tree().process_frame
