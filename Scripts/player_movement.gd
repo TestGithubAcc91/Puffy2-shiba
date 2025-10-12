@@ -129,6 +129,8 @@ var has_active_checkpoint: bool = false
 
 var has_jetpack: bool = false
 signal dash_started
+signal high_jump_started
+var is_high_jumping: bool = false
 
 func _ready():
 	original_time_scale = Engine.time_scale
@@ -529,9 +531,15 @@ func activate_high_jump():
 	update_charge_sprites()
 	velocity.y = HIGH_JUMP_VELOCITY
 	can_high_jump = false
+	is_high_jumping = true  # NEW: Set high jumping state
 	high_jump_cooldown_timer.start()
+	high_jump_started.emit()  # NEW: Emit the signal for crates
 	_play_whoosh_sound()
 	spawn_air_puffV()
+	
+	# NEW: Reset the high jumping state after a short duration
+	await get_tree().create_timer(0.5).timeout
+	is_high_jumping = false
 
 
 func handle_wall_bounce():
