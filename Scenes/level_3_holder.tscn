@@ -586,7 +586,7 @@ autowrap_mode = 2
 [node name="UI" parent="." instance=ExtResource("25_48kkd")]
 
 [node name="LevelFinish" type="Area2D" parent="."]
-position = Vector2(6107, -152)
+position = Vector2(6107, -6)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LevelFinish"]

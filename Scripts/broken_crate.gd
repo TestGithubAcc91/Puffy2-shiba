@@ -51,6 +51,7 @@ func _setup_safety_timer():
 
 # NEW: Safety collision restoration
 func _safety_restore_collision():
+	# CRITICAL: Only restore if crate is NOT destroyed
 	if not is_destroyed and static_body_collision and is_instance_valid(static_body_collision):
 		static_body_collision.disabled = original_collision_state
 		collision_was_disabled = false
@@ -105,15 +106,20 @@ func _on_body_entered(body):
 
 func _on_player_dash_started():
 	"""Called when player starts a dash - disable StaticBody2D collision immediately"""
-	if is_destroyed or not static_body_collision:
+	# CRITICAL: Don't process if crate is destroyed or collision is invalid
+	if is_destroyed:
+		return
+	
+	if not static_body_collision or not is_instance_valid(static_body_collision):
 		return
 	
 	# Reset touch flag for this dash
 	player_touched_while_dashing = false
 	
-	# NEW: Store original collision state and track that we disabled it
-	original_collision_state = not static_body_collision.disabled
-	collision_was_disabled = true
+	# NEW: Store original collision state ONLY if this is the first time we're disabling it
+	if not collision_was_disabled:
+		original_collision_state = static_body_collision.disabled
+		collision_was_disabled = true
 	
 	# CRITICAL FIX: Disable collision immediately without waiting for next frame
 	static_body_collision.disabled = true
@@ -128,16 +134,21 @@ func _on_player_dash_started():
 
 func _on_player_high_jump_started():
 	"""Called when player starts a high jump - disable StaticBody2D collision immediately"""
-	if is_destroyed or not static_body_collision:
+	# CRITICAL: Don't process if crate is destroyed or collision is invalid
+	if is_destroyed:
+		return
+	
+	if not static_body_collision or not is_instance_valid(static_body_collision):
 		return
 	
 	# Reset touch flag for this high jump
 	player_touched_while_high_jumping = false
 	is_high_jumping = true
 	
-	# NEW: Store original collision state and track that we disabled it
-	original_collision_state = not static_body_collision.disabled
-	collision_was_disabled = true
+	# NEW: Store original collision state ONLY if this is the first time we're disabling it
+	if not collision_was_disabled:
+		original_collision_state = static_body_collision.disabled
+		collision_was_disabled = true
 	
 	# CRITICAL FIX: Disable collision immediately without waiting for next frame
 	static_body_collision.disabled = true
@@ -190,6 +201,7 @@ func check_if_should_destroy_dash():
 	"""Check if THIS specific crate was touched during the dash"""
 	print("=== CRATE DASH CHECK at ", global_position, " ===")
 	print("Player touched while dashing: ", player_touched_while_dashing)
+	print("Is destroyed: ", is_destroyed)
 	
 	if player_touched_while_dashing:
 		# Player touched THIS crate's Area2D while dashing - destroy only this crate
@@ -197,15 +209,18 @@ func check_if_should_destroy_dash():
 		destroy_crate()
 	else:
 		# Player didn't touch THIS crate - restore its StaticBody2D collision
-		print("Restoring collision for crate at ", global_position)
-		if is_instance_valid(static_body_collision) and collision_was_disabled:
-			static_body_collision.disabled = original_collision_state
-			collision_was_disabled = false
+		# CRITICAL: Only restore if crate is NOT destroyed
+		if not is_destroyed:
+			print("Restoring collision for crate at ", global_position)
+			if is_instance_valid(static_body_collision) and collision_was_disabled:
+				static_body_collision.disabled = original_collision_state
+				collision_was_disabled = false  # Reset so next dash can track properly
 
 func check_if_should_destroy_high_jump():
 	"""Check if THIS specific crate was touched during the high jump"""
 	print("=== CRATE HIGH JUMP CHECK at ", global_position, " ===")
 	print("Player touched while high jumping: ", player_touched_while_high_jumping)
+	print("Is destroyed: ", is_destroyed)
 	
 	if player_touched_while_high_jumping:
 		# Player touched THIS crate's Area2D while high jumping - destroy only this crate
@@ -213,10 +228,12 @@ func check_if_should_destroy_high_jump():
 		destroy_crate()
 	else:
 		# Player didn't touch THIS crate - restore its StaticBody2D collision
-		print("Restoring collision for crate at ", global_position)
-		if is_instance_valid(static_body_collision) and collision_was_disabled:
-			static_body_collision.disabled = original_collision_state
-			collision_was_disabled = false
+		# CRITICAL: Only restore if crate is NOT destroyed
+		if not is_destroyed:
+			print("Restoring collision for crate at ", global_position)
+			if is_instance_valid(static_body_collision) and collision_was_disabled:
+				static_body_collision.disabled = original_collision_state
+				collision_was_disabled = false  # Reset so next high jump can track properly
 
 func destroy_crate():
 	"""Permanently destroy the crate with destroy animation"""
@@ -227,6 +244,13 @@ func destroy_crate():
 	
 	# NEW: Stop safety timer
 	safety_timer.stop()
+	
+	# CRITICAL: Disconnect from player signals to prevent future dash/high jump events
+	if player_node and is_instance_valid(player_node):
+		if player_node.has_signal("dash_started") and player_node.dash_started.is_connected(_on_player_dash_started):
+			player_node.dash_started.disconnect(_on_player_dash_started)
+		if player_node.has_signal("high_jump_started") and player_node.high_jump_started.is_connected(_on_player_high_jump_started):
+			player_node.high_jump_started.disconnect(_on_player_high_jump_started)
 	
 	# Remove the static body immediately
 	if static_body:
