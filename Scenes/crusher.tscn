@@ -99,10 +99,8 @@ prepare_sound = ExtResource("3_w8m3d")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_mubao")
-animation = &"crush"
+animation = &"inactive"
 autoplay = "inactive"
-frame = 3
-frame_progress = 1.0
 
 [node name="Area2D" type="Area2D" parent="."]
 collision_mask = 2

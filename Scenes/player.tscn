@@ -241,7 +241,7 @@ shape = SubResource("CircleShape2D_cvnsp")
 
 [node name="HealthScript" type="Node" parent="."]
 script = ExtResource("3_6t5aa")
-iframe_duration = 2.0
+iframe_duration = 1.5
 damage_sound = ExtResource("16_olqyp")
 
 [node name="ParryCharge1" type="Sprite2D" parent="."]

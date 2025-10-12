@@ -22,8 +22,8 @@ var is_active: bool = false
 var fuel_remaining: float = 100.0
 var max_fuel: float = 100.0
 var duration_timer: Timer
-var jetpack_audio_player: AudioStreamPlayer2D
-var low_fuel_audio_player: AudioStreamPlayer2D
+var jetpack_audio_player: AudioStreamPlayer
+var low_fuel_audio_player: AudioStreamPlayer
 var jetpack_particles: Node2D
 var jetpack_fire: AnimatedSprite2D  # Reference to the JetpackFire node
 
@@ -66,25 +66,25 @@ func _ready():
 	_setup_audio_system()
 
 func _setup_audio_system():
-	"""Setup the audio system following the crusher pattern"""
-	jetpack_audio_player = AudioStreamPlayer2D.new()
-	jetpack_audio_player.name = "JetpackAudioPlayer2D"
+	"""Setup the audio system with global sounds"""
+	jetpack_audio_player = AudioStreamPlayer.new()  # Changed to AudioStreamPlayer (non-spatial)
+	jetpack_audio_player.name = "JetpackAudioPlayer"
 	jetpack_audio_player.bus = "SFX"
-	jetpack_audio_player.volume_db = 5.0  # Increased from -5.0 to make thrust sound louder
+	jetpack_audio_player.volume_db = 10.0
 	add_child(jetpack_audio_player)
 	
 	if jetpack_sound:
 		jetpack_audio_player.stream = jetpack_sound
 	
-	low_fuel_audio_player = AudioStreamPlayer2D.new()
-	low_fuel_audio_player.name = "LowFuelAudioPlayer2D"
+	low_fuel_audio_player = AudioStreamPlayer.new()  # Changed to AudioStreamPlayer (non-spatial)
+	low_fuel_audio_player.name = "LowFuelAudioPlayer"
 	low_fuel_audio_player.bus = "SFX"
 	add_child(low_fuel_audio_player)
 	
 	if low_fuel_warning_sound:
 		low_fuel_audio_player.stream = low_fuel_warning_sound
 	
-	print("Jetpack audio system initialized")
+	print("Jetpack audio system initialized with global sounds")
 
 func _play_jetpack_sound():
 	"""Play the jetpack thrust sound"""
