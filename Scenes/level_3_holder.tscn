@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=4 uid="uid://t8fs2g3m2cip"]
+[gd_scene load_steps=39 format=4 uid="uid://t8fs2g3m2cip"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_smbiq"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_uqgtt"]
@@ -7,12 +7,14 @@
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="6_kk3p3"]
 [ext_resource type="PackedScene" uid="uid://beaeybmuv8leh" path="res://Scenes/broken_crate.tscn" id="6_v5myr"]
 [ext_resource type="PackedScene" uid="uid://bp1jjjj6d1sce" path="res://Scenes/coin.tscn" id="7_ayobu"]
+[ext_resource type="AudioStream" uid="uid://bol6tfjdxta4" path="res://Assets/sounds/coin.wav" id="8_g1dqi"]
 [ext_resource type="PackedScene" uid="uid://beodtqr1g8lyc" path="res://Scenes/charge.tscn" id="8_m2hwn"]
 [ext_resource type="PackedScene" uid="uid://7uuiq57d3shr" path="res://Scenes/heart.tscn" id="9_tl4l5"]
 [ext_resource type="Texture2D" uid="uid://muasflm5t61f" path="res://Assets/sprites/MapSprites/desertTilemap.png" id="10_vrry8"]
 [ext_resource type="Texture2D" uid="uid://ccrdvk3ljp3xr" path="res://Assets/sprites/MapSprites/beachTilemap.png" id="11_ur83p"]
 [ext_resource type="Texture2D" uid="uid://c1l1cx4r1w27a" path="res://Assets/sprites/MapSprites/beachTilemap2.png" id="12_pn7sh"]
 [ext_resource type="Texture2D" uid="uid://cpjlsdtrkh83p" path="res://Assets/sprites/MapSprites/desertTilemap2.png" id="12_rr4s2"]
+[ext_resource type="Texture2D" uid="uid://1lopv8yy4kdv" path="res://Assets/sprites/MapSprites/desertTree.png" id="12_xqhvq"]
 [ext_resource type="Texture2D" uid="uid://cpb1vtttqxmn3" path="res://Assets/sprites/MapSprites/forestTilemap.png" id="13_dxymy"]
 [ext_resource type="Texture2D" uid="uid://c0487nslkvewu" path="res://Assets/sprites/MapSprites/dirtDecor.png" id="14_gjdj8"]
 [ext_resource type="PackedScene" uid="uid://bloi41bbmgio3" path="res://Scenes/shifter.tscn" id="15_vrry8"]
@@ -125,6 +127,17 @@ texture = ExtResource("11_ur83p")
 18:0/0 = 0
 19:0/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_g1dqi"]
+texture = ExtResource("12_xqhvq")
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+1:2/0 = 0
+2:2/0 = 0
+
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jq3d1"]
 texture = ExtResource("12_pn7sh")
 10:2/0 = 0
@@ -169,6 +182,7 @@ sources/5 = SubResource("TileSetAtlasSource_mihvx")
 sources/6 = SubResource("TileSetAtlasSource_64n6m")
 sources/0 = SubResource("TileSetAtlasSource_1kjah")
 sources/1 = SubResource("TileSetAtlasSource_v5myr")
+sources/3 = SubResource("TileSetAtlasSource_g1dqi")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_i6g32"]
 
@@ -283,7 +297,10 @@ position = Vector2(-284, 60)
 [node name="ChargeHolder" type="Node" parent="LevelHolder/CoinHolder"]
 
 [node name="Charge" parent="LevelHolder/CoinHolder/ChargeHolder" instance=ExtResource("8_m2hwn")]
-position = Vector2(-327, 61)
+position = Vector2(30, -8)
+enable_regeneration = true
+respawn_time = 2.0
+pickup_sound = ExtResource("8_g1dqi")
 
 [node name="HeartHolder" type="Node2D" parent="LevelHolder/CoinHolder"]
 
@@ -305,7 +322,7 @@ tile_set = SubResource("TileSet_7t8sx")
 [node name="MIDB" type="TileMapLayer" parent="LevelHolder/TileMapHolder/NewMap"]
 z_index = -4
 position = Vector2(3, -108)
-tile_map_data = PackedByteArray("AAACAAUAAAAAAAAAAAACAAYAAAAAAAEAAAADAAUAAAABAAAAAAADAAYAAAABAAEAAAAKAAUAAAACAAAAAAAKAAYAAAACAAEAAAALAAUAAAADAAAAAAALAAYAAAADAAEAAAAWAAUAAAAAAAAAABAVAAUAAAABAAAAABAWAAYAAAAAAAEAABAVAAYAAAABAAEAABAaAAUAAAAAAAAAABAZAAUAAAABAAAAABAaAAYAAAAAAAEAABAZAAYAAAABAAEAABAMAAYAAQAEAAAAAAAfAAYAAQAFAAAAAAAgAAYAAQALAAAAAAAgAAUAAQAGAAAAAAAbAAYAAQAIAAAAAAAcAAYAAQAHAAAAAAARAAYAAQAMAAAAAAAQAAYAAQAMAAAAAAAPAAYAAQAMAAAAAAAGAAYAAQAMAAAAAAAHAAYAAQAMAAAAAAAXAAQAAAACAAAAAAAXAAUAAAACAAEAAAAYAAQAAAADAAAAAAAYAAUAAAADAAEAAAA=")
+tile_map_data = PackedByteArray("AAACAAUAAAAAAAAAAAACAAYAAAAAAAEAAAADAAUAAAABAAAAAAADAAYAAAABAAEAAAAKAAUAAAACAAAAAAAKAAYAAAACAAEAAAALAAUAAAADAAAAAAALAAYAAAADAAEAAAAWAAUAAAAAAAAAABAVAAUAAAABAAAAABAWAAYAAAAAAAEAABAVAAYAAAABAAEAABAaAAUAAAAAAAAAABAZAAUAAAABAAAAABAaAAYAAAAAAAEAABAZAAYAAAABAAEAABAMAAYAAQAEAAAAAAAfAAYAAwACAAIAAAAgAAYAAQALAAAAAAAgAAUAAQAGAAAAAAAbAAYAAQAIAAAAAAAcAAYAAQAHAAAAAAARAAYAAQAMAAAAAAAQAAYAAQAMAAAAAAAPAAYAAQAMAAAAAAAGAAYAAQAMAAAAAAAHAAYAAQAMAAAAAAAXAAQAAAACAAAAAAAXAAUAAAACAAEAAAAYAAQAAAADAAAAAAAYAAUAAAADAAEAAAD6/wMAAwAAAAAAAAD6/wQAAwAAAAEAAAD7/wMAAwABAAAAAAD7/wQAAwABAAEAAAD7/wUAAwABAAIAAAD8/wMAAwACAAAAAAD8/wQAAwACAAEAAAD8/wUAAwACAAIAAAAdAAQAAwAAAAAAAAAdAAUAAwAAAAEAAAAeAAQAAwABAAAAAAAeAAUAAwABAAEAAAAeAAYAAwABAAIAAAAfAAQAAwACAAAAAAAfAAUAAwACAAEAAAA=")
 tile_set = SubResource("TileSet_exi56")
 
 [node name="MIDB2" type="TileMapLayer" parent="LevelHolder/TileMapHolder/NewMap"]
