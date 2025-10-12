@@ -17,6 +17,7 @@ var is_high_jumping: bool = false
 # Safety variables
 var collision_was_disabled: bool = false
 var safety_timer: Timer
+var coroutine_running: bool = false
 
 # Audio system
 var break_audio_player: AudioStreamPlayer2D
@@ -60,7 +61,7 @@ func _safety_restore_collision():
 	
 	# Only restore if this crate actually disabled its own collision
 	if collision_was_disabled:
-		static_body_collision.set_deferred("disabled", false)
+		static_body_collision.disabled = false
 		collision_was_disabled = false
 		print("SAFETY: Restored crate collision at ", global_position)
 
@@ -105,33 +106,44 @@ func _on_player_dash_started():
 	if is_destroyed or not _validate_collision_system():
 		return
 	
+	# Cancel if already running
+	if coroutine_running:
+		return
+	
 	player_touched_while_dashing = false
 	collision_was_disabled = true
 	
-	# Use set_deferred to avoid physics engine conflicts
-	static_body_collision.set_deferred("disabled", true)
+	# Disable collision immediately, not deferred
+	static_body_collision.disabled = true
 	safety_timer.start()
 	
 	print("DASH STARTED - Crate collision disabled at ", global_position)
-	_start_dash_monitoring()
+	coroutine_running = true
+	await _dash_monitoring_coroutine()
+	coroutine_running = false
 
 func _on_player_high_jump_started():
 	# CRITICAL: Verify this crate's collision system is valid
 	if is_destroyed or not _validate_collision_system():
 		return
 	
+	# Cancel if already running
+	if coroutine_running:
+		return
+	
 	player_touched_while_high_jumping = false
 	is_high_jumping = true
 	collision_was_disabled = true
 	
-	# Use set_deferred to avoid physics engine conflicts
-	static_body_collision.set_deferred("disabled", true)
+	# Disable collision immediately, not deferred
+	static_body_collision.disabled = true
 	safety_timer.start()
 	
 	print("HIGH JUMP STARTED - Crate collision disabled at ", global_position)
-	_start_high_jump_monitoring()
+	coroutine_running = true
+	await _high_jump_monitoring_coroutine()
+	coroutine_running = false
 
-# NEW: Validation function to ensure we're working with the right objects
 func _validate_collision_system() -> bool:
 	if not static_body_collision or not is_instance_valid(static_body_collision):
 		push_error("Invalid static_body_collision reference!")
@@ -141,33 +153,43 @@ func _validate_collision_system() -> bool:
 		push_error("Invalid static_body reference!")
 		return false
 	
-	# Verify the collision shape belongs to THIS crate
 	if static_body_collision.get_parent() != static_body:
 		push_error("Collision shape parent mismatch!")
 		return false
 	
 	return true
 
-func _start_dash_monitoring():
-	_dash_monitoring_coroutine()
-
-func _start_high_jump_monitoring():
-	_high_jump_monitoring_coroutine()
-
 func _dash_monitoring_coroutine():
-	while player_node and is_instance_valid(player_node) and player_node.is_dashing:
+	# Add frame limit to prevent infinite loops
+	var max_frames = 1000
+	var frame_count = 0
+	
+	while player_node and is_instance_valid(player_node) and player_node.is_dashing and frame_count < max_frames:
 		await get_tree().process_frame
+		frame_count += 1
+	
+	if frame_count >= max_frames:
+		push_error("Dash monitoring exceeded max frames - forcing end")
 	
 	safety_timer.stop()
 	
 	if not is_destroyed and is_instance_valid(self):
 		check_if_should_destroy_dash()
 		await get_tree().create_timer(0.5).timeout
-		_check_player_stuck_in_crate()
+		# Don't check if player is stuck - just restore collision
+		_restore_collision_safe()
 
 func _high_jump_monitoring_coroutine():
-	while player_node and is_instance_valid(player_node) and player_node.velocity.y < 0:
+	# Add frame limit to prevent infinite loops
+	var max_frames = 1000
+	var frame_count = 0
+	
+	while player_node and is_instance_valid(player_node) and player_node.velocity.y < 0 and frame_count < max_frames:
 		await get_tree().process_frame
+		frame_count += 1
+	
+	if frame_count >= max_frames:
+		push_error("High jump monitoring exceeded max frames - forcing end")
 	
 	is_high_jumping = false
 	safety_timer.stop()
@@ -175,7 +197,8 @@ func _high_jump_monitoring_coroutine():
 	if not is_destroyed and is_instance_valid(self):
 		check_if_should_destroy_high_jump()
 		await get_tree().create_timer(0.5).timeout
-		_check_player_stuck_in_crate()
+		# Don't check if player is stuck - just restore collision
+		_restore_collision_safe()
 
 func check_if_should_destroy_dash():
 	if not _validate_collision_system():
@@ -186,11 +209,6 @@ func check_if_should_destroy_dash():
 	if player_touched_while_dashing:
 		print("DESTROYING CRATE at ", global_position)
 		destroy_crate()
-	else:
-		if not is_destroyed and collision_was_disabled:
-			print("Restoring collision for crate at ", global_position)
-			static_body_collision.set_deferred("disabled", false)
-			collision_was_disabled = false
 
 func check_if_should_destroy_high_jump():
 	if not _validate_collision_system():
@@ -201,43 +219,12 @@ func check_if_should_destroy_high_jump():
 	if player_touched_while_high_jumping:
 		print("DESTROYING CRATE at ", global_position)
 		destroy_crate()
-	else:
-		if not is_destroyed and collision_was_disabled:
-			print("Restoring collision for crate at ", global_position)
-			static_body_collision.set_deferred("disabled", false)
-			collision_was_disabled = false
 
-func _check_player_stuck_in_crate():
-	if is_destroyed or not static_body_collision or static_body_collision.disabled:
-		return
-	
-	if not player_node or not is_instance_valid(player_node):
-		return
-	
-	if not collision_shape or not is_instance_valid(collision_shape):
-		return
-	
-	var shape = collision_shape.shape
-	if not shape:
-		return
-	
-	var crate_center = collision_shape.global_position
-	var player_pos = player_node.global_position
-	
-	if shape is RectangleShape2D:
-		var extents = shape.size / 2.0
-		var local_pos = player_pos - crate_center
-		
-		if abs(local_pos.x) < extents.x and abs(local_pos.y) < extents.y:
-			print("PLAYER STUCK IN CRATE - Keeping collision disabled at ", global_position)
-			static_body_collision.set_deferred("disabled", true)
-			return
-	elif shape is CircleShape2D:
-		var distance = player_pos.distance_to(crate_center)
-		if distance < shape.radius:
-			print("PLAYER STUCK IN CRATE - Keeping collision disabled at ", global_position)
-			static_body_collision.set_deferred("disabled", true)
-			return
+func _restore_collision_safe():
+	if not is_destroyed and collision_was_disabled and _validate_collision_system():
+		print("Restoring collision for crate at ", global_position)
+		static_body_collision.disabled = false
+		collision_was_disabled = false
 
 func destroy_crate():
 	if is_destroyed:

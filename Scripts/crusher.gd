@@ -20,6 +20,10 @@ var crush_audio_player: AudioStreamPlayer2D
 var prepare_audio_player: AudioStreamPlayer2D
 var prepare2_played = false  # Track if prepare2 sound has been played
 
+# Tween management for cleanup
+var active_tweens: Array = []
+var crush_sequence_running = false
+
 func _ready():
 	area_2d.body_entered.connect(_on_body_entered)
 	animated_sprite.play("inactive")
@@ -51,13 +55,11 @@ func _setup_audio_system():
 func _play_crush_sound():
 	if crush_audio_player and crush_sound:
 		crush_audio_player.play()
-		print("Playing crush sound effect")
 
 # Function to play prepare sound
 func _play_prepare_sound():
 	if prepare_audio_player and prepare_sound:
 		prepare_audio_player.play()
-		print("Playing prepare sound effect")
 
 # Helper function to get offset based on rotation
 func _get_offset() -> float:
@@ -107,11 +109,28 @@ func _process(delta):
 		crush_area.global_position = player.global_position
 		crush_area.global_position.y += offset
 
+# Kill all active tweens
+func _kill_all_tweens():
+	for tween in active_tweens:
+		if tween and tween.is_valid():
+			tween.kill()
+	active_tweens.clear()
+
+# Track a new tween
+func _track_tween(tween: Tween) -> Tween:
+	active_tweens.append(tween)
+	return tween
+
 func _on_body_entered(body):
 	if body.is_in_group("player") or body.name == "Player":
+		# Prevent multiple crush sequences from overlapping
+		if crush_sequence_running:
+			return
+		
 		player = body
 		animated_sprite.play("active")
 		is_active = true
+		crush_sequence_running = true
 		
 		if not crush_clone:
 			var offset = _get_offset()
@@ -128,6 +147,7 @@ func _on_body_entered(body):
 			_play_crush_sound()
 			
 			var tween = create_tween()
+			_track_tween(tween)
 			tween.tween_property(crush_clone, "modulate:a", 0.7, 0.5)
 			
 			clone_timer = 0.0
@@ -142,6 +162,7 @@ func activate_killzone():
 	var killzone_scene = load("res://Scenes/killzone.tscn")  # Adjust path if needed
 	if killzone_scene == null:
 		push_error("Could not load killzone.tscn!")
+		_cleanup_crush_sequence()
 		return
 	
 	crush_area = killzone_scene.instantiate()
@@ -166,11 +187,18 @@ func activate_killzone():
 	crush_area.unparryable = false
 	
 	var fade_tween = create_tween()
+	_track_tween(fade_tween)
 	fade_tween.tween_property(crush_clone, "modulate:a", 0.0, 0.5)
 	await fade_tween.finished
 	
+	_cleanup_crush_sequence()
 
+# Centralized cleanup function
+func _cleanup_crush_sequence():
+	# Kill all active tweens
+	_kill_all_tweens()
 	
+	# Reset variables
 	animated_sprite.play("inactive")
 	
 	if crush_area and is_instance_valid(crush_area):
@@ -180,5 +208,10 @@ func activate_killzone():
 	crush_clone = null
 	player = null
 	is_active = false
+	crush_sequence_running = false
 	killzone_activated = false
 	clone_timer = 0.0
+
+# Cleanup on exit
+func _exit_tree():
+	_kill_all_tweens()

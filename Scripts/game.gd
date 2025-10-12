@@ -72,7 +72,7 @@ var level_medal_times = {
 	"tutorial": {"gold": 999999999.0, "silver": 9999999999999999999.0},
 	1: {"gold": 43.0, "silver": 50.0}, 
 	2: {"gold": 59.0, "silver": 70.0},
-	3: {"gold": 40.0, "silver": 55.0}, 
+	3: {"gold": 45.0, "silver": 55.0}, 
 	4: {"gold": 65.0, "silver": 80.0},
 	5: {"gold": 50.0, "silver": 65.0}
 }
