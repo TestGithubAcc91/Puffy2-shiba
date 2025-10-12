@@ -190,7 +190,7 @@ sources/3 = SubResource("TileSetAtlasSource_g1dqi")
 distance = -57.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_py7y2"]
-size = Vector2(30, 1574)
+size = Vector2(34, 1010)
 
 [node name="Level3Holder" type="Node2D"]
 
@@ -864,5 +864,5 @@ position = Vector2(6107, -6)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LevelFinish"]
-position = Vector2(-5, -757)
+position = Vector2(-7, -475)
 shape = SubResource("RectangleShape2D_py7y2")

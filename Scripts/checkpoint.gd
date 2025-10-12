@@ -1,16 +1,11 @@
 extends Area2D
-
 @export var checkpoint_id: int = 0
-
 var is_active: bool = false
 var animated_sprite: AnimatedSprite2D
-
 # Sound effect
 @export var activation_sound: AudioStream
-
 # Audio player
 var activation_audio_player: AudioStreamPlayer2D
-
 signal checkpoint_activated(checkpoint_position: Vector2, checkpoint_id: int)
 
 func _ready():
@@ -80,3 +75,11 @@ func deactivate():
 func _play_activation_sound():
 	if activation_audio_player and activation_sound:
 		activation_audio_player.play()
+
+# Helper function to control player camera smoothing
+func set_player_camera_smoothing(player, enabled: bool, speed: float = 10.0):
+	var camera = player.get_node_or_null("Camera2D")
+	if camera and camera is Camera2D:
+		camera.position_smoothing_enabled = enabled
+		if enabled:
+			camera.position_smoothing_speed = speed

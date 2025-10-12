@@ -743,6 +743,12 @@ func _on_player_died():
 	can_coyote_jump = false
 	was_on_floor_last_frame = false
 	
+	# Enable camera smoothing for death
+	var camera = get_node_or_null("Camera2D")
+	if camera and camera is Camera2D:
+		camera.position_smoothing_enabled = true
+		camera.position_smoothing_speed = 10.0
+	
 	if is_on_zipline and current_zipline:
 		current_zipline.release_player()
 		is_on_zipline = false
@@ -817,6 +823,13 @@ func respawn_at_checkpoint():
 		global_position = active_checkpoint_position
 		velocity = Vector2.ZERO
 		print("Respawning at checkpoint: ", active_checkpoint_position)
+		
+		# Wait 0.5 seconds before disabling camera smoothing
+		await get_tree().create_timer(0.5).timeout
+		var camera = get_node_or_null("Camera2D")
+		if camera and camera is Camera2D:
+			camera.position_smoothing_enabled = false
+		
 		return true
 	return false
 
