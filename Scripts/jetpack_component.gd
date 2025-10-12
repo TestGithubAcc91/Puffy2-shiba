@@ -44,6 +44,11 @@ func _ready():
 		health_component = player.get_node("Health")
 		print("Jetpack found Health component for flicker sync!")
 	
+	# Connect to player death signal
+	if player and player.has_signal("player_died_trigger_retry"):
+		player.player_died_trigger_retry.connect(_on_player_died)
+		print("Jetpack connected to player death signal!")
+	
 	# Hide jetpack sprite initially
 	if jetpack_sprite_node:
 		jetpack_sprite_node.visible = false
@@ -221,6 +226,13 @@ func _physics_process(delta: float):
 	if not is_active or not player:
 		return
 	
+	# Check if player is dead - if so, immediately deactivate and exit
+	if player.has_node("HealthScript"):
+		var health = player.get_node("HealthScript")
+		if health.current_health <= 0:
+			deactivate()
+			return
+	
 	# Always drain fuel based on time, regardless of thrust usage
 	fuel_remaining -= jetpack_fuel_drain_rate * delta
 	fuel_changed.emit(fuel_remaining, max_fuel)
@@ -303,3 +315,38 @@ func get_fuel_percentage() -> float:
 	if max_fuel <= 0:
 		return 0.0
 	return (fuel_remaining / max_fuel) * 100.0
+
+func _on_player_died():
+	"""Handle player death - clean up jetpack state"""
+	print("Jetpack: Player died - cleaning up jetpack state")
+	
+	# Stop all audio immediately
+	_stop_jetpack_sound()
+	if low_fuel_audio_player and low_fuel_audio_player.playing:
+		low_fuel_audio_player.stop()
+	
+	# Stop the duration timer
+	if duration_timer:
+		duration_timer.stop()
+	
+	# Remove particles immediately
+	if jetpack_particles and is_instance_valid(jetpack_particles):
+		jetpack_particles.queue_free()
+		jetpack_particles = null
+	
+	# Hide and stop all visuals immediately (no delay)
+	if jetpack_sprite_node:
+		jetpack_sprite_node.visible = false
+	
+	if jetpack_fire:
+		jetpack_fire.visible = false
+		jetpack_fire.stop()
+	
+	# Reset all state variables
+	is_active = false
+	fuel_remaining = 0.0
+	low_fuel_warning_played = false
+	
+	# Emit deactivation signal immediately
+	jetpack_deactivated.emit()
+	fuel_changed.emit(fuel_remaining, max_fuel)
