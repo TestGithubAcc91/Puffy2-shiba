@@ -29,7 +29,7 @@
 [ext_resource type="AudioStream" uid="uid://d2b6xm027nyel" path="res://Assets/sprites/InteractableSprites/rocketthrustmaxx-100019.mp3" id="27_83xs0"]
 [ext_resource type="Script" uid="uid://cjw0p2gahmq73" path="res://Scripts/jetpack_component.gd" id="27_vfarp"]
 [ext_resource type="Texture2D" uid="uid://b64vbohompjuu" path="res://Assets/sprites/InteractableSprites/jetpack.png" id="28_y6uwr"]
-[ext_resource type="AudioStream" uid="uid://cc80451xoey4v" path="res://Assets/sprites/InteractableSprites/beep-warning-6387.mp3" id="28_ypfnu"]
+[ext_resource type="AudioStream" uid="uid://cc80451xoey4v" path="res://Assets/sounds/beep-warning-6387.mp3" id="28_ypfnu"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_igrcy"]
 atlas = ExtResource("7_gymyn")

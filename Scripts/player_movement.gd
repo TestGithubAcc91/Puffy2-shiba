@@ -128,7 +128,7 @@ var active_checkpoint_position: Vector2 = Vector2.ZERO
 var has_active_checkpoint: bool = false
 
 var has_jetpack: bool = false
-
+signal dash_started
 
 func _ready():
 	original_time_scale = Engine.time_scale
@@ -517,6 +517,7 @@ func activate_dash():
 	animated_sprite.play("Dash")
 	dash_timer.start()
 	dash_cooldown_timer.start()
+	dash_started.emit()
 
 func play_vine_dismount_sound(): _play_whoosh_sound()
 func play_vine_mount_sound(): _play_click_sound()

@@ -1,10 +1,11 @@
-[gd_scene load_steps=35 format=4 uid="uid://t8fs2g3m2cip"]
+[gd_scene load_steps=36 format=4 uid="uid://t8fs2g3m2cip"]
 
 [ext_resource type="Script" uid="uid://dhsvca8cpqgb8" path="res://Scripts/game_manager.gd" id="1_smbiq"]
 [ext_resource type="Script" uid="uid://07mwex65qqvw" path="res://Scripts/parallax_background_holder.gd" id="2_uqgtt"]
 [ext_resource type="Texture2D" uid="uid://cchvdqg75syne" path="res://Assets/sprites/MapSprites/Parallax/Desert/StockCake-Peaceful Pixel Desert_1759456948.jpg" id="3_8o6j0"]
 [ext_resource type="Texture2D" uid="uid://bcdwsatq0c60x" path="res://Assets/sprites/MapSprites/Parallax/Desert/spaceBackground.png" id="4_1kjah"]
 [ext_resource type="PackedScene" uid="uid://bkfnr4qat1ah0" path="res://Scenes/player.tscn" id="6_kk3p3"]
+[ext_resource type="PackedScene" uid="uid://beaeybmuv8leh" path="res://Scenes/broken_crate.tscn" id="6_v5myr"]
 [ext_resource type="PackedScene" uid="uid://bp1jjjj6d1sce" path="res://Scenes/coin.tscn" id="7_ayobu"]
 [ext_resource type="PackedScene" uid="uid://beodtqr1g8lyc" path="res://Scenes/charge.tscn" id="8_m2hwn"]
 [ext_resource type="PackedScene" uid="uid://7uuiq57d3shr" path="res://Scenes/heart.tscn" id="9_tl4l5"]
@@ -333,6 +334,12 @@ position = Vector2(140, -8)
 position = Vector2(334, -12)
 
 [node name="MovementHolder" type="Node" parent="LevelHolder"]
+
+[node name="BrokenCrate" parent="LevelHolder/MovementHolder" instance=ExtResource("6_v5myr")]
+position = Vector2(52, -67)
+
+[node name="BrokenCrate2" parent="LevelHolder/MovementHolder" instance=ExtResource("6_v5myr")]
+position = Vector2(52, -27)
 
 [node name="BarrierHolder" type="Node" parent="LevelHolder"]
 
